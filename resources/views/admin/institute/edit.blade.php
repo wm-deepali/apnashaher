@@ -1,0 +1,1 @@
+@include('admin.institute._form')

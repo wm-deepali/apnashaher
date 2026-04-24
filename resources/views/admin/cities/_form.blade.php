@@ -1,4 +1,25 @@
-<div class="form-group">
+<style>
+    .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.form-check-input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.form-check-label {
+    margin: 0;
+    cursor: pointer;
+}
+
+</style><div class="form-group">
+
+
 
 <label>State</label>
 
@@ -72,9 +93,7 @@
 
 </div>
 
-
-
-@push('javascript')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 
 function toggleLaunchingFields() {
@@ -113,5 +132,4 @@ $(document).ready(function () {
 });
 
 </script>
-@endpush
 

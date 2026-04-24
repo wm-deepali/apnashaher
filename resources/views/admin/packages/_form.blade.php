@@ -1,3 +1,24 @@
+<style>
+    .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.form-check-input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.form-check-label {
+    margin: 0;
+    cursor: pointer;
+}
+
+</style>
+
 <div class="row">
 
     <!-- Left Column -->
@@ -158,6 +179,7 @@
         <br>
 
 
+        
         <div class="form-check">
             <input type="checkbox" name="apnashaher_listing" value="1"
             class="form-check-input"
@@ -226,7 +248,7 @@
     </div>
 
 </div>
-@push('javascript')
+
 <script>
 
 function calculatePrice(){
@@ -257,4 +279,3 @@ document.getElementById('discount_type').addEventListener('change',calculatePric
 document.getElementById('discount_value').addEventListener('keyup',calculatePrice);
 
 </script>
-@endpush

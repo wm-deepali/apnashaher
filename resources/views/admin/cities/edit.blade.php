@@ -1,31 +1,71 @@
-@extends('vendor.voyager.master')
+@include('admin.top-header')
 
 @section('page_title', 'Manage Cities')
-@section('breadcrumbs')
-    <ol class="breadcrumb">
-        <li><a href="{{ route('voyager.dashboard') }}"><i class="voyager-home"></i> Dashboard</a></li>
-        <li class="active">Manage Cities</li>
-    </ol>
-@endsection
-@section('content')
 
-<div class="page-content container-fluid">
+<div class="main-section">
 
-<h3>Edit City</h3>
+    @include('admin.header')
 
-<form action="{{ route('admin.manage-cities.update', $city->id) }}" method="POST" enctype="multipart/form-data">
+    <div class="app-content content container-fluid">
 
- @csrf
-@method('PUT')
+        <div class="breadcrumbs-top d-flex align-items-center bg-light mb-3">
 
-@include('admin.cities._form')
+            <div class="breadcrumb-wrapper">
+                <ol class="breadcrumb bg-transparent mb-0">
 
-<button class="btn btn-success">
-Update
-</button>
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('voyager.dashboard') }}">Dashboard</a>
+                    </li>
 
-</form>
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('admin.manage-cities.index') }}">Manage Cities</a>
+                    </li>
+
+                    <li class="breadcrumb-item active">
+                        Edit City
+                    </li>
+
+                </ol>
+            </div>
+
+        </div>
+
+
+        <div class="content-wrapper pb-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+                    <strong>Edit City</strong>
+                </div>
+
+                <div class="card-body">
+
+
+                    <form action="{{ route('admin.manage-cities.update', $city->id) }}" method="POST"
+                        enctype="multipart/form-data">
+
+                        @csrf
+                        @method('PUT')
+
+                        @include('admin.cities._form')
+
+                        <div class="mt-4">
+
+                            <button class="btn btn-success">
+                                Update
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
-@endsection
+@include('admin.footer')

@@ -1,1073 +1,1100 @@
-@extends('vendor.voyager.master')
+   @include('admin.top-header')
 
-@section('page_title','Institute Details')
-@section('breadcrumbs')
-    <ol class="breadcrumb">
-        <li><a href="{{ route('voyager.dashboard') }}"><i class="voyager-home"></i> Dashboard</a></li>
-        <li class="active">Manage Institutes</li>
-    </ol>
-@endsection
-@section('page_header')
-    <h1 class="page-title">
-        <i class="voyager-list"></i>
-       Institute Details
-    </h1>
-@stop
-@section('content')
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <style>
-    .analytics-box {
-    background: #fff;
-    padding: 15px;
-    border-radius: 10px;
-}
+     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 
-.analytics-tabs {
-    margin-bottom: 15px;
-}
+    <style>
+        .analytics-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+        }
 
-.tab-btn {
-    padding: 6px 12px;
-    border: none;
-    background: #eee;
-    margin-right: 5px;
-    border-radius: 15px;
-    cursor: pointer;
-}
+        .analytics-tabs {
+            margin-bottom: 15px;
+        }
 
-.tab-btn.active {
-    background: #007bff;
-    color: #fff;
-}
+        .tab-btn {
+            padding: 6px 12px;
+            border: none;
+            background: #eee;
+            margin-right: 5px;
+            border-radius: 15px;
+            cursor: pointer;
+        }
 
-.analytics-tab {
-    display: none;
-}
+        .tab-btn.active {
+            background: #007bff;
+            color: #fff;
+        }
 
-.analytics-tab.active {
-    display: block;
-}
+        .analytics-tab {
+            display: none;
+        }
 
-.analytics-card {
-    background: #f8f9fa;
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-}
-    .rating-section {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .star-rating {
-        display: flex;
-        gap: 4px;
-        font-size: 1.4rem;
-        color: #f59e0b;
-    }
-    .gallery-container {
-    background: #fff;
-    border-radius: 16px;
-    border: 1px solid #e5e7eb;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
+        .analytics-tab.active {
+            display: block;
+        }
 
-.gallery-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #1f2937;
-    margin-bottom: 20px;
-}
+        .analytics-card {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
 
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-}
+        .rating-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-@media (min-width: 640px) {
-    .gallery-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
+        .star-rating {
+            display: flex;
+            gap: 4px;
+            font-size: 1.4rem;
+            color: #f59e0b;
+        }
 
-@media (min-width: 1024px) {
-    .gallery-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
+        .gallery-container {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
 
-.gallery-item {
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.3s;
-}
+        .gallery-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
 
-.gallery-item:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
 
-.gallery-img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    transition: transform 0.5s;
-}
+        @media (min-width: 640px) {
+            .gallery-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
 
-.gallery-item:hover .gallery-img {
-    transform: scale(1.05);
-}
+        @media (min-width: 1024px) {
+            .gallery-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
 
-.delete-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: red;
-    color: white;
-    font-size: 12px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    opacity: 0;
-    transition: 0.3s;
-}
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-.gallery-item:hover .delete-btn {
-    opacity: 1;
-}
-</style>
-<div class="page-content container-fluid">
+        .gallery-item:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
 
-<div class="panel panel-bordered">
+        .gallery-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
 
-<div class="panel-body">
+        .gallery-item:hover .gallery-img {
+            transform: scale(1.05);
+        }
 
-{{-- BASIC INFO --}}
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: red;
+            color: white;
+            font-size: 12px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            opacity: 0;
+            transition: 0.3s;
+        }
 
-<h4><b>Basic Registration Info</b></h4>
+        .gallery-item:hover .delete-btn {
+            opacity: 1;
+        }
+    </style>
+    
+<div class="main-section">
 
-<table class="table table-bordered">
+    @include('admin.header')
 
-<tr>
-<th>Listing Id</th>
-<td>#{{ $institute->listing_id }}</td>
-</tr>
+    <div class="app-content content container-fluid">
 
-<tr>
-<th>Name</th>
-<td>{{ ucfirst($institute->name) }}</td>
-</tr>
+        <!-- Breadcrumb -->
+        <div class="breadcrumbs-top d-flex align-items-center bg-light mb-3">
 
-<tr>
-<th>Mobile</th>
-<td>{{ $institute->mobile }}</td>
-</tr>
+            <div class="breadcrumb-wrapper">
+                <ol class="breadcrumb bg-transparent mb-0">
 
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('voyager.dashboard') }}">Dashboard</a>
+                    </li>
 
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('admin.manage-institute.index') }}">Manage Institutes</a>
+                    </li>
 
-<tr>
-<th>Description</th>
-<td>{{ $institute->description }}</td>
-</tr>
+                    <li class="breadcrumb-item active">
+                        Institute Details
+                    </li>
 
-<tr>
-<th>Whatsapp</th>
-<td>{{ $institute->whatsapp }}</td>
-</tr>
+                </ol>
+            </div>
 
-@if($institute->gst_invoice)
+        </div>
 
-<tr>
-<th>GST Number</th>
-<td>{{ $institute->gstin }}</td>
-</tr>
+        <!-- Content -->
+        <div class="content-wrapper pb-4">
 
-<tr>
-<th>Business Name</th>
-<td>{{ ucfirst($institute->business_name) }}</td>
-</tr>
+            <div class="card shadow-sm">
+                <div class="card-body">
 
-<tr>
-<th>Billing Address</th>
-<td>{{ $institute->billing_address }}</td>
-</tr>
+                    {{-- BASIC INFO --}}
+                    <h4><b>Basic Registration Info</b></h4>
 
-<tr>
-<th>Invoice Email</th>
-<td>{{ $institute->invoice_email }}</td>
-</tr>
-@endif
+                    <table class="table table-striped table-hover">
 
+                        <tr>
+                            <th>Listing Id</th>
+                            <td>#{{ $institute->listing_id }}</td>
+                        </tr>
 
-<tr>
-<th>State/City</th>
-<td>{{ $institute->state->name ?? "-" }}<br/>{{ $institute->city->name ?? "-" }}</td>
-</tr>
+                        <tr>
+                            <th>Name</th>
+                            <td>{{ ucfirst($institute->name) }}</td>
+                        </tr>
 
-<tr>
-<th>Category</th>
-<td>
-{{ $institute->category->name ?? '' }}
-@if($institute->subcategory)
-({{ $institute->subcategory->name ?? '' }})
-@endif
-</td>
-</tr>
+                        <tr>
+                            <th>Mobile</th>
+                            <td>{{ $institute->mobile }}</td>
+                        </tr>
 
-<tr>
-<th>Status</th>
-<td>
-  
-@if($institute->status == "approved")
-<span class="badge badge-success">Approved</span>
-@else
-{{ucfirst($institute->status)}} 
-<form action="{{ route('admin.manage-institute.approve',$institute->id) }}" 
-    method="POST" 
-    style="display:inline-block">
-    @csrf
-    <button class="btn btn-warning btn-sm">
-        Approve Now
-    </button>
-</form>
-@endif
-</td>
-</tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>{{ $institute->description }}</td>
+                        </tr>
 
-</table>
+                        <tr>
+                            <th>Whatsapp</th>
+                            <td>{{ $institute->whatsapp }}</td>
+                        </tr>
 
+                        @if($institute->gst_invoice)
+                        <tr>
+                            <th>GST Number</th>
+                            <td>{{ $institute->gstin }}</td>
+                        </tr>
+                        <tr>
+                            <th>Business Name</th>
+                            <td>{{ ucfirst($institute->business_name) }}</td>
+                        </tr>
+                        <tr>
+                            <th>Billing Address</th>
+                            <td>{{ $institute->billing_address }}</td>
+                        </tr>
+                        <tr>
+                            <th>Invoice Email</th>
+                            <td>{{ $institute->invoice_email }}</td>
+                        </tr>
+                        @endif
 
-{{-- TABS --}}
+                        <tr>
+                            <th>State/City</th>
+                            <td>{{ $institute->state->name ?? "-" }}<br>{{ $institute->city->name ?? "-" }}</td>
+                        </tr>
 
-<ul class="nav nav-tabs">
+                        <tr>
+                            <th>Category</th>
+                            <td>
+                                {{ $institute->category->name ?? '' }}
+                                @if($institute->subcategory)
+                                    ({{ $institute->subcategory->name ?? '' }})
+                                @endif
+                            </td>
+                        </tr>
 
-<li class="active">
-<a data-toggle="tab" href="#profile">Profile</a>
-</li>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                @if($institute->status == "approved")
+                                    <span class="badge badge-success">Approved</span>
+                                @else
+                                    {{ ucfirst($institute->status) }}
+                                    <form action="{{ route('admin.manage-institute.approve',$institute->id) }}"
+                                        method="POST" style="display:inline-block">
+                                        @csrf
+                                        <button class="btn btn-warning btn-sm">Approve Now</button>
+                                    </form>
+                                @endif
+                            </td>
+                        </tr>
 
-<li><a data-toggle="tab" href="#courses">Courses</a></li>
-<li><a data-toggle="tab" href="#plans">Plans</a></li>
-<li><a data-toggle="tab" href="#payments">Payments</a></li>
-<li><a data-toggle="tab" href="#timings">Timings</a></li>
-<li><a data-toggle="tab" href="#gallery">Gallery</a></li>
-<li><a data-toggle="tab" href="#leads">Leads</a></li>
-<li><a data-toggle="tab" href="#reviews">Reviews</a></li>
-<li><a data-toggle="tab" href="#analytics ">Anaytics</a></li>
+                    </table>
+
+                {{-- TABS --}}
+
+              <ul class="nav nav-tabs mb-3" role="tablist">
+
+    <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#profile">Profile</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#courses">Courses</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#plans">Plans</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#payments">Payments</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#timings">Timings</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#gallery">Gallery</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#leads">Leads</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#reviews">Reviews</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#analytics">Analytics</a>
+    </li>
 
 </ul>
 
 
-<div class="tab-content">
-
-{{-- PROFILE TAB --}}
-
-<div id="profile" class="tab-pane fade in active">
-
-<br>
-
-<table class="table table-bordered">
-
-<tr>
-<th>Owner Name</th>
-<td>{{ ucfirst($institute->owner_name) }}</td>
-</tr>
-
-<tr>
-<th>Designation</th>
-<td>{{ $institute->designation }}</td>
-</tr>
-
-<tr>
-<th>Email</th>
-<td>{{ $institute->owner_email }}</td>
-</tr>
-
-<tr>
-<th>Established Year</th>
-<td>{{ $institute->established_year }}</td>
-</tr>
-
-<tr>
-<th>Website</th>
-<td>
-@if($institute->website)
-<a href="{{ $institute->website }}" target="_blank">
-{{ $institute->website }}
-</a>
-@endif
-</td>
-</tr>
-
-<tr>
-<th>Facebook</th>
-<td>
-@if($institute->facebook_url)
-<a href="{{ $institute->facebook_url }}" target="_blank">
-{{ $institute->facebook_url }}
-</a>
-@endif
-</td>
-</tr>
-
-<tr>
-<th>Instagram</th>
-<td>
-@if($institute->instagram_url)
-<a href="{{ $institute->instagram_url }}" target="_blank">
-{{ $institute->instagram_url }}
-</a>
-@endif
-</td>
-</tr>
-
-<tr>
-<th>Youtube</th>
-<td>
-@if($institute->youtube_url)
-<a href="{{ $institute->youtube_url }}" target="_blank">
-{{ $institute->youtube_url }}
-</a>
-@endif
-</td>
-</tr>
-
-<tr>
-<th>Twitter</th>
-<td>
-@if($institute->twitter_url)
-<a href="{{ $institute->twitter_url }}" target="_blank">
-{{ $institute->twitter_url }}
-</a>
-@endif
-</td>
-</tr>
-
-<tr>
-<th>Detailed Information</th>
-<td>{{ $institute->detailed_information }}</td>
-</tr>
-
-</table>
-
-</div>
-
-
-{{-- COURSES TAB --}}
-
-<div id="courses" class="tab-pane fade">
-
-<br>
-
-<table class="table table-bordered">
+                <div class="tab-content">
+
+                    {{-- PROFILE TAB --}}
+
+                    <div id="profile" class="tab-pane fade show active">
+
+                        <br>
+
+                        <table class="table table-bordered">
+
+                            <tr>
+                                <th>Owner Name</th>
+                                <td>{{ ucfirst($institute->owner_name) }}</td>
+                            </tr>
+
+                            <tr>
+                                <th>Designation</th>
+                                <td>{{ $institute->designation }}</td>
+                            </tr>
+
+                            <tr>
+                                <th>Email</th>
+                                <td>{{ $institute->owner_email }}</td>
+                            </tr>
+
+                            <tr>
+                                <th>Established Year</th>
+                                <td>{{ $institute->established_year }}</td>
+                            </tr>
+
+                            <tr>
+                                <th>Website</th>
+                                <td>
+                                    @if($institute->website)
+                                        <a href="{{ $institute->website }}" target="_blank">
+                                            {{ $institute->website }}
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Facebook</th>
+                                <td>
+                                    @if($institute->facebook_url)
+                                        <a href="{{ $institute->facebook_url }}" target="_blank">
+                                            {{ $institute->facebook_url }}
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Instagram</th>
+                                <td>
+                                    @if($institute->instagram_url)
+                                        <a href="{{ $institute->instagram_url }}" target="_blank">
+                                            {{ $institute->instagram_url }}
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Youtube</th>
+                                <td>
+                                    @if($institute->youtube_url)
+                                        <a href="{{ $institute->youtube_url }}" target="_blank">
+                                            {{ $institute->youtube_url }}
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Twitter</th>
+                                <td>
+                                    @if($institute->twitter_url)
+                                        <a href="{{ $institute->twitter_url }}" target="_blank">
+                                            {{ $institute->twitter_url }}
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Detailed Information</th>
+                                <td>{{ $institute->detailed_information }}</td>
+                            </tr>
+
+                        </table>
+
+                    </div>
+
+
+                    {{-- COURSES TAB --}}
+
+                    <div id="courses" class="tab-pane fade">
+
+                        <br>
+
+                        <table class="table table-bordered">
 
-<thead>
-<tr>
-<th>Image</th>
-<th>Course Name</th>
-<th>Duration</th>
-<th>Mode</th>
-<th>Fee</th>
-<th>Seats</th>
-<th>Start Date</th>
-<th>Details</th>
-<th>Action</th>
-</tr>
-</thead>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Course Name</th>
+                                    <th>Duration</th>
+                                    <th>Mode</th>
+                                    <th>Fee</th>
+                                    <th>Seats</th>
+                                    <th>Start Date</th>
+                                    <th>Details</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
 
-<tbody>
+                            <tbody>
 
-@foreach($institute->courses as $course)
+                                @foreach($institute->courses as $course)
 
-<tr>
+                                    <tr>
 
-<td>
-@if($course->image)
-<img src="{{ asset('storage/'.$course->image) }}" 
-     alt="{{ $course->name }}" 
-     width="80" 
-     style="border-radius:5px; object-fit:cover;">
-@else
-<span>No Image</span>
-@endif
-</td>
+                                        <td>
+                                            @if($course->image)
+                                                <img src="{{ asset('storage/' . $course->image) }}" alt="{{ $course->name }}"
+                                                    width="80" style="border-radius:5px; object-fit:cover;">
+                                            @else
+                                                <span>No Image</span>
+                                            @endif
+                                        </td>
 
-<td>{{ $course->name }}</td>
+                                        <td>{{ $course->name }}</td>
 
-<td>{{ $course->duration ?? "" }} {{ $course->duration_unit ?? "" }}</td>
+                                        <td>{{ $course->duration ?? "" }} {{ $course->duration_unit ?? "" }}</td>
 
-<td>{{ $course->mode }}</td>
+                                        <td>{{ $course->mode }}</td>
 
-<td>{{ $course->course_fee }}</td>
+                                        <td>{{ $course->course_fee }}</td>
 
-<td>{{ $course->available_seats }}</td>
+                                        <td>{{ $course->available_seats }}</td>
 
-<td>{{ $course->start_date }}</td>
-<td>
-    <button class="btn btn-primary btn-sm"
-data-toggle="modal"
-data-target="#shortDescModal"
-data-desc="{{ $course->short_description }}">
-Short Description
-</button>
+                                        <td>{{ $course->start_date }}</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                data-target="#shortDescModal" data-desc="{{ $course->short_description }}">
+                                                Short Description
+                                            </button>
 
-<button class="btn btn-info btn-sm"
-data-toggle="modal"
-data-target="#detailModal"
-data-detail="{{ $course->detailed_information }}">
-Detailed Info
-</button>
-</td>
+                                            <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#detailModal"
+                                                data-detail="{{ $course->detailed_information }}">
+                                                Detailed Info
+                                            </button>
+                                        </td>
 
-<td>
+                                        <td>
 
-<button 
-class="btn btn-primary btn-sm editCourseBtn"
-data-id="{{ $course->id }}">
-<i class="voyager-edit"></i>
-</button>
+                                            <button class="btn btn-primary btn-sm editCourseBtn" data-id="{{ $course->id }}">
+                                                <i class="voyager-edit"></i>
+                                            </button>
 
-<form action="{{ route('admin.manage-institute.course.destroy',$course->id) }}"
-method="POST"
-style="display:inline-block"
-onsubmit="return confirm('Delete this course?')">
+                                            <form action="{{ route('admin.manage-institute.course.destroy', $course->id) }}"
+                                                method="POST" style="display:inline-block"
+                                                onsubmit="return confirm('Delete this course?')">
 
-@csrf
-@method('DELETE')
+                                                @csrf
+                                                @method('DELETE')
 
-<button type="submit" class="btn btn-danger btn-sm">
-<i class="voyager-trash"></i>
-</button>
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="voyager-trash"></i>
+                                                </button>
 
-</form>
+                                            </form>
 
-</td>
-</tr>
+                                        </td>
+                                    </tr>
 
-@endforeach
+                                @endforeach
 
-</tbody>
+                            </tbody>
 
-</table>
+                        </table>
 
-</div>
-<div id="plans" class="tab-pane fade">
+                    </div>
+                    <div id="plans" class="tab-pane fade">
 
-<br>
+                        <br>
 
-<table class="table table-bordered">
+                        <table class="table table-bordered">
 
-<thead>
-<tr>
-<th>Plan</th>
-<th>Price</th>
-<th>Start Date</th>
-<th>Expiry Date</th>
-</tr>
-</thead>
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>Price</th>
+                                    <th>Start Date</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
 
-<tbody>
+                            <tbody>
 
-@foreach($institute->plans as $plan)
+                                @foreach($institute->plans as $plan)
 
-<tr>
+                                    <tr>
 
-<td>{{ $plan->plan->name ?? '' }}</td>
+                                        <td>{{ $plan->plan->name ?? '' }}</td>
 
-<td>{{ $plan->price }}</td>
+                                        <td>{{ $plan->price }}</td>
 
-<td>{{ $plan->start_date->format('d M Y') }}</td>
+                                        <td>{{ $plan->start_date->format('d M Y') }}</td>
 
-<td>{{ $plan->expiry_date->format('d M Y') }}</td>
+                                        <td>{{ $plan->expiry_date->format('d M Y') }}</td>
 
-</tr>
+                                    </tr>
 
-@endforeach
+                                @endforeach
 
-</tbody>
+                            </tbody>
 
-</table>
+                        </table>
 
-</div>
-<div id="payments" class="tab-pane fade">
+                    </div>
+                    <div id="payments" class="tab-pane fade">
 
-<br>
+                        <br>
 
-<table class="table table-bordered">
+                        <table class="table table-bordered">
 
-<thead>
-<tr>
-<th>Order ID</th>
-<th>Payment ID</th>
-<th>Amount</th>
-<th>Method</th>
-<th>Status</th>
-</tr>
-</thead>
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Payment ID</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
 
-<tbody>
+                            <tbody>
 
-@foreach($institute->payments as $payment)
+                                @foreach($institute->payments as $payment)
 
-<tr>
+                                    <tr>
 
-<td>{{ $payment->order_id }}</td>
+                                        <td>{{ $payment->order_id }}</td>
 
-<td>{{ $payment->payment_id }}</td>
+                                        <td>{{ $payment->payment_id }}</td>
 
-<td>{{ $payment->amount }}</td>
+                                        <td>{{ $payment->amount }}</td>
 
-<td>{{ $payment->method }}</td>
+                                        <td>{{ $payment->method }}</td>
 
-<td>
-@if($payment->status == 'success')
-<span class="badge badge-success">Success</span>
-@else
-<span class="badge badge-danger">Failed</span>
-@endif
-</td>
+                                        <td>
+                                            @if($payment->status == 'success')
+                                                <span class="badge badge-success">Success</span>
+                                            @else
+                                                <span class="badge badge-danger">Failed</span>
+                                            @endif
+                                        </td>
 
-</tr>
+                                    </tr>
 
-@endforeach
+                                @endforeach
 
-</tbody>
+                            </tbody>
 
-</table>
+                        </table>
 
-</div>
-<div id="timings" class="tab-pane fade">
+                    </div>
+                    <div id="timings" class="tab-pane fade">
 
-    <br>
+                        <br>
 
-    <table class="table table-bordered">
+                        <table class="table table-bordered">
 
-        <thead>
-            <tr>
-            <th>Day</th>
-            <th>Open Time</th>
-            <th>Close Time</th>
-            <th>Status</th>
-            <th>Action</th>
-            </tr>
-        </thead>
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Open Time</th>
+                                    <th>Close Time</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
 
-        <tbody>
+                            <tbody>
 
-            @foreach($institute->timings as $timing)
+                                @foreach($institute->timings as $timing)
 
-            <tr>
+                                    <tr>
 
-            <td>{{ $timing->day }}</td>
+                                        <td>{{ $timing->day }}</td>
 
-            <td>{{ $timing->open_time }}</td>
+                                        <td>{{ $timing->open_time }}</td>
 
-            <td>{{ $timing->close_time }}</td>
-            <td>
-            @if($timing->is_active == 0)
-            <span class="badge badge-danger">Off</span>
-            @else
-            <span class="badge badge-success">Open</span>
-            @endif
-            </td>
-            <td>
+                                        <td>{{ $timing->close_time }}</td>
+                                        <td>
+                                            @if($timing->is_active == 0)
+                                                <span class="badge badge-danger">Off</span>
+                                            @else
+                                                <span class="badge badge-success">Open</span>
+                                            @endif
+                                        </td>
+                                        <td>
 
-            <button 
-            class="btn btn-primary btn-sm editTimingBtn"
-            data-id="{{ $timing->id }}">
-            <i class="voyager-edit"></i>
-            </button>
+                                            <button class="btn btn-primary btn-sm editTimingBtn" data-id="{{ $timing->id }}">
+                                                <i class="voyager-edit"></i>
+                                            </button>
 
-            <form 
-            action="{{ route('admin.manage-institute.timing.destroy',$timing->id) }}"
-            method="POST"
-            style="display:inline-block"
-            onsubmit="return confirm('Delete this timing?')">
+                                            <form action="{{ route('admin.manage-institute.timing.destroy', $timing->id) }}"
+                                                method="POST" style="display:inline-block"
+                                                onsubmit="return confirm('Delete this timing?')">
 
-            @csrf
-            @method('DELETE')
+                                                @csrf
+                                                @method('DELETE')
 
-            <button class="btn btn-danger btn-sm">
-            <i class="voyager-trash"></i>
-            </button>
+                                                <button class="btn btn-danger btn-sm">
+                                                    <i class="voyager-trash"></i>
+                                                </button>
 
-            </form>
+                                            </form>
 
-            </td>
-            </tr>
+                                        </td>
+                                    </tr>
 
-            @endforeach
+                                @endforeach
 
-        </tbody>
+                            </tbody>
 
-    </table>
+                        </table>
 
-</div>
-<div id="gallery" class="tab-pane fade">
-    <div class="gallery-container">
-        <h3 class="gallery-title">
-            Gallery ({{count($institute->galleries)}} Images)
-        </h3>
+                    </div>
+                    <div id="gallery" class="tab-pane fade">
+                        <div class="gallery-container">
+                            <h3 class="gallery-title">
+                                Gallery ({{count($institute->galleries)}} Images)
+                            </h3>
 
-        <div class="gallery-grid">
-            @forelse($institute->galleries as $gallery)
-                <div class="gallery-item">
-                    <img src="{{ asset('storage/'.$gallery->image) }}" class="gallery-img">
+                            <div class="gallery-grid">
+                                @forelse($institute->galleries as $gallery)
+                                    <div class="gallery-item">
+                                        <img src="{{ asset('storage/' . $gallery->image) }}" class="gallery-img">
 
-                    <form 
-                    action="{{ route('admin.manage-institute.gallery.destroy',$gallery->id) }}"
-                    method="POST"
-                    style="display:inline-block"
-                    onsubmit="return confirm('Delete this image?')">
+                                        <form action="{{ route('admin.manage-institute.gallery.destroy', $gallery->id) }}"
+                                            method="POST" style="display:inline-block"
+                                            onsubmit="return confirm('Delete this image?')">
 
-                    @csrf
-                    @method('DELETE')
+                                            @csrf
+                                            @method('DELETE')
 
-                    <button class="delete-btn">
-                    <i class="voyager-trash"></i>
-                    </button>
+                                            <button class="delete-btn">
+                                                <i class="voyager-trash"></i>
+                                            </button>
 
-                    </form> 
+                                        </form>
+                                    </div>
+                                @empty
+                                    <p>No Gallery Images Found.</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                    <div id="leads" class="tab-pane fade">
+
+                        <br>
+                        <table class="table table-bordered">
+
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>Course</th>
+                                    <th>Message</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach($institute->leads as $lead)
+
+                                    <tr>
+
+                                        <td>{{ $lead->created_at->format('d M Y, h:i A') }}</td>
+
+                                        <td>{{ $lead->name }}</td>
+                                        <td>{{ $lead->email }}</td>
+
+                                        <td>{{ $lead->message }}</td>
+
+                                        <td>{{ $lead->course->name ?? "" }}</td>
+
+                                        <td>{{ $lead->message }}</td>
+                                        <td>
+
+
+
+                                            <form action="{{ route('admin.manage-institute.lead.destroy', $lead->id) }}"
+                                                method="POST" style="display:inline-block"
+                                                onsubmit="return confirm('Delete this enquiry?')">
+
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button class="btn btn-danger btn-sm">
+                                                    <i class="voyager-trash"></i>
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <div id="reviews" class="tab-pane fade">
+
+                        <br>
+                        <table class="table table-bordered">
+
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Name</th>
+                                    <th>Mobile</th>
+                                    <th>Rating</th>
+                                    <th>Review</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach($institute->reviews as $review)
+
+                                    <tr>
+
+                                        <td>{{ $review->created_at->format('d M Y, h:i A') }}</td>
+
+                                        <td>{{ $review->name }}</td>
+
+                                        <td>{{ $review->mobile }}</td>
+                                        <td>
+                                            @if($review->rating > 0)
+                                                <div class="star-rating">
+                                                    <span class="stars">
+                                                        @for($i = 1; $i <= 5; $i++)
+                                                            @if($i <= floor($review->rating))
+                                                                <i class="fas fa-star"></i>
+                                                            @elseif($i - $review->rating < 1)
+                                                                <i class="fas fa-star-half-alt"></i>
+                                                            @else
+                                                                <i class="far fa-star"></i>
+                                                            @endif
+                                                        @endfor
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="star-rating">
+                                                    No rating
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td>{{ $review->review ?? "" }}</td>
+                                        <td>
+                                            @if($review->status == "approved")
+                                                <span class="badge badge-success">Approved</span>
+                                            @else
+                                                {{ucfirst($review->status)}}
+                                                <form action="{{ route('admin.manage-institute.approve-review', $review->id) }}"
+                                                    method="POST" style="display:inline-block">
+                                                    @csrf
+                                                    <button class="btn btn-warning btn-sm">
+                                                        Approve Now
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                        <td>
+
+
+
+                                            <form action="{{ route('admin.manage-institute.review.destroy', $review->id) }}"
+                                                method="POST" style="display:inline-block"
+                                                onsubmit="return confirm('Delete this review?')">
+
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button class="btn btn-danger btn-sm">
+                                                    <i class="voyager-trash"></i>
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <div id="analytics" class="tab-pane fade">
+
+                        <br>
+
+                        <div class="analytics-box">
+
+                            <h4>Analytics</h4>
+
+                            <!-- Buttons -->
+                            <div class="analytics-tabs">
+                                <button class="tab-btn active" data-tab="7">7 Days</button>
+                                <button class="tab-btn" data-tab="15">15 Days</button>
+                                <button class="tab-btn" data-tab="30">30 Days</button>
+                                <button class="tab-btn" data-tab="all">All Time</button>
+                            </div>
+
+                            <!-- 7 Days -->
+                            <div class="analytics-tab active" id="tab-7">
+                                <div class="analytics-card">📞 Calls:
+                                    {{ data_get($institute, 'analytics_data.7.calls', 0) }}</div>
+                                <div class="analytics-card">💬 WhatsApp:
+                                    {{ data_get($institute, 'analytics_data.7.whatsapp', 0) }}</div>
+                                <div class="analytics-card">👁 Views:
+                                    {{ data_get($institute, 'analytics_data.7.views', 0) }}</div>
+                            </div>
+
+                            <!-- 15 Days -->
+                            <div class="analytics-tab" id="tab-15">
+                                <div class="analytics-card">📞 Calls:
+                                    {{ data_get($institute, 'analytics_data.15.calls', 0) }}</div>
+                                <div class="analytics-card">💬 WhatsApp:
+                                    {{ data_get($institute, 'analytics_data.15.whatsapp', 0) }}</div>
+                                <div class="analytics-card">👁 Views:
+                                    {{ data_get($institute, 'analytics_data.15.views', 0) }}</div>
+                            </div>
+
+                            <!-- 30 Days -->
+                            <div class="analytics-tab" id="tab-30">
+                                <div class="analytics-card">📞 Calls:
+                                    {{ data_get($institute, 'analytics_data.30.calls', 0) }}</div>
+                                <div class="analytics-card">💬 WhatsApp:
+                                    {{ data_get($institute, 'analytics_data.30.whatsapp', 0) }}</div>
+                                <div class="analytics-card">👁 Views:
+                                    {{ data_get($institute, 'analytics_data.30.views', 0) }}</div>
+                            </div>
+
+                            <!-- All Time -->
+                            <div class="analytics-tab" id="tab-all">
+                                <div class="analytics-card">📞 Calls:
+                                    {{ data_get($institute, 'analytics_data.all.calls', 0) }}</div>
+                                <div class="analytics-card">💬 WhatsApp:
+                                    {{ data_get($institute, 'analytics_data.all.whatsapp', 0) }}</div>
+                                <div class="analytics-card">👁 Views:
+                                    {{ data_get($institute, 'analytics_data.all.views', 0) }}</div>
+                            </div>
+
+                        </div>
+
+                    </div>
                 </div>
-            @empty
-                <p>No Gallery Images Found.</p>
-            @endforelse
+
+            
+                  </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <div class="modal fade" id="shortDescModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">Short Description</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <p id="shortDescContent"></p>
+                </div>
+
+            </div>
         </div>
     </div>
-</div>
-<div id="leads" class="tab-pane fade">
 
-<br>
-<table class="table table-bordered">
 
-        <thead>
-            <tr>
-            <th>Date & Time</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Mobile</th>
-            <th>Course</th>
-            <th>Message</th>
-            <th>Action</th>
-            </tr>
-        </thead>
+    <!-- Detailed Info Modal -->
+    <div class="modal fade" id="detailModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
 
-        <tbody>
-            @foreach($institute->leads as $lead)        
-
-            <tr>
-
-            <td>{{ $lead->created_at->format('d M Y, h:i A') }}</td>
-
-            <td>{{ $lead->name }}</td>
-            <td>{{ $lead->email }}</td>
-
-            <td>{{ $lead->message }}</td>
-            
-            <td>{{ $lead->course->name ?? "" }}</td>
-            
-            <td>{{ $lead->message }}</td>
-            <td>
-
-            
-
-            <form 
-            action="{{ route('admin.manage-institute.lead.destroy',$lead->id) }}"
-            method="POST"
-            style="display:inline-block"
-            onsubmit="return confirm('Delete this enquiry?')">
-
-            @csrf
-            @method('DELETE')
-
-            <button class="btn btn-danger btn-sm">
-            <i class="voyager-trash"></i>
-            </button>
-
-            </form>
-
-            </td>
-            </tr>
-
-            @endforeach
-
-        </tbody>
-
-    </table>
-</div>
-<div id="reviews" class="tab-pane fade">
-
-<br>
-<table class="table table-bordered">
-
-        <thead>
-            <tr>
-            <th>Date & Time</th>
-            <th>Name</th>
-            <th>Mobile</th>
-            <th>Rating</th>
-            <th>Review</th>
-            <th>Status</th>
-            <th>Action</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-            @foreach($institute->reviews as $review)
-
-            <tr>
-
-            <td>{{ $review->created_at->format('d M Y, h:i A') }}</td>
-
-            <td>{{ $review->name }}</td>
-
-            <td>{{ $review->mobile }}</td>
-            <td>
-                @if($review->rating >0)
-                <div class="star-rating">
-                    <span class="stars">
-                    @for($i = 1; $i <= 5; $i++)
-                        @if($i <= floor($review->rating))
-                            <i class="fas fa-star"></i>
-                        @elseif($i - $review->rating < 1)
-                            <i class="fas fa-star-half-alt"></i>
-                        @else
-                            <i class="far fa-star"></i>
-                        @endif
-                    @endfor
-                    </span>
+                <div class="modal-header">
+                    <h4 class="modal-title">Detailed Information</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
-                @else
-                <div class="star-rating">
-                    No rating
+
+                <div class="modal-body">
+                    <p id="detailContent"></p>
                 </div>
-                @endif
-            </td>
-            <td>{{ $review->review ?? "" }}</td>
-            <td>
-           @if($review->status == "approved")
-            <span class="badge badge-success">Approved</span>
-            @else
-            {{ucfirst($review->status)}} 
-            <form action="{{ route('admin.manage-institute.approve-review',$review->id) }}" 
-                method="POST" 
-                style="display:inline-block">
-                @csrf
-                <button class="btn btn-warning btn-sm">
-                    Approve Now
-                </button>
-            </form>
-            @endif
-            </td>
-            <td>
 
-            
-
-            <form 
-            action="{{ route('admin.manage-institute.review.destroy',$review->id) }}"
-            method="POST"
-            style="display:inline-block"
-            onsubmit="return confirm('Delete this review?')">
-
-            @csrf
-            @method('DELETE')
-
-            <button class="btn btn-danger btn-sm">
-            <i class="voyager-trash"></i>
-            </button>
-
-            </form>
-
-            </td>
-            </tr>
-
-            @endforeach
-
-        </tbody>
-
-    </table>
-</div>
-<div id="analytics" class="tab-pane fade">
-
-<br>
-
-<div class="analytics-box">
-
-    <h4>Analytics</h4>
-
-    <!-- Buttons -->
-    <div class="analytics-tabs">
-        <button class="tab-btn active" data-tab="7">7 Days</button>
-        <button class="tab-btn" data-tab="15">15 Days</button>
-        <button class="tab-btn" data-tab="30">30 Days</button>
-        <button class="tab-btn" data-tab="all">All Time</button>
+            </div>
+        </div>
     </div>
 
-    <!-- 7 Days -->
-    <div class="analytics-tab active" id="tab-7">
-        <div class="analytics-card">📞 Calls: {{ data_get($institute, 'analytics_data.7.calls', 0) }}</div>
-        <div class="analytics-card">💬 WhatsApp: {{ data_get($institute, 'analytics_data.7.whatsapp', 0) }}</div>
-        <div class="analytics-card">👁 Views: {{ data_get($institute, 'analytics_data.7.views', 0) }}</div>
+    <!-- Course Modal --->
+
+    <div class="modal fade" id="editCourseModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4>Edit Course</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body" id="editCourseBody">
+
+                    <!-- AJAX form will load here -->
+
+                </div>
+
+            </div>
+        </div>
     </div>
 
-    <!-- 15 Days -->
-    <div class="analytics-tab" id="tab-15">
-        <div class="analytics-card">📞 Calls: {{ data_get($institute, 'analytics_data.15.calls', 0) }}</div>
-        <div class="analytics-card">💬 WhatsApp: {{ data_get($institute, 'analytics_data.15.whatsapp', 0) }}</div>
-        <div class="analytics-card">👁 Views: {{ data_get($institute, 'analytics_data.15.views', 0) }}</div>
+    <!--- Update Timing Modal ---->
+    <div class="modal fade" id="editTimingModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4>Edit Timing</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body" id="editTimingBody">
+
+                    Loading...
+
+                </div>
+
+            </div>
+        </div>
     </div>
 
-    <!-- 30 Days -->
-    <div class="analytics-tab" id="tab-30">
-        <div class="analytics-card">📞 Calls: {{ data_get($institute, 'analytics_data.30.calls', 0) }}</div>
-        <div class="analytics-card">💬 WhatsApp: {{ data_get($institute, 'analytics_data.30.whatsapp', 0) }}</div>
-        <div class="analytics-card">👁 Views: {{ data_get($institute, 'analytics_data.30.views', 0) }}</div>
-    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
 
-    <!-- All Time -->
-    <div class="analytics-tab" id="tab-all">
-        <div class="analytics-card">📞 Calls: {{ data_get($institute, 'analytics_data.all.calls', 0) }}</div>
-        <div class="analytics-card">💬 WhatsApp: {{ data_get($institute, 'analytics_data.all.whatsapp', 0) }}</div>
-        <div class="analytics-card">👁 Views: {{ data_get($institute, 'analytics_data.all.views', 0) }}</div>
-    </div>
+        $('#shortDescModal').on('show.bs.modal', function (event) {
 
-</div>
+            var button = $(event.relatedTarget);
+            var desc = button.data('desc');
 
-</div>
-</div>
+            $('#shortDescContent').text(desc);
 
-</div>
+        });
 
-</div>
 
-</div>
-<div class="modal fade" id="shortDescModal">
-<div class="modal-dialog">
-<div class="modal-content">
+        $('#detailModal').on('show.bs.modal', function (event) {
 
-<div class="modal-header">
-<h4 class="modal-title">Short Description</h4>
-<button type="button" class="close" data-dismiss="modal">&times;</button>
-</div>
+            var button = $(event.relatedTarget);
+            var detail = button.data('detail');
 
-<div class="modal-body">
-<p id="shortDescContent"></p>
-</div>
+            $('#detailContent').text(detail);
 
-</div>
-</div>
-</div>
+        });
 
+    </script>
+    <script>
 
-<!-- Detailed Info Modal -->
-<div class="modal fade" id="detailModal">
-<div class="modal-dialog modal-lg">
-<div class="modal-content">
 
-<div class="modal-header">
-<h4 class="modal-title">Detailed Information</h4>
-<button type="button" class="close" data-dismiss="modal">&times;</button>
-</div>
+        $(document).on('click', '.editCourseBtn', function () {
 
-<div class="modal-body">
-<p id="detailContent"></p>
-</div>
+            let course_id = $(this).data('id');
 
-</div>
-</div>
-</div>
+            console.log(course_id); // check click working
 
-<!-- Course Modal --->
+            $('#editCourseModal').modal('show');
 
-<div class="modal fade" id="editCourseModal">
-<div class="modal-dialog modal-lg">
-<div class="modal-content">
+            $.ajax({
+                url: "{{ url('admin/manage-institute/course') }}/" + course_id + "/edit",
 
-<div class="modal-header">
-<h4>Edit Course</h4>
-<button type="button" class="close" data-dismiss="modal">&times;</button>
-</div>
+                type: "GET",
 
-<div class="modal-body" id="editCourseBody">
+                success: function (response) {
 
-<!-- AJAX form will load here -->
+                    $('#editCourseBody').html(response);
 
-</div>
+                },
 
-</div>
-</div>
-</div>
+                error: function () {
 
-<!--- Update Timing Modal ---->
-<div class="modal fade" id="editTimingModal">
-<div class="modal-dialog">
-<div class="modal-content">
+                    alert("Error loading course");
 
-<div class="modal-header">
-<h4>Edit Timing</h4>
-<button type="button" class="close" data-dismiss="modal">&times;</button>
-</div>
+                }
 
-<div class="modal-body" id="editTimingBody">
+            });
 
-Loading...
+        });
 
-</div>
+    </script>
+    <script>
 
-</div>
-</div>
-</div>
+        $(document).on('submit', '#courseUpdateForm', function (e) {
 
-@endsection
-@push('javascript')
-<script>
+            e.preventDefault();
 
-$('#shortDescModal').on('show.bs.modal', function (event) {
+            let formData = new FormData(this);
+            let course_id = $(this).data('id');
 
-var button = $(event.relatedTarget);
-var desc = button.data('desc');
+            $.ajax({
 
-$('#shortDescContent').text(desc);
+                url: "{{ url('admin/manage-institute/course/update') }}/" + course_id,
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
 
-});
+                success: function (res) {
 
+                    alert(res.message);
 
-$('#detailModal').on('show.bs.modal', function (event) {
+                    location.reload();
 
-var button = $(event.relatedTarget);
-var detail = button.data('detail');
+                }
 
-$('#detailContent').text(detail);
+            });
 
-});
+        });
 
-</script>
-<script>
+    </script>
+    <script>
 
+        $(document).on('click', '.editTimingBtn', function () {
 
-$(document).on('click','.editCourseBtn',function(){
+            let timing_id = $(this).data('id');
 
-let course_id = $(this).data('id');
+            $('#editTimingModal').modal('show');
 
-console.log(course_id); // check click working
+            $.ajax({
 
-$('#editCourseModal').modal('show');
+                url: "{{ url('admin/manage-institute/timing') }}/" + timing_id + "/edit",
 
-$.ajax({
-url: "{{ url('admin/manage-institute/course') }}/" + course_id + "/edit",
+                type: "GET",
 
-type: "GET",
+                success: function (response) {
 
-success:function(response){
+                    $('#editTimingBody').html(response);
 
-$('#editCourseBody').html(response);
+                }
 
-},
+            });
 
-error:function(){
+        });
 
-alert("Error loading course");
+        $(document).on('submit', '#timingUpdateForm', function (e) {
 
-}
+            e.preventDefault();
 
-});
+            let form = $(this);
+            let formData = new FormData(this);
 
-});
+            $.ajax({
 
-</script>
-<script>
+                url: form.attr('action'),
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
 
-$(document).on('submit','#courseUpdateForm',function(e){
+                success: function (res) {
 
-e.preventDefault();
+                    alert(res.message);
+                    location.reload();
 
-let formData = new FormData(this);
-let course_id = $(this).data('id');
+                }
 
-$.ajax({
+            });
 
-url:"{{ url('admin/manage-institute/course/update') }}/" + course_id,
-type:"POST",
-data:formData,
-contentType:false,
-processData:false,
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
 
-success:function(res){
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.analytics-tab').forEach(t => t.classList.remove('active'));
 
-alert(res.message);
+                this.classList.add('active');
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
 
-location.reload();
-
-}
-
-});
-
-});
-
-</script>
-<script>
-
-$(document).on('click','.editTimingBtn',function(){
-
-let timing_id = $(this).data('id');
-
-$('#editTimingModal').modal('show');
-
-$.ajax({
-
-url: "{{ url('admin/manage-institute/timing') }}/"+timing_id+"/edit",
-
-type: "GET",
-
-success:function(response){
-
-$('#editTimingBody').html(response);
-
-}
-
-});
-
-});
-
-$(document).on('submit','#timingUpdateForm',function(e){
-
-e.preventDefault();
-
-let form = $(this);
-let formData = new FormData(this);
-
-$.ajax({
-
-url: form.attr('action'),
-type:"POST",
-data:formData,
-contentType:false,
-processData:false,
-
-success:function(res){
-
-alert(res.message);
-location.reload();
-
-}
-
-});
-
-});
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.analytics-tab').forEach(t => t.classList.remove('active'));
-
-        this.classList.add('active');
-        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
-    });
-});
-</script>
-@endpush
+@include('admin.footer')

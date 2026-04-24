@@ -1,139 +1,165 @@
-@extends('vendor.voyager.master')
+@include('admin.top-header')
 
 @section('page_title', 'Manage Institutes')
-@section('breadcrumbs')
-    <ol class="breadcrumb">
-        <li><a href="{{ route('voyager.dashboard') }}"><i class="voyager-home"></i> Dashboard</a></li>
-        <li class="active">Manage Institutes</li>
-    </ol>
-@endsection
-@section('page_header')
-    <h1 class="page-title">
-        <i class="voyager-list"></i>
-       Manage Institutes
-    </h1>
-@stop
 
-@section('content')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<div class="page-content browse container-fluid">
-<a href="{{ route('admin.institutes-full.create') }}" class="btn btn-success">Add Listing</a>
-    
-    <div class="panel panel-bordered">
-        <div class="panel-body">
-            @if(session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
-            <div class="table-responsive">
-                <table class="table table-hover no-footer">
-                    <thead>
-                        <tr>
-                            <th>Date & Time</th>
-                            <th>Name</th>
-                            <th>Category/Subcategory</th>
-                            <th>Is Registration Completed </th>
-                            <th>Is Profile Completed</th>
-                            <th>Total Courses</th>
-                            <th>Plan</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+<div class="main-section">
 
-                    <tbody>
-                        @foreach($institutes as $institute)
+    @include('admin.header')
 
-                        <tr>
+    <div class="app-content content container-fluid">
 
-                        <td>{{ date('Y-m-d g:i A', strtotime($institute->created_at)) }}</td>
+        <div class="breadcrumbs-top d-flex align-items-center bg-light mb-3">
 
-                        <td>{{$institute->name}}</td>
+            <div class="breadcrumb-wrapper">
+                <ol class="breadcrumb bg-transparent mb-0">
 
-                        <td>{{$institute->category->name ?? ""}} @if(isset($institute->subcategory)) ({{$institute->subcategory->name ?? ""}}) @endif</td>
-                         
-                        <td>
-                            @if($institute->registration_complete)
-                            <span class="badge badge-success">Yes</span>
-                            @else
-                            <span class="badge badge-secondary">No</span>
-                            @endif
-                        </td>
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('voyager.dashboard') }}">Dashboard</a>
+                    </li>
 
-                        <td>
-                            @if($institute->profile_completed)
-                            <span class="badge badge-success">Yes</span>
-                            @else
-                            <span class="badge badge-secondary">No</span>
-                            @endif
-                        </td>
-                        <td>{{$institute->courses->count() ?? 0}}</td>
-                        <td>{{$institute->latestPlan->plan->name ?? ""}}</td>
-                        <td>
-                        @if($institute->status == "approved")
-                            <span class="badge badge-success">Approved</span>
-                        @else
-                            <form action="{{ route('admin.manage-institute.approve',$institute->id) }}" 
-                                method="POST" 
-                                style="display:inline-block">
-                                @csrf
-                                <button class="btn btn-warning btn-sm">
-                                    Approve
-                                </button>
-                            </form>
-                        @endif
-                        </td>
-                        <td>
+                    <li class="breadcrumb-item active">
+                        Manage Institutes
+                    </li>
 
-                        <a href="{{ route('admin.manage-institute.show',$institute->id) }}"
-                        class="btn btn-primary btn-sm" title="View">
-                         <i class="voyager-eye"></i>
-                        </a>
-                        <a href="{{ route('admin.institutes-full.edit',$institute->id) }}"
-                        class="btn btn-primary btn-sm" title="Edit">
-                         <i class="voyager-edit"></i>
-                        </a>
-                        <button class="btn btn-primary loadModal" data-id="{{$institute->id}}" title="Add/Edit Profile">
-                            <i class="voyager-person"></i>
-                        </button>
-                        <form action="{{ route('admin.manage-institute.destroy',$institute->id) }}"
-                        method="POST"
-                        style="display:inline-block">
-
-                        @csrf
-                        @method('DELETE')
-
-                        <button class="btn btn-danger btn-sm"
-                        onclick="return confirm('Delete this category?')"  title="Delete">
-                        <i class="voyager-trash"></i>
-                        </button>
-
-                        </form>
-
-                        </td>
-
-                        </tr>
-
-                        @endforeach
-
-                    </tbody>
-
-                </table>
+                </ol>
             </div>
 
-            <div class="pull-right">
-                {{ $institutes->links('pagination::bootstrap-5') }}
+            <div class="ml-auto mr-2">
+                <a href="{{ route('admin.institutes-full.create') }}" class="btn btn-primary">
+                    <i class="fa fa-plus"></i> Add Listing
+                </a>
             </div>
 
         </div>
+
+        <div class="content-wrapper pb-4">
+
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+
+                        <table id="cityTable" class="table table-striped table-hover">
+
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Name</th>
+                                    <th>Category/Subcategory</th>
+                                    <th>Is Registration Completed </th>
+                                    <th>Is Profile Completed</th>
+                                    <th>Total Courses</th>
+                                    <th>Plan</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach($institutes as $institute)
+
+                                    <tr>
+
+                                        <td>{{ date('Y-m-d g:i A', strtotime($institute->created_at)) }}</td>
+
+                                        <td>{{$institute->name}}</td>
+
+                                        <td>{{$institute->category->name ?? ""}} @if(isset($institute->subcategory))
+                                        ({{$institute->subcategory->name ?? ""}}) @endif</td>
+
+                                        <td>
+                                            @if($institute->registration_complete)
+                                                <span class="badge badge-success">Yes</span>
+                                            @else
+                                                <span class="badge badge-secondary">No</span>
+                                            @endif
+                                        </td>
+
+                                        <td>
+                                            @if($institute->profile_completed)
+                                                <span class="badge badge-success">Yes</span>
+                                            @else
+                                                <span class="badge badge-secondary">No</span>
+                                            @endif
+                                        </td>
+                                        <td>{{$institute->courses->count() ?? 0}}</td>
+                                        <td>{{$institute->latestPlan->plan->name ?? ""}}</td>
+                                        <td>
+                                            @if($institute->status == "approved")
+                                                <span class="badge badge-success">Approved</span>
+                                            @else
+                                                <form action="{{ route('admin.manage-institute.approve', $institute->id) }}"
+                                                    method="POST" style="display:inline-block">
+                                                    @csrf
+                                                    <button class="btn btn-warning btn-sm">
+                                                        Approve
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                        <td>
+
+                                            <!-- View -->
+                                            <a href="{{ route('admin.manage-institute.show', $institute->id) }}"
+                                                class="btn btn-primary btn-sm" title="View">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+
+                                            <!-- Edit -->
+                                            <a href="{{ route('admin.institutes-full.edit', $institute->id) }}"
+                                                class="btn btn-primary btn-sm" title="Edit">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+
+                                            <!-- Profile -->
+                                            <button class="btn btn-primary btn-sm loadModal" data-id="{{$institute->id}}"
+                                                title="Add/Edit Profile">
+                                                <i class="fa fa-user"></i>
+                                            </button>
+
+                                            <!-- Delete -->
+                                            <form action="{{ route('admin.manage-institute.destroy', $institute->id) }}"
+                                                method="POST" style="display:inline-block">
+
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Delete this category?')" title="Delete">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="pull-right">
+                        {{ $institutes->links('pagination::bootstrap-5') }}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
     </div>
 
 </div>
 
 <div id="modalContainer"></div>
-@endsection
-@push('javascript')
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).on('click', '.loadModal', function () {
 
@@ -157,31 +183,31 @@
         });
 
     });
-$(document).on('click', '#saveProfileBtn', function () {
+    $(document).on('click', '#saveProfileBtn', function () {
 
-    let formData = $('#profileForm').serialize();
+        let formData = $('#profileForm').serialize();
 
-    $.ajax({
-        url: "{{ route('admin.institute.profile.update') }}",
-        type: "POST",
-        data: formData,
+        $.ajax({
+            url: "{{ route('admin.institute.profile.update') }}",
+            type: "POST",
+            data: formData,
 
-        success: function (res) {
-            toastr.success('Profile Updated Successfully');
-            $('#profileModal').modal('hide');
-        },
+            success: function (res) {
+                toastr.success('Profile Updated Successfully');
+                $('#profileModal').modal('hide');
+            },
 
-        error: function (xhr) {
-            let errors = xhr.responseJSON.errors;
+            error: function (xhr) {
+                let errors = xhr.responseJSON.errors;
 
-            $('.error').text('');
+                $('.error').text('');
 
-            $.each(errors, function (key, value) {
-                $('.' + key + '_error').text(value[0]);
-            });
-        }
+                $.each(errors, function (key, value) {
+                    $('.' + key + '_error').text(value[0]);
+                });
+            }
+        });
+
     });
-
-});
 </script>
-@endpush
+@include('admin.footer')

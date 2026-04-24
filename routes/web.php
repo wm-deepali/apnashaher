@@ -172,6 +172,12 @@ Route::get('legal-policies/{slug}', [FrontController::class, 'page'])
 
 Route::group(['prefix' => 'admin', 'middleware' => ['web','auth']], function () {
 
+Route::get('profile-setting', [CustomDashboardController::class, 'profileSetting'])
+    ->name('admin.profile.setting');
+
+Route::post('profile-setting', [CustomDashboardController::class, 'updateProfileSetting'])
+    ->name('admin.profile.setting.update');
+    
     Route::get('dashboard', [CustomDashboardController::class, 'index'])
         ->name('voyager.dashboard');
 

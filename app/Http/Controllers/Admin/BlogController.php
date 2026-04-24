@@ -24,7 +24,7 @@ class BlogController extends Controller
      */
     public function create()
     {
-         return view('admin.blogs.create');
+        return view('admin.blogs.create');
     }
 
     /**
@@ -36,9 +36,9 @@ class BlogController extends Controller
 
         $data['slug'] = Str::slug($request->title);
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
 
-            $image = $request->file('image')->store('blogs','public');
+            $image = $request->file('image')->store('blogs', 'public');
             $data['image'] = $image;
 
         }
@@ -46,7 +46,7 @@ class BlogController extends Controller
         Blog::create($data);
 
         return redirect()->route('admin.manage-blog.index')
-        ->with('success','Blog Created');
+            ->with('success', 'Blog Created');
     }
 
     /**
@@ -80,14 +80,14 @@ class BlogController extends Controller
                 Storage::disk('public')->delete($blog->image);
             }
 
-            $data['image'] = $request->file('image')->store('blogs','public');
+            $data['image'] = $request->file('image')->store('blogs', 'public');
         }
 
 
         $blog->update($data);
 
         return redirect()->route('admin.manage-blog.index')
-        ->with('success','Blog Updated');
+            ->with('success', 'Blog Updated');
     }
 
     /**
@@ -95,12 +95,13 @@ class BlogController extends Controller
      */
     public function destroy(Blog $manage_blog)
     {
-        $blog = $manage_blog;
-        $blog->delete();
+        $manage_blog->delete();
 
-        return redirect()->route('admin.manage-blog.index')->with('success','Blog Deleted');
+        return response()->json([
+            'status' => true,
+            'message' => 'Blog Deleted Successfully'
+        ]);
     }
-
     protected function validateBlog(Request $request)
     {
         return $request->validate([

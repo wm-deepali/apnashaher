@@ -1,20 +1,55 @@
-@extends('vendor.voyager.master')
+@include('admin.top-header')
 
 @section('page_title', 'Manage Blogs')
-@section('breadcrumbs')
-    <ol class="breadcrumb">
-        <li><a href="{{ route('voyager.dashboard') }}"><i class="voyager-home"></i> Dashboard</a></li>
-        <li class="active">Manage Blogs</li>
-    </ol>
-@endsection
-@section('content')
+<div class="main-section">
 
-<div class="page-content container-fluid">
+    @include('admin.header')
 
-<h3>Edit Blog</h3>
+    <div class="app-content content container-fluid">
 
-@include('admin.blogs._form')
+        <div class="breadcrumbs-top d-flex align-items-center bg-light mb-3">
+
+            <div class="breadcrumb-wrapper">
+                <ol class="breadcrumb bg-transparent mb-0">
+
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('voyager.dashboard') }}">Dashboard</a>
+                    </li>
+
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('admin.manage-blog.index') }}">Manage Blogs</a>
+                    </li>
+
+                    <li class="breadcrumb-item active">
+                        Add Blog
+                    </li>
+
+                </ol>
+            </div>
+
+        </div>
+
+
+        <div class="content-wrapper pb-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+                    <strong>Edit Blog</strong>
+                </div>
+
+                <div class="card-body">
+                    @include('admin.blogs._form')
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
-@endsection
+@include('admin.footer')

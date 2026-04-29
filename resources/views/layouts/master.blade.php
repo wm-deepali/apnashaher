@@ -385,6 +385,8 @@ if($socialCount >= 2) {
                     class="tab-btn py-4 border-b-2 border-transparent text-gray-500">Reviews</button>
                 <button onclick="showTab(event,'plan')"
                     class="tab-btn py-4 border-b-2 border-transparent text-gray-500">Plan</button>
+                <button onclick="showTab(event,'invoices')" 
+                class="tab-btn py-4 border-b-2 border-transparent text-gray-500">Invoices</button>
                 <button onclick="showTab(event,'settings')"
                     class="tab-btn py-4 border-b-2 border-transparent text-gray-500">Settings</button>
             </nav>

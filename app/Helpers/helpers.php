@@ -6,14 +6,16 @@ use App\Models\Institute;
 use Torann\GeoIP\Facades\GeoIP;
 
 if (!function_exists('topcities')) {
-    function topcities() {
-        $dropcities=City::where('is_launching', 1)->get();
-       
+    function topcities()
+    {
+        $dropcities = City::where('is_launching', 1)->get();
+
         return $dropcities;
     }
 }
 if (!function_exists('getmylocation')) {
-    function getmylocation() {
+    function getmylocation()
+    {
         try {
             $location = GeoIP::getLocation(); // Facade works when called at runtime
             return $location->city ?? 'Unknown';
@@ -26,7 +28,7 @@ if (!function_exists('getmylocation')) {
 if (!function_exists('getHomeCategories')) {
     function getHomeCategories()
     {
-        return Category::whereNull('parent_id')->select('id','name','icons', 'slug')
+        return Category::whereNull('parent_id')->select('id', 'name', 'icons', 'slug')
             ->get()
             ->map(function ($cat) {
                 return [
@@ -64,7 +66,8 @@ if (!function_exists('getHomeSubcategories')) {
 }
 
 if (!function_exists('footerpages')) {
-    function footerpages() {
+    function footerpages()
+    {
         // Retrieve published pages and pluck title by slug as key=>value
         $pages = Page::where('status', 1)->get(['title', 'slug']);
         return $pages;
@@ -74,37 +77,41 @@ if (!function_exists('footerpages')) {
 if (!function_exists('getHomeSeller')) {
     function getHomeSeller()
     {
-       
+
         $cityId = null;
-        
-        
-        $path = request()->path(); 
-        
-        
+
+
+        $path = request()->path();
+
+
         $segments = explode('/', $path);
-        
-        
+
+
         $lastSegment = end($segments);
-        
-        
+
+
         $citySlug = str_replace('educational-institute-in-', '', $lastSegment);
-        
-        
+
+
         $city = City::where('slug', $citySlug)->first();
-        
+
         if ($city) {
             $cityId = $city->id;
         }
-        
-         
-         $query = Institute::with('category','subcategory','courses','latestPlan')
-        ->where('status', 'approved');
+
+
+        $query = Institute::with('category', 'subcategory', 'courses', 'latestPlan')
+            ->whereHas('latestPlan', function ($q) {
+                $q->where('plan_status', 'completed')
+                    ->where('expiry_date', '>=', now());
+            })
+            ->where('status', 'approved');
         if ($cityId) {
             $query->where('city_id', $cityId);
         }
-    
-         return $query->get()
-            ->map(function($inst) {
+
+        return $query->get()
+            ->map(function ($inst) {
                 $plan = $inst->latestPlan->plan ?? null;
                 $features = $plan->features ?? null;
 
@@ -134,7 +141,7 @@ if (!function_exists('getHomeSeller')) {
                     'id' => $inst->id,
                     'name' => $inst->name,
                     'desc' => $inst->description,
-                    'location' => $inst->billing_address ?? $inst->city->name,
+                    'location' => $inst->profile_address ?? $inst->city->name,
                     'verified' => $verified ?? false,
                     'slug' => $inst->slug,
                     'preferred' => $preferred ?? false,
@@ -158,7 +165,8 @@ if (!function_exists('getHomeSeller')) {
     }
 }
 // Helper function to generate pastel colors
-function pastelColor() {
+function pastelColor()
+{
     $r = rand(127, 255);
     $g = rand(127, 255);
     $b = rand(127, 255);
@@ -171,11 +179,13 @@ if (!function_exists('listingCategories')) {
     function listingCategories()
     {
         return Category::whereNull('parent_id')
-            ->withCount(['institutes' => function($q) {
-                $q->where('status', 'approved');
-            }])
-            ->get(['id','name','icons'])
-            ->map(function($cat){
+            ->withCount([
+                'institutes' => function ($q) {
+                    $q->where('status', 'approved');
+                }
+            ])
+            ->get(['id', 'name', 'icons'])
+            ->map(function ($cat) {
                 return [
                     'id' => $cat->id,
                     'name' => $cat->name,
@@ -193,15 +203,15 @@ if (!function_exists('listingSubcategories')) {
      */
     function listingSubcategories()
     {
-       $categories = Category::whereNull('parent_id')->with('children')->get();
+        $categories = Category::whereNull('parent_id')->with('children')->get();
         $data = [];
 
-        foreach($categories as $cat) {
-            $data[$cat->id] = $cat->children->map(function($sub){
+        foreach ($categories as $cat) {
+            $data[$cat->id] = $cat->children->map(function ($sub) {
                 return [
                     'id' => $sub->id,
                     'name' => $sub->name,
-                     'slug' => $sub->slug
+                    'slug' => $sub->slug
                 ];
             })->toArray();
         }
@@ -215,47 +225,51 @@ if (!function_exists('listingInstitutes')) {
      */
     function listingInstitutes()
     {
-         $cityId = null;
-        
-        
-        $path = request()->path(); 
-        
-        
+        $cityId = null;
+
+
+        $path = request()->path();
+
+
         $segments = explode('/', $path);
-        
-        
+
+
         $lastSegment = end($segments);
-        
-        
+
+
         $citySlug = str_replace('explore-institutes-in-', '', $lastSegment);
-        
-        
+
+
         $city = City::where('slug', $citySlug)->first();
-        
+
         if ($city) {
             $cityId = $city->id;
         }
-         $query = Institute::with('category','subcategory','courses','latestPlan')
-        ->where('status', 'approved');
+        $query = Institute::with('category', 'subcategory', 'courses', 'latestPlan')
+            ->whereHas('latestPlan', function ($q) {
+                $q->where('plan_status', 'completed')
+                    ->where('expiry_date', '>=', now());
+            })
+            ->where('status', 'approved');
         if ($cityId) {
             $query->where('city_id', $cityId);
         }
-    
-         return $query->get()
-            ->map(function($inst) {
+
+        return $query->get()
+            ->map(function ($inst) {
                 $plan = $inst->latestPlan->plan;
                 $features = $plan->features ?? null;
 
                 $preferred = $features?->preferred_institute_badge ?? false;
-                $verified  = $features?->verified_badge ?? false;
+                $verified = $features?->verified_badge ?? false;
 
-                if($inst->logo) {
-                    $logo = asset('storage/'.$inst->logo);
+                if ($inst->logo) {
+                    $logo = asset('storage/' . $inst->logo);
                     $logoType = 'image';
                     $bgColor = null;
                     $textColor = null;
                 } else {
-                    $logo = strtoupper(substr($inst->name,0,1));
+                    $logo = strtoupper(substr($inst->name, 0, 1));
                     $logoType = 'letter';
                     $bgColor = pastelColor();
                     $textColor = '#333';
@@ -265,7 +279,7 @@ if (!function_exists('listingInstitutes')) {
                     'id' => $inst->id,
                     'name' => $inst->name,
                     'desc' => $inst->description,
-                    'location' => $inst->billing_address ?? $inst->city->name,
+                    'location' => $inst->profile_address ?? $inst->city->name,
                     'verified' => $verified,
                     'preferred' => $preferred,
                     'slug' => $inst->slug,
@@ -291,8 +305,8 @@ if (!function_exists('listingInstitutes')) {
 if (!function_exists('getDreawerCategories')) {
     function getDreawerCategories()
     {
-        return  $categories = Category::with('children')
-        ->whereNull('parent_id')
-        ->get();
+        return $categories = Category::with('children')
+            ->whereNull('parent_id')
+            ->get();
     }
 }

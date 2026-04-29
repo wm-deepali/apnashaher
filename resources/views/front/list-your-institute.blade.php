@@ -289,17 +289,21 @@
                 <div class="process-header" style=" margin: auto;">
                     <p class="highlight-sub">Free Listing (Basic) available • Upgrade anytime for better visibility</p>
                     <h2 style="
-                    font-weight: 800;
-                    color: #0d1117;
-                    line-height: 1.1;
-                    margin-bottom: 10px;
-                    letter-spacing: -1px;">List your Institute on ApnaShaher.com</h2>
+                                                                                    font-weight: 800;
+                                                                                    color: #0d1117;
+                                                                                    line-height: 1.1;
+                                                                                    margin-bottom: 10px;
+                                                                                    letter-spacing: -1px;">List your
+                        Institute
+                        on
+                        ApnaShaher.com
+                    </h2>
                     <p class="sub">Takes less then <strong>2 Minutes</strong> </p>
 
                 </div>
 
                 <ul class="featured-points" style="width: 80%; margin: auto; margin-top: 20px;
-                      margin-bottom: 20px;">
+                                                                                      margin-bottom: 20px;">
                     <li><i class="fas fa-check"></i> Get discovered by local students</li>
                     <li><i class="fas fa-check"></i> Verified & trusted listings only</li>
                     <li><i class="fas fa-check"></i> No obligation to upgrade</li>
@@ -370,6 +374,13 @@
 
                                     </select>
                                     <small class="error-text" id="error_city"></small>
+                                </div>
+
+                                <div class="form-group full">
+                                    <label>Institute Address *</label>
+                                    <textarea id="profile_address" placeholder="Enter full institute address"
+                                        required></textarea>
+                                    <small class="error-text" id="error_profile_address"></small>
                                 </div>
 
                                 <div class="form-group full">
@@ -531,9 +542,9 @@
                                                             </li>
                                                         @endif
                                                         <!-- <li {!! $package->features->call_whatsapp_button ? 'class="flex items-start gap-3"' : 'class="flex items-start gap-3 opacity-50"' !!}>
-                                                                                                                    {!! $package->features->call_whatsapp_button ? '<span class="text-green-500 text-xl">✔</span>' : '<span class="text-gray-400 text-xl">✘</span>' !!}
-                                                                                                                    <span>Calls & WhatsApp Button</span>
-                                                                                                                </li> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    {!! $package->features->call_whatsapp_button ? '<span class="text-green-500 text-xl">✔</span>' : '<span class="text-gray-400 text-xl">✘</span>' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span>Calls & WhatsApp Button</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                </li> -->
 
                                                         <li class="flex items-start gap-3">
                                                             <span class="text-green-500 text-xl">✔</span>
@@ -541,9 +552,9 @@
                                                                 Visibility</span>
                                                         </li>
                                                         <!-- <li class="flex items-start gap-3">
-                                                                                                                    <span class="text-green-500 text-xl">✔</span>
-                                                                                                                    <span>{{ ucfirst($package->features->contact_display) }} Contact Display</span>
-                                                                                                                </li> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="text-green-500 text-xl">✔</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span>{{ ucfirst($package->features->contact_display) }} Contact Display</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                </li> -->
 
                                                         <li class="flex items-start gap-3">
                                                             <span class="text-green-500 text-xl">✔</span>
@@ -626,9 +637,9 @@
                                                             </li>
                                                         @endif
                                                         <!-- <li {!! $package->features->call_whatsapp_button ? 'class="flex items-start gap-3"' : 'class="flex items-start gap-3 opacity-50"' !!}>
-                                                                                                                    {!! $package->features->call_whatsapp_button ? '<span class="text-green-500 text-xl">✔</span>' : '<span class="text-gray-400 text-xl">✘</span>' !!}
-                                                                                                                    <span>Calls & WhatsApp Button</span>
-                                                                                                                </li> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    {!! $package->features->call_whatsapp_button ? '<span class="text-green-500 text-xl">✔</span>' : '<span class="text-gray-400 text-xl">✘</span>' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span>Calls & WhatsApp Button</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                </li> -->
 
                                                         <li class="flex items-start gap-3">
                                                             <span class="text-green-500 text-xl">✔</span>
@@ -636,9 +647,9 @@
                                                                 Visibility</span>
                                                         </li>
                                                         <!-- <li class="flex items-start gap-3">
-                                                                                                                    <span class="text-green-500 text-xl">✔</span>
-                                                                                                                    <span>{{ ucfirst($package->features->contact_display) }} Contact Display</span>
-                                                                                                                </li> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="text-green-500 text-xl">✔</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span>{{ ucfirst($package->features->contact_display) }} Contact Display</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                </li> -->
 
                                                         <li class="flex items-start gap-3">
                                                             <span class="text-green-500 text-xl">✔</span>
@@ -1060,8 +1071,8 @@
 
                             <!-- Bottom Note -->
                             <!-- <p class="text-center text-gray-600 mt-10 text-sm">
-                                You can upgrade your plan anytime after listing.
-                              </p> -->
+                                                                                                You can upgrade your plan anytime after listing.
+                                                                                              </p> -->
 
                             <!-- Step Actions -->
                             <div class="step-actions flex justify-between mt-12">
@@ -1071,22 +1082,46 @@
                                     ← Back
                                 </button>
                                 <!-- <button
-                                  class="next-btn  px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition shadow-md"
-                                  onclick="goToStep(4)">
-                                  Continue →
-                                </button> -->
+                                                                                                  class="next-btn  px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition shadow-md"
+                                                                                                  onclick="goToStep(4)">
+                                                                                                  Continue →
+                                                                                                </button> -->
                             </div>
                         </div>
                         <div class="step-card" id="step4" style="display:none; margin: auto; margin-top:15px;">
                             <div class="step-number">STEP 4</div>
                             <!-- <h4>Plans Details</h4> -->
-                            <div class="" style="display: flex;justify-content: space-between;">
-                                <h3 id="plan_name" style="font-size: 26px; margin:0; font-weight:700;">
+                            <div style="display: flex;justify-content: space-between;">
 
-                                </h3>
-                                <h3 style="font-size: 26px; margin:0; font-weight:700;">
-                                    <strong>Price:</strong> ₹<span id="plan_price">/-
-                                </h3>
+                                <h3 id="plan_name" style="font-size: 26px; margin:0; font-weight:700;"></h3>
+
+                                <div style="text-align:right;">
+                                    <h3 style="font-size: 26px; margin:0; font-weight:700;">
+                                        <strong>Price:</strong> ₹<span id="plan_price">0</span>
+                                    </h3>
+
+                                    <div id="priceBreakup" style="margin-top:10px; font-size:15px;">
+
+                                        <div>Base Price: ₹<span id="base_price">0</span></div>
+
+                                        <div id="gst_row">
+                                            <div id="cgst_row">CGST (<span id="cgst_rate"></span>%): ₹<span
+                                                    id="cgst_amount">0</span></div>
+                                            <div id="sgst_row">SGST (<span id="sgst_rate"></span>%): ₹<span
+                                                    id="sgst_amount">0</span></div>
+
+                                            <div id="igst_row" style="display:none;">
+                                                IGST (<span id="igst_rate"></span>%): ₹<span id="igst_amount">0</span>
+                                            </div>
+                                        </div>
+
+                                        <div style="margin-top:5px; font-weight:600;">
+                                            Total Payable: ₹<span id="total_price">0</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+
                             </div>
 
 
@@ -1167,6 +1202,12 @@
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
+        let basePrice = 0;
+
+        let CGST = {{ $invoiceSetting->cgst ?? 9 }};
+        let SGST = {{ $invoiceSetting->sgst ?? 9 }};
+        let IGST = {{ $invoiceSetting->igst ?? 18 }};
+
         let cashfree;
 
         window.onload = function () {
@@ -1174,46 +1215,52 @@
                 mode: "production"
             });
         };
-        // function saveStep4() {
 
-        //     fetch('/create-payment', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        //         },
-        //         body: JSON.stringify({
-        //             institute_id: $('#institute_id').val()
-        //         })
-        //     })
-        //     .then(res => res.json())
-        //     .then(data => {
+        function updatePrice() {
 
-        //         console.log("Payment Response:", data);
+            let cgst = 0, sgst = 0, igst = 0;
 
-        //         if(data.type === 'free'){
-        //             window.location.href = "/free-plan-complete?institute_id=" + $('#institute_id').val();
-        //             return;
-        //         }
+            $('#gst_row').show();
 
-        //         if(data.status && data.payment_session_id){
+            let instituteState = $('#state_id').val();
+            let companyState = {{ $invoiceSetting->company_state ?? 0 }};
 
-        //             cashfree.checkout({
-        //     paymentSessionId: data.payment_session_id,
-        //     redirectTarget: "_self"
-        // });
+            let sameState = instituteState == companyState;
 
-        //         } else {
-        //             toastr.error("Payment initiation failed");
-        //             console.log(data);
-        //         }
+            if (sameState) {
 
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         toastr.error("Something went wrong");
-        //     });
-        // }
+                cgst = (basePrice * CGST) / 100;
+                sgst = (basePrice * SGST) / 100;
+
+                $('#cgst_row').show();
+                $('#sgst_row').show();
+                $('#igst_row').hide();
+
+            } else {
+
+                igst = (basePrice * IGST) / 100;
+
+                $('#cgst_row').hide();
+                $('#sgst_row').hide();
+                $('#igst_row').show();
+            }
+
+            let total = basePrice + cgst + sgst + igst;
+
+            $('#plan_price').text(basePrice.toFixed(2));
+            $('#base_price').text(basePrice.toFixed(2));
+
+            $('#cgst_rate').text(CGST);
+            $('#sgst_rate').text(SGST);
+            $('#igst_rate').text(IGST);
+
+            $('#cgst_amount').text(cgst.toFixed(2));
+            $('#sgst_amount').text(sgst.toFixed(2));
+            $('#igst_amount').text(igst.toFixed(2));
+
+            $('#total_price').text(total.toFixed(2));
+        }
+
 
 
         const textarea = document.getElementById('description');
@@ -1453,14 +1500,14 @@
                         }
 
                         html += `
-                                    <label>
-                                        <input type="checkbox" 
-                                               value="${sub.id}" 
-                                               class="subcategory-checkbox"
-                                               ${checked}>
-                                        <span>${sub.name}</span>
-                                    </label>
-                                `;
+                                                                                                    <label>
+                                                                                                        <input type="checkbox" 
+                                                                                                               value="${sub.id}" 
+                                                                                                               class="subcategory-checkbox"
+                                                                                                               ${checked}>
+                                                                                                        <span>${sub.name}</span>
+                                                                                                    </label>
+                                                                                                `;
                     });
 
                     container.html(html);
@@ -1506,9 +1553,14 @@
         }
 
         $('#state_id').on('change', function () {
+
             let stateID = $(this).val();
+
             loadCities(stateID);
+            updatePrice(); // 🔥 important
+
         });
+
         $('#category_id').on('change', function () {
             let cateID = $(this).val();
             loadSubCat(cateID);
@@ -1632,6 +1684,7 @@
                 state: $('#state_id').val(),
                 city: $('#city_id').val(),
                 mobile: $('#mobile').val(),
+                profile_address: $('#profile_address').val(),
                 _token: $('meta[name=csrf-token]').attr('content')
             };
 
@@ -1694,92 +1747,142 @@
             });
 
         }
+
         function saveStep3(plan_id) {
+
             let step3url = "{{ url('/step3-save') }}";
+
             let data = {
                 institute_id: $('#institute_id').val(),
                 plan_id: plan_id,
                 _token: $('meta[name=csrf-token]').attr('content')
-
             };
+
             $.post(step3url, data, function (res) {
 
                 if (res.status) {
 
+                    let plan = res.plan;
 
-                    $('#plan_name').text(res.plan.name);
-                    $('#plan_price').text(res.plan.offered_price);
-                    $('#plan_validity').text(res.plan.validity_days);
-                    if (res.plan.offered_price == 0) {
-                        $('#gstCheck').closest('.checkbox-line').hide(); // hide GST
+                    // ✅ SET BASE PRICE FROM BACKEND
+                    basePrice = parseFloat(plan.offered_price);
+
+                    // ✅ SET UI
+                    $('#plan_name').text(plan.name);
+                    $('#plan_validity').text(plan.validity_days + ' Days');
+
+                    // ❌ REMOVE THIS LINE (important)
+                    // $('#plan_price').text(res.plan.offered_price);
+
+                    // GST checkbox logic
+                    if (basePrice == 0) {
+                        $('#gstCheck').closest('.checkbox-line').hide();
                         $('#gstDetails').hide();
                     } else {
-                        $('#gstCheck').closest('.checkbox-line').show(); // show GST
+                        $('#gstCheck').closest('.checkbox-line').show();
                     }
-                    // Step change
-                    goToStep(4);
 
+                    // ✅ FINAL PRICE CALCULATION
+                    updatePrice();
+
+                    goToStep(4);
                 }
 
             });
 
         }
+
         function saveStep4() {
+
             clearErrors();
+
             let email = $('#invoice_email').val();
+            let wantsGSTInvoice = $('#gstCheck').is(':checked');
 
             if (email && !validateEmail(email)) {
                 showError('invoice_email', 'Enter valid email');
                 return;
             }
+
+            // GST fields required only if invoice requested
+            if (wantsGSTInvoice) {
+
+                if (!$('#gstin').val()) {
+                    showError('gstin', 'GSTIN is required');
+                    return;
+                }
+
+                if (!$('#business_name').val()) {
+                    showError('business_name', 'Business name is required');
+                    return;
+                }
+
+                if (!$('#billing_address').val()) {
+                    showError('billing_address', 'Billing address is required');
+                    return;
+                }
+            }
+
+            // Terms mandatory
+            if (!$('#terms').is(':checked')) {
+                showError('terms', 'Please accept Terms & Conditions');
+                return;
+            }
+
             let data = {
                 institute_id: $('#institute_id').val(),
-                gst_invoice: $('#gstCheck').is(':checked'),
+                gst_invoice: wantsGSTInvoice,
                 gstin: $('#gstin').val(),
                 business_name: $('#business_name').val(),
                 billing_address: $('#billing_address').val(),
                 invoice_email: $('#invoice_email').val(),
-                terms: $('#terms').is(':checked') ? 1 : 0,
+                terms: 1,
                 _token: $('meta[name=csrf-token]').attr('content')
             };
-            let step4url = "{{ url('/step4-save') }}";
-            $.post(step4url, data
-                , function (res) {
 
-                    if (res.status) {
+            $.post("{{ url('/step4-save') }}", data, function (res) {
 
-                        startPayment();
+                if (res.status) {
+                    startPayment(); // 🔥 move to backend calculation
+                }
 
-                    }
+            }).fail(function (xhr) {
 
-                }).fail(function (xhr) {
+                let errors = xhr.responseJSON.errors;
 
-                    let errors = xhr.responseJSON.errors;
-
-                    $.each(errors, function (field, msg) {
-
-                        showError(field, msg[0]);
-
-                    });
-
+                $.each(errors, function (field, msg) {
+                    showError(field, msg[0]);
                 });
 
+            });
         }
 
 
         function startPayment() {
+
             let institute_id = $('#institute_id').val();
-            let paymenturl = "{{ url('/create-payment') }}";
-            $.post(paymenturl, { institute_id, _token: $('meta[name=csrf-token]').attr('content') }, res => {
+
+            $.post("{{ url('/create-payment') }}", {
+                institute_id,
+                _token: $('meta[name=csrf-token]').attr('content')
+            }, function (res) {
+
                 if (res.payment_session_id) {
-                    cashfree.checkout({ paymentSessionId: res.payment_session_id, redirectTarget: "_self" });
+
+                    cashfree.checkout({
+                        paymentSessionId: res.payment_session_id,
+                        redirectTarget: "_self"
+                    });
+
                 } else if (res.type && res.type == 'free') {
-                    // Free plan
+
                     window.location.href = "{{ url('/free-plan-complete') }}" + "?institute_id=" + institute_id;
 
                 } else {
+
                     showError('general', 'Payment initiation failed');
                 }
+
             });
         }
 

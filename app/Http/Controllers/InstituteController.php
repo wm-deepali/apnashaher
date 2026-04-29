@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Institute;
+use Carbon\Carbon;
 use App\Models\Otp;
 use App\Models\InstituteTiming;
 use App\Models\InstitutePlan;
@@ -21,10 +22,11 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Models\Gallery;
 use App\Models\Enquiry;
+use App\Models\Invoice;
+use App\Models\InvoiceSetting;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendOtpMail;
 use Illuminate\Support\Facades\Session;
-
 use Illuminate\Support\Facades\Auth;
 
 
@@ -36,7 +38,8 @@ class InstituteController extends Controller
             'name' => ['required', 'min:3', 'max:80', 'regex:/^[A-Za-z\s\(\)\.\-&]+$/'],
             'state' => ['required', 'exists:states,id'],
             'city' => ['required', 'exists:cities,id'],
-            'mobile' => ['required', 'digits:10', 'regex:/^[6-9]\d{9}$/']
+            'mobile' => ['required', 'digits:10', 'regex:/^[6-9]\d{9}$/'],
+            'profile_address' => ['required', 'max:200']
         ], [
             'name.regex' => 'Name can contain only letters and spaces.',
             'mobile.regex' => 'Enter valid Indian mobile number.'
@@ -84,6 +87,7 @@ class InstituteController extends Controller
             'country' => 'India',
             'state_id' => $request->state,
             'city_id' => $request->city,
+            'profile_address' => $request->profile_address,
             'mobile' => $request->mobile,
             'mobile_verified' => true
         ]);
@@ -123,14 +127,19 @@ class InstituteController extends Controller
             'gstin.regex' => 'Enter valid GSTIN number'
         ]);
 
-        Institute::where('id', $request->institute_id)->update([
-            'gst_invoice' => $request->gst_invoice == false ? 0 : 1,
-            'gstin' => $request->gstin,
-            'business_name' => $request->business_name,
-            'billing_address' => $request->billing_address,
+        $institute = Institute::find($request->institute_id);
+
+        $billingAddress = $request->gst_invoice
+            ? $request->billing_address
+            : $institute->profile_address;
+
+        $institute->update([
+            'gst_invoice' => $request->gst_invoice ? 1 : 0,
+            'gstin' => $request->gst_invoice ? $request->gstin : null,
+            'business_name' => $request->gst_invoice ? $request->business_name : null,
+            'billing_address' => $billingAddress,
             'invoice_email' => $request->invoice_email,
         ]);
-
 
         return response()->json(['status' => true]);
     }
@@ -154,6 +163,8 @@ class InstituteController extends Controller
 
         return view('front.insitute.profile', compact('institute', 'remainingCourses'));
     }
+
+
     public function dashboard()
     {
         $institute = Auth::guard('institute')->user();
@@ -161,20 +172,27 @@ class InstituteController extends Controller
         if (!$institute) {
             return redirect()->route('home');
         }
-        $institute = Institute::with('category', 'subcategory', 'latestPlan')->where('id', $institute->id)->first();
+
+        $institute = Institute::with('category', 'subcategory', 'latestPlan.plan')
+            ->where('id', $institute->id)
+            ->first();
 
         $plan = $institute->latestPlan;
 
-        // ✅ Safe features (no crash if no plan)
-        $features = optional($plan->plan)->features;
+        // ✅ FEATURES SAFE
+        $features = $plan?->plan?->features ?? null;
 
-        // Course limit logic
+        // ===============================
+        // ✅ COURSE LIMIT
+        // ===============================
         $limitCourse = $features?->courses_programs ?? 0;
         $instuteCourse = $institute->courses->count() ?? 0;
 
         $data['remainingCourses'] = max($limitCourse - $instuteCourse, 0);
 
-        // ✅ NEW: Max Plan Check
+        // ===============================
+        // ✅ MAX PLAN CHECK (YOUR EXISTING)
+        // ===============================
         $allPlans = \App\Models\Package::orderByDesc('offered_price')->get();
         $maxPlan = $allPlans->first();
 
@@ -182,40 +200,103 @@ class InstituteController extends Controller
 
         $data['isMaxPlan'] = ($currentPlanId == $maxPlan->id);
 
-        $data['states'] = State::where('country_id', 1)->get();
-        $data['cities'] = City::where('state_id', $institute->state_id)->get();
-        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        // ===============================
+        // ✅ EXPIRY + UPGRADE LOGIC
+        // ===============================
+        $today = Carbon::now();
 
-        // Fetch timings from DB
-        $timingsFromDB = InstituteTiming::where('institute_id', $institute->id)->get()->keyBy('day');
+        $data['isExpired'] = false;
+        $data['isExpiringSoon'] = false;
+        $data['canUpgrade'] = false;
 
-        // Build full timings array for all 7 days
-        $timings = [];
+        if ($plan && $plan->expiry_date) {
 
+            $expiry = Carbon::parse($plan->expiry_date);
 
-        foreach ($daysOfWeek as $day) {
-            if (isset($timingsFromDB[$day])) {
-                $timings[$day] = $timingsFromDB[$day]; // use DB values
-            } else {
-                // default OFF day
-                $timings[$day] = (object) [
-                    'open_time' => '00:00',
-                    'close_time' => '00:00',
-                    'is_active' => 0
-                ];
+            // ❌ expired
+            if ($expiry->lt($today)) {
+                $data['isExpired'] = true;
+            }
+
+            // ⚠️ expiring in 5 days
+            elseif ($expiry->diffInDays($today) <= 5) {
+                $data['isExpiringSoon'] = true;
             }
         }
+
+        // ✅ Upgrade logic
+        $currentPrice = $plan?->plan?->offered_price ?? 0;
+
+        $hasHigherPlan = \App\Models\Package::where('offered_price', '>', $currentPrice)->exists();
+
+        // 👉 Upgrade allowed only if:
+        // - No plan
+        // - Free plan
+        // - Lower than max plan
+        $data['canUpgrade'] = (!$plan || $currentPrice == 0 || $hasHigherPlan);
+
+        // ===============================
+        // ✅ STATE / CITY
+        // ===============================
+        $data['states'] = State::where('country_id', 1)->get();
+        $data['cities'] = City::where('state_id', $institute->state_id)->get();
+
+        // ===============================
+        // ✅ TIMINGS
+        // ===============================
+        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        $timingsFromDB = InstituteTiming::where('institute_id', $institute->id)
+            ->get()
+            ->keyBy('day');
+
+        $timings = [];
+
+        foreach ($daysOfWeek as $day) {
+            $timings[$day] = $timingsFromDB[$day] ?? (object) [
+                'open_time' => '00:00',
+                'close_time' => '00:00',
+                'is_active' => 0
+            ];
+        }
+
         $data['timings'] = $timings;
+
+        // ===============================
+        // ✅ OTHER DATA
+        // ===============================
         $data['institute'] = $institute;
-        $data['courses'] = InstituteCourseProgram::where('institute_id', $institute->id)->orderBy('id', 'desc')->get();
-        $data['galleries'] = Gallery::where('institute_id', $institute->id)->orderBy('id', 'desc')->get();
-        $data['leads'] = Enquiry::with('course')->where('institute_id', $institute->id)->orderBy('id', 'desc')->get();
-        $data['reviews'] = InstituteReview::where('institute_id', $institute->id)->where('status', 'approved')->orderBy('id', 'desc')->get();
-        $data['notifications'] = $institute->notifications()->latest()->get(); // all notifications
+
+        $data['courses'] = InstituteCourseProgram::where('institute_id', $institute->id)
+            ->latest()
+            ->get();
+
+        $data['galleries'] = Gallery::where('institute_id', $institute->id)
+            ->latest()
+            ->get();
+
+        $data['leads'] = Enquiry::with('course')
+            ->where('institute_id', $institute->id)
+            ->latest()
+            ->get();
+
+        $data['reviews'] = InstituteReview::where('institute_id', $institute->id)
+            ->where('status', 'approved')
+            ->latest()
+            ->get();
+
+        $data['notifications'] = $institute->notifications()->latest()->get();
+
         $data['banners'] = InstituteBanner::where('institute_id', $institute->id)->get();
+
+        $data['invoices'] = Invoice::with(['payment.instituteplan.plan'])
+            ->where('institute_id', $institute->id)
+            ->latest()
+            ->get();
 
         return view('front.insitute.dashboard', $data);
     }
+
     public function saveProfile(Request $request)
     {
         $institute = Auth::guard('institute')->user();
@@ -489,7 +570,7 @@ class InstituteController extends Controller
             'short_description' => 'nullable|string|max:500',
             'detail_content' => 'nullable|string',
 
-            'billing_address' => 'required|string',
+            'profile_address' => 'required|string',
             'country' => 'required',
             'state_id' => 'required',
             'city_id' => 'required',
@@ -964,5 +1045,17 @@ class InstituteController extends Controller
         return response()->json(['message' => 'Banner deleted']);
     }
 
+    public function showInvoice($id)
+    {
+        $invoice = Invoice::with([
+            'payment',
+            'payment.institute',
+            'payment.instituteplan.plan'
+        ])->where('payment_id', $id)->firstOrFail();
+
+        $setting = InvoiceSetting::first();
+
+        return view('admin.institute.show-invoice', compact('invoice', 'setting'));
+    }
 
 }

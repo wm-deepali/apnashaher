@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\City;
 use App\Models\State;
 use App\Models\Payment;
+use App\Models\Invoice;
 use App\Models\Enquiry;
 use App\Models\Gallery;
 use App\Models\Package;
@@ -14,6 +15,7 @@ use App\Models\Institute;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\InstitutePlan;
+use App\Models\InvoiceSetting;
 use Illuminate\Validation\Rule;
 use App\Models\InstituteReview;
 use App\Models\InstituteBanner;
@@ -28,13 +30,224 @@ class ManageInstituteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $institutes = Institute::with('plans', 'timings', 'courses', 'category', 'subcategory', 'leads', 'galleries')
-            ->latest()
-            ->paginate(10);
+        $query = Institute::with([
+            'plans',
+            'timings',
+            'courses',
+            'category',
+            'subcategory',
+            'leads',
+            'galleries'
+        ]);
+
+        // 🔍 Filters
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->subcategory_id) {
+            $query->where('subcategory_id', $request->subcategory_id);
+        }
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('mobile', 'like', '%' . $request->search . '%')
+                    ->orWhere('owner_email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // 📅 Date Range
+        if ($request->from && $request->to) {
+            $query->whereBetween('created_at', [$request->from, $request->to]);
+        }
+
+        $institutes = $query->latest()->paginate(10);
 
         return view('admin.institute.index', compact('institutes'));
+    }
+
+    public function newListings(Request $request)
+    {
+        $query = Institute::with(['category', 'subcategory', 'latestPlan.plan'])
+            ->where('status', 'pending');
+
+        // 🔍 Category
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // 🔍 Subcategory
+        if ($request->subcategory_id) {
+            $query->where('subcategory_id', $request->subcategory_id);
+        }
+
+        // 🔍 Subscription (Plan)
+        if ($request->package_id) {
+            $query->whereHas('latestPlan.plan', function ($q) use ($request) {
+                $q->where('id', $request->package_id);
+            });
+        }
+
+        // 🔍 Search
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('mobile', 'like', '%' . $request->search . '%')
+                    ->orWhere('owner_email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // 📅 Date Range
+        if ($request->from && $request->to) {
+            $query->whereBetween('created_at', [$request->from, $request->to]);
+        }
+
+        $institutes = $query->latest()->paginate(10);
+
+        // 🔥 send filters data
+        $categories = Category::whereNull('parent_id')->get();
+        $packages = Package::all();
+
+        return view('admin.institute.new-listings', compact(
+            'institutes',
+            'categories',
+            'packages'
+        ));
+    }
+
+    public function publishedListings(Request $request)
+    {
+        $query = Institute::with([
+            'category',
+            'subcategory',
+            'latestPlan.plan'
+        ])->where('status', 'approved');
+
+        // 🔍 Category filter
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // 🔍 Subcategory filter
+        if ($request->subcategory_id) {
+            $query->where('subcategory_id', $request->subcategory_id);
+        }
+
+        // 🔍 Subscription (Plan filter)
+        if ($request->package_id) {
+            $query->whereHas('latestPlan.plan', function ($q) use ($request) {
+                $q->where('id', $request->package_id);
+            });
+        }
+
+        // 🔍 Search (name, mobile, email)
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('mobile', 'like', '%' . $request->search . '%')
+                    ->orWhere('owner_email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // 📅 Date Range
+        if ($request->from && $request->to) {
+            $query->whereBetween('created_at', [
+                $request->from . ' 00:00:00',
+                $request->to . ' 23:59:59'
+            ]);
+        }
+
+        $institutes = $query->latest()->paginate(10);
+
+        // 🔥 send for filters
+        $categories = Category::whereNull('parent_id')->get();
+        $packages = Package::all();
+
+        return view('admin.institute.published-listings', compact(
+            'institutes',
+            'categories',
+            'packages'
+        ));
+    }
+
+    public function subscriptions(Request $request)
+    {
+        $query = Payment::with([
+            'institute.category',
+            'institute.subcategory',
+            'instituteplan.plan'
+        ]);
+
+        // 🔍 Category
+        if ($request->category_id) {
+            $query->whereHas('institute', function ($q) use ($request) {
+                $q->where('category_id', $request->category_id);
+            });
+        }
+
+        // 🔍 Subcategory
+        if ($request->subcategory_id) {
+            $query->whereHas('institute', function ($q) use ($request) {
+                $q->where('subcategory_id', $request->subcategory_id);
+            });
+        }
+
+        // 🔍 Subscription (plan)
+        if ($request->package_id) {
+            $query->whereHas('instituteplan.plan', function ($q) use ($request) {
+                $q->where('id', $request->package_id);
+            });
+        }
+
+        // 🔍 Payment Status
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        // 🔍 Search
+        if ($request->search) {
+            $query->whereHas('institute', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('mobile', 'like', '%' . $request->search . '%')
+                    ->orWhere('owner_email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // 📅 Date Range (FIXED)
+        if ($request->from && $request->to) {
+            $query->whereBetween('created_at', [
+                $request->from . ' 00:00:00',
+                $request->to . ' 23:59:59'
+            ]);
+        }
+
+        $payments = $query->latest()->paginate(10);
+
+        // 🔥 for filters
+        $categories = Category::whereNull('parent_id')->get();
+        $packages = Package::all();
+
+        return view('admin.institute.subscriptions', compact(
+            'payments',
+            'categories',
+            'packages'
+        ));
+    }
+
+    public function orderDetail($id)
+    {
+        $payment = Payment::with([
+            'institute.state',
+            'institute.city',
+            'instituteplan.plan'
+        ])->findOrFail($id);
+
+        $invoice = Invoice::where('payment_id', $payment->id)->first();
+
+        return view('admin.institute.order-detail', compact('payment', 'invoice'));
     }
 
     /**
@@ -92,7 +305,7 @@ class ManageInstituteController extends Controller
         $institute->category_id = $request->category_id;
         $institute->subcategory_id = $request->subcategory_id;
         $institute->description = $request->description;
-
+        $institute->profile_address = $request->profile_address;
 
         // GST Fields
         if (isset($request->gstCheck)) {
@@ -233,8 +446,11 @@ class ManageInstituteController extends Controller
 
         $plan = $institute->latestPlan;
 
-        // ✅ Safe features (no crash if no plan)
-        $features = optional($plan->plan)->features;
+        if (!$plan || !$plan->plan) {
+            $features = null;
+        } else {
+            $features = $plan->plan->features;
+        }
 
         // Course limit logic
         $limitCourse = $features?->courses_programs ?? 0;
@@ -298,8 +514,7 @@ class ManageInstituteController extends Controller
         $institute->category_id = $request->category_id;
         $institute->subcategory_id = $request->subcategory_id;
         $institute->description = $request->description;
-
-
+        $institute->profile_address = $request->profile_address;
 
         // GST update
         if (isset($request->gstCheck)) {
@@ -693,17 +908,18 @@ class ManageInstituteController extends Controller
         ]);
     }
 
+
     public function showInvoice($id)
     {
-        $payment = Payment::with([
-            'institute.state',
-            'institute.city',
-            'instituteplan.plan'
-        ])->findOrFail($id);
+        $invoice = Invoice::with([
+            'payment',
+            'payment.instituteplan.plan',
+        ])->where('payment_id', $id)->firstOrFail();
 
-        return view('admin.institute.show-invoice', compact('payment'));
+        $setting = InvoiceSetting::first();
+
+        return view('admin.institute.show-invoice', compact('invoice', 'setting'));
     }
-
     public function adminUpgradePlan(Request $request)
     {
         $request->validate([

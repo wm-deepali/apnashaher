@@ -43,15 +43,15 @@
 
         <!-- MASTERS -->
         <li class="{{ request()->routeIs(
-            'admin.manage-categories.*',
-            'admin.manage-states.*',
-            'admin.manage-cities.*',
-            'admin.manage-packages.*',
-            'admin.manage-page.*',
-            'admin.manage-blog.*',
-            'admin.manage-faq.*',
-            'admin.manage-jobs.*'
-        ) ? 'active open' : '' }}">
+    'admin.manage-categories.*',
+    'admin.manage-states.*',
+    'admin.manage-cities.*',
+    'admin.manage-packages.*',
+    'admin.manage-page.*',
+    'admin.manage-blog.*',
+    'admin.manage-faq.*',
+    'admin.manage-jobs.*'
+) ? 'active open' : '' }}">
 
             <a href="#">
                 <i class="fa-solid fa-layer-group"></i> Masters
@@ -107,23 +107,54 @@
                     </a>
                 </li>
 
+                <li class="{{ request()->routeIs('admin.invoice-settings.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.invoice-settings.index') }}">
+                        <i class="fa-solid fa-file-invoice"></i> Invoice & GST Settings
+                    </a>
+                </li>
+
             </ul>
         </li>
 
         <!-- INSTITUTES -->
-        <li class="{{ request()->routeIs('admin.manage-institute.*') ? 'active open' : '' }}">
+
+
+        <li class="{{ request()->routeIs(
+    'admin.institute.new.*',
+    'admin.institute.published.*',
+    'admin.institute.subscriptions.*'
+) ? 'active open' : '' }}">
+
             <a href="#">
                 <i class="fa-solid fa-building"></i> Institutes
             </a>
 
             <ul>
-                <li class="{{ request()->routeIs('admin.manage-institute.*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.manage-institute.index') }}">
-                        <i class="fa-solid fa-building"></i> Manage Institutes
+
+                <!-- NEW LISTINGS -->
+                <li class="{{ request()->routeIs('admin.institute.new.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.institute.new.index') }}">
+                        <i class="fa-solid fa-clock"></i> New Listings
                     </a>
                 </li>
+
+                <!-- PUBLISHED LISTINGS -->
+                <li class="{{ request()->routeIs('admin.institute.published.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.institute.published.index') }}">
+                        <i class="fa-solid fa-check-circle"></i> Published Listings
+                    </a>
+                </li>
+
+                <!-- SUBSCRIPTIONS -->
+                <li class="{{ request()->routeIs('admin.institute.subscriptions.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.institute.subscriptions.index') }}">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Subscriptions
+                    </a>
+                </li>
+
             </ul>
         </li>
+
 
     </ul>
 </div>

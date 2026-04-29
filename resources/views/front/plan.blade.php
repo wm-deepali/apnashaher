@@ -80,6 +80,9 @@
                                         <span class="text-xl font-semibold text-blue-600">/ Year</span>
                                     </div>
 
+                                    <p class="text-xs text-gray-500 mt-1">
+    * GST will be applied at checkout
+</p>
                                     <p class="text-sm text-gray-600 mt-1">{{$package->validity_days}} Days Validity</p>
                                 </div>
                                 @if($package->features)
@@ -158,11 +161,36 @@
                                 @endif
 
                                 <div class="mt-8">
-                                    <button onclick="choosePlan({{$package->id}})"
-                                        class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg"
-                                        {{ $currentPlanId == $package->id ? 'disabled onclick=return false;' : '' }}>
-                                        Choose Standard
-                                    </button>
+                                   @if($package->is_downgrade)
+
+    <button class="w-full py-4 bg-gray-300 text-gray-500 rounded-xl cursor-not-allowed">
+        Not Available
+    </button>
+
+{{-- 🔥 FIX: expired should override everything --}}
+@elseif($isExpired && $currentPlanId == $package->id)
+
+    <button onclick="choosePlan({{$package->id}})"
+        class="w-full py-4 bg-red-600 text-white font-bold rounded-xl">
+        Renew Plan
+    </button>
+
+@elseif($currentPlanId == $package->id)
+
+    <button class="w-full py-4 bg-green-100 text-green-700 rounded-xl">
+        Current Plan
+    </button>
+
+@else
+
+    <button onclick="choosePlan({{$package->id}})"
+        class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">
+
+        Upgrade Plan
+
+    </button>
+
+@endif
                                 </div>
                             </div>
                         @else
@@ -176,6 +204,9 @@
                                             class="text-5xl font-extrabold text-gray-900">₹{{$package->formatted_offered_price }}</span>
                                         <span class="text-xl font-semibold text-gray-900">/ Year</span>
                                     </div>
+                                    <p class="text-xs text-gray-500 mt-1">
+    * GST will be applied at checkout
+</p>
                                     <p class="text-sm text-gray-600 mt-1">{{$package->validity_days}} Days Validity</p>
 
                                 </div>
@@ -258,11 +289,36 @@
 
 
                                 <div class="mt-8">
-                                    <button onclick="choosePlan({{$package->id}})"
-                                        class="w-full py-4 bg-gray-100 text-gray-800 font-semibold rounded-xl hover:bg-gray-200 transition"
-                                        {{ $currentPlanId == $package->id ? 'disabled onclick=return false;' : '' }}>
-                                        Start {{$package->name}}
-                                    </button>
+                                   @if($package->is_downgrade)
+
+    <button class="w-full py-4 bg-gray-300 text-gray-500 rounded-xl cursor-not-allowed">
+        Not Available
+    </button>
+
+{{-- 🔥 FIX: expired should override everything --}}
+@elseif($isExpired && $currentPlanId == $package->id)
+
+    <button onclick="choosePlan({{$package->id}})"
+        class="w-full py-4 bg-red-600 text-white font-bold rounded-xl">
+        Renew Plan
+    </button>
+
+@elseif($currentPlanId == $package->id)
+
+    <button class="w-full py-4 bg-green-100 text-green-700 rounded-xl">
+        Current Plan
+    </button>
+
+@else
+
+    <button onclick="choosePlan({{$package->id}})"
+        class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">
+
+        Upgrade Plan
+
+    </button>
+
+@endif
                                 </div>
                             </div>
                         @endif

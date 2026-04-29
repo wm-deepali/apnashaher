@@ -256,6 +256,12 @@
                                             class="form-control">{{ $institute->description ?? '' }}</textarea>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label>Institute Address</label>
+                                        <textarea name="profile_address"
+                                            class="form-control">{{ $institute->profile_address ?? '' }}</textarea>
+                                    </div>
+
                                     <!-- GST -->
 
                                     <div class="form-check mb-4">

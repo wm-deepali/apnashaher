@@ -15,7 +15,11 @@ class Payment extends Model
         'amount',
         'method',
         'status',
-        'gateway_response'
+        'gateway_response',
+        'cgst',
+        'sgst',
+        'igst',
+        'total'
     ];
 
     protected $casts = [
@@ -30,5 +34,10 @@ class Payment extends Model
     public function instituteplan()
     {
         return $this->belongsTo(InstitutePlan::class, 'institute_plan_id');
+    }
+
+    public function invoice()
+    {
+        return $this->hasOne(\App\Models\Invoice::class);
     }
 }

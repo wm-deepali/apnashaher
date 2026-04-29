@@ -3,6 +3,7 @@
 
 <head>
     <title>Invoice</title>
+
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -26,10 +27,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .header h2 {
-            margin: 0;
         }
 
         .content {
@@ -72,9 +69,8 @@
 
         .total {
             text-align: right;
-            margin-top: 15px;
-            font-size: 18px;
-            font-weight: bold;
+            margin-top: 20px;
+            font-size: 15px;
         }
 
         .footer {
@@ -82,7 +78,6 @@
             background: #f9fafc;
             display: flex;
             justify-content: space-between;
-            align-items: center;
         }
 
         .badge {
@@ -98,7 +93,6 @@
 
         .pending {
             background: #ffc107;
-            color: #000;
         }
 
         .print-btn {
@@ -118,15 +112,21 @@
 
         <!-- HEADER -->
         <div class="header">
+
             <div>
-                <h2>Invoice</h2>
-                <small>Order: {{ $payment->order_id }}</small><br>
-                <small>{{ $payment->created_at->format('d M Y') }}</small>
+                <h2>{{ $invoice->invoice_type }}</h2>
+                <small>Invoice No: {{ $invoice->invoice_number }}</small><br>
+                <small>Date: {{ $invoice->created_at->format('d M Y') }}</small>
             </div>
 
-            @if($payment->institute->logo)
-                <img src="{{ asset('storage/' . $payment->institute->logo) }}" height="60">
+            @php
+                $logo = $invoice->company_logo ?? $setting->company_logo ?? null;
+            @endphp
+
+            @if($logo)
+                <img src="{{ asset('storage/' . $logo) }}" height="60">
             @endif
+
         </div>
 
         <!-- CONTENT -->
@@ -134,54 +134,97 @@
 
             <div class="grid">
 
-                <!-- Institute -->
+                <!-- COMPANY -->
                 <div class="box">
-                    <h4>Institute Details</h4>
-                    <strong>{{ $payment->institute->name }}</strong><br>
-                    {{ $payment->institute->city->name ?? '' }},
-                    {{ $payment->institute->state->name ?? '' }}<br>
-                    {{ $payment->institute->mobile }}<br>
-                    {{ $payment->institute->owner_email }}
+                    <h4>Company Details</h4>
+
+                    <strong>{{ $invoice->company_name ?? $setting->company_name }}</strong><br>
+
+                    {{ $invoice->company_address ?? $setting->company_address }}<br>
+
+                    @if($setting->city || $setting->state || $setting->company_pincode)
+                        {{ optional($setting->city)->name ?? ''}},
+                        {{ optional($setting->state)->name ?? ''}}
+                        - {{ $setting->company_pincode ?? '' }}<br>
+                    @endif
+
+                    @if($setting->company_phone)
+                        Phone: {{ $setting->company_phone }}<br>
+                    @endif
+
+                    @if($invoice->company_gstin ?? $setting->company_gstin)
+                        GSTIN: {{ $invoice->company_gstin ?? $setting->company_gstin }}
+                    @endif
                 </div>
 
-                <!-- Billing -->
-                @if($payment->institute->gst_invoice)
-                    <div class="box">
-                        <h4>Billing Details</h4>
-                        {{ $payment->institute->business_name }}<br>
-                        GSTIN: {{ $payment->institute->gstin }}<br>
-                        {{ $payment->institute->billing_address }}<br>
-                        {{ $payment->institute->invoice_email }}
-                    </div>
-                @endif
+                <!-- CUSTOMER -->
+                <div class="box">
+                    <h4>Billing Details</h4>
+
+                    {{ $invoice->customer_name }}<br>
+
+                    @if($invoice->customer_gstin)
+                        GSTIN: {{ $invoice->customer_gstin }}<br>
+                    @endif
+
+                    {{ $invoice->billing_address }}
+                    {{ $invoice->billing_email ?? ''}}
+                </div>
 
             </div>
 
-            <!-- TABLE -->
+            <!-- PLAN -->
             <table>
                 <thead>
                     <tr>
                         <th>Plan</th>
                         <th>Duration</th>
-                        <th>Amount</th>
+                        <th>Base Amount</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     <tr>
-                        <td>{{ $payment->instituteplan->plan->name ?? '-' }}</td>
+                        <td>{{ $invoice->payment->instituteplan->plan->name ?? '-' }}</td>
+
                         <td>
-                            {{ optional($payment->instituteplan)->start_date?->format('d M Y') }}
+                            {{ optional($invoice->payment->instituteplan)->start_date?->format('d M Y') }}
                             -
-                            {{ optional($payment->instituteplan)->expiry_date?->format('d M Y') }}
+                            {{ optional($invoice->payment->instituteplan)->expiry_date?->format('d M Y') }}
                         </td>
-                        <td>₹{{ number_format($payment->amount, 2) }}</td>
+
+                        <td>₹{{ number_format($invoice->base_amount, 2) }}</td>
                     </tr>
                 </tbody>
             </table>
 
+            <!-- GST -->
             <div class="total">
-                Total: ₹{{ number_format($payment->amount, 2) }}
+
+                <div>Base: ₹{{ number_format($invoice->base_amount, 2) }}</div>
+
+                @if($invoice->cgst > 0)
+                    <div>CGST: ₹{{ number_format($invoice->cgst, 2) }}</div>
+                    <div>SGST: ₹{{ number_format($invoice->sgst, 2) }}</div>
+                @endif
+
+                @if($invoice->igst > 0)
+                    <div>IGST: ₹{{ number_format($invoice->igst, 2) }}</div>
+                @endif
+
+                <div style="margin-top:10px; font-size:18px;">
+                    <strong>Total: ₹{{ number_format($invoice->total, 2) }}</strong>
+                </div>
+
             </div>
+
+            <!-- TERMS -->
+            @if($invoice->terms_conditions)
+                <div style="margin-top:30px;">
+                    <h4>Terms & Conditions</h4>
+                    {!! $invoice->terms_conditions !!}
+                </div>
+            @endif
 
         </div>
 
@@ -189,14 +232,14 @@
         <div class="footer">
 
             <div>
-                Method: {{ ucfirst($payment->method ?? 'Online') }}<br>
-                Payment ID: {{ $payment->payment_id ?? '-' }}
+                Method: {{ ucfirst($invoice->payment->method ?? 'Online') }}<br>
+                Payment ID: {{ $invoice->payment->payment_id ?? '-' }}
             </div>
 
             <div>
                 Status:
-                <span class="badge {{ $payment->status == 'paid' ? 'paid' : 'pending' }}">
-                    {{ ucfirst($payment->status) }}
+                <span class="badge {{ $invoice->payment->status == 'paid' ? 'paid' : 'pending' }}">
+                    {{ ucfirst($invoice->payment->status) }}
                 </span>
             </div>
 

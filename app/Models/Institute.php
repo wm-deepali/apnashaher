@@ -41,6 +41,7 @@ class Institute extends Authenticatable implements MustVerifyEmail
         'gst_invoice',
         'gstin',
         'business_name',
+        'profile_address',
         'billing_address',
         'invoice_email',
         'registration_complete',

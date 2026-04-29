@@ -194,6 +194,11 @@
                         </tr>
 
                         <tr>
+                            <th>Profile Address</th>
+                            <td>{{ $institute->profile_address }}</td>
+                        </tr>
+
+                        <tr>
                             <th>Whatsapp</th>
                             <td>{{ $institute->whatsapp }}</td>
                         </tr>
@@ -525,14 +530,16 @@
                                     <tr>
                                         <th>Order ID</th>
                                         <th>Payment ID</th>
-                                        <th>Amount</th>
+                                        <th>Base</th>
+                                        <th>GST</th>
+                                        <th>Total</th>
                                         <th>Method</th>
                                         <th>Status</th>
+                                        <th>Invoice</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
-
                                     @foreach($institute->payments as $payment)
 
                                         <tr>
@@ -541,9 +548,25 @@
 
                                             <td>{{ $payment->payment_id ?? '-'}}</td>
 
-                                            <td>{{ $payment->amount }}</td>
+                                            <!-- BASE -->
+                                            <td>₹{{ number_format($payment->amount, 2) }}</td>
 
-                                            <td>{{ $payment->method ?? '-'}}</td>
+                                            <!-- GST -->
+                                            <td>
+                                                @if($payment->cgst > 0)
+                                                    CGST: ₹{{ number_format($payment->cgst, 2) }}<br>
+                                                    SGST: ₹{{ number_format($payment->sgst, 2) }}
+                                                @endif
+
+                                                @if($payment->igst > 0)
+                                                    IGST: ₹{{ number_format($payment->igst, 2) }}
+                                                @endif
+                                            </td>
+
+                                            <!-- TOTAL -->
+                                            <td><strong>₹{{ number_format($payment->total, 2) }}</strong></td>
+
+                                            <td>{{ ucfirst($payment->method ?? '-') }}</td>
 
                                             <td>
                                                 @if($payment->status == 'success')
@@ -553,16 +576,27 @@
                                                 @endif
                                             </td>
 
+                                            <!-- 🔥 INVOICE BUTTON -->
+                                            <td>
+                                                @if($payment->status == 'success')
+                                                    <a href="{{ route('admin.invoice.show', $payment->id) }}"
+                                                        class="btn btn-sm btn-primary">
+                                                        View Invoice
+                                                    </a>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+
                                         </tr>
 
                                     @endforeach
-
                                 </tbody>
 
                             </table>
 
                         </div>
-                       <div id="timings" class="tab-pane fade">
+                        <div id="timings" class="tab-pane fade">
 
                             <div class="card shadow-sm">
                                 <div class="card-header d-flex justify-content-between">
@@ -975,24 +1009,24 @@
                             {{ $pkg->name }} - ₹{{ $pkg->offered_price }}
                         </option>
                     @endforeach
-                    </select>
+                </select>
 
-                    <!-- 🔥 Payment Method -->
-                    <select id="payment_method" class="form-control mb-3">
-                        <option value="">Select Method</option>
-                        <option value="upi">UPI</option>
-                        <option value="card">Card</option>
-                        <option value="netbanking">Net Banking</option>
-                        <option value="cash">Cash</option>
-                    </select>
+                <!-- 🔥 Payment Method -->
+                <select id="payment_method" class="form-control mb-3">
+                    <option value="">Select Method</option>
+                    <option value="upi">UPI</option>
+                    <option value="card">Card</option>
+                    <option value="netbanking">Net Banking</option>
+                    <option value="cash">Cash</option>
+                </select>
 
-                    <!-- 🔥 Transaction ID -->
-                    <input type="text" id="transaction_id" class="form-control mb-3"
-                        placeholder="Transaction ID (optional for cash)">
+                <!-- 🔥 Transaction ID -->
+                <input type="text" id="transaction_id" class="form-control mb-3"
+                    placeholder="Transaction ID (optional for cash)">
 
-                    <button onclick="adminUpgrade({{ $institute->id }})" class="btn btn-primary w-100">
-                        Submit
-                    </button>
+                <button onclick="adminUpgrade({{ $institute->id }})" class="btn btn-primary w-100">
+                    Submit
+                </button>
 
             </div>
 

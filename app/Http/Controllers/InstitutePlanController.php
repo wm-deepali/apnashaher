@@ -50,25 +50,49 @@ class InstitutePlanController extends Controller
         ]);
 
         $instituteId = auth('institute')->id();
-        $plan = Package::findOrFail($request->plan_id);
+        $newPlan = Package::findOrFail($request->plan_id);
 
         $existingPlan = InstitutePlan::where('institute_id', $instituteId)->first();
 
-        // ❌ same plan block
-        if ($existingPlan && $existingPlan->plan_id == $plan->id && $existingPlan->plan_status == 'completed') {
-            return response()->json([
-                'status' => false,
-                'message' => 'Already active plan'
-            ]);
+        // ===============================
+        // ✅ CHECK EXISTING PLAN
+        // ===============================
+        if ($existingPlan) {
+
+            $currentPlan = Package::find($existingPlan->plan_id);
+            $isExpired = $existingPlan->expiry_date && $existingPlan->expiry_date < now();
+
+            // ❌ SAME PLAN (ONLY BLOCK IF ACTIVE)
+            if (
+                $existingPlan->plan_id == $newPlan->id &&
+                $existingPlan->plan_status == 'completed' &&
+                !$isExpired
+            ) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Already active plan'
+                ]);
+            }
+
+            // ❌ DOWNGRADE BLOCK
+            if ($currentPlan && $newPlan->offered_price < $currentPlan->offered_price) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Downgrade not allowed'
+                ]);
+            }
         }
 
-        // ✅ update plan FIRST (important for payment controller)
+        // ===============================
+        // ✅ UPDATE PLAN (FOR PAYMENT FLOW)
+        // ===============================
         $institutePlan = InstitutePlan::updateOrCreate(
             ['institute_id' => $instituteId],
             [
-                'plan_id' => $plan->id,
-                'price' => $plan->offered_price,
-                'plan_status' => 'pending'
+                'plan_id' => $newPlan->id,
+                'price' => $newPlan->offered_price,
+                'plan_status' => 'pending',
+                'expiry_date' => null // reset until payment success
             ]
         );
 

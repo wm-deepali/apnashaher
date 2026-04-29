@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Country;
+use App\Models\InvoiceSetting;
 use App\Models\State;
 use App\Models\City;
 use App\Models\Faq;
@@ -12,9 +13,7 @@ use App\Models\Category;
 use App\Models\InstituteCourseProgram;
 use App\Models\InstituteAnalytics;
 use App\Models\Package;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Payment;
 use App\Models\JobOpening;
 
 class FrontController extends Controller
@@ -32,6 +31,10 @@ class FrontController extends Controller
 
         // Featured (based on plan or flag)
         $data['featuredInstitutes'] = Institute::with('latestPlan.plan.features')
+            ->whereHas('latestPlan', function ($q) {
+                $q->where('plan_status', 'completed')
+                    ->where('expiry_date', '>=', now());
+            })
             ->whereHas('latestPlan.plan.features', function ($q) {
                 $q->where('featured_in_category_listings', true);
             })
@@ -41,11 +44,21 @@ class FrontController extends Controller
 
         // Popular (based on views)
         $data['popularInstitutes'] = Institute::orderByDesc('views')
+            ->with('latestPlan.plan.features')
+            ->whereHas('latestPlan', function ($q) {
+                $q->where('plan_status', 'completed')
+                    ->where('expiry_date', '>=', now());
+            })
             ->take(8)
             ->get();
 
         // Recent
         $data['recentInstitutes'] = Institute::latest()
+            ->with('latestPlan.plan.features')
+            ->whereHas('latestPlan', function ($q) {
+                $q->where('plan_status', 'completed')
+                    ->where('expiry_date', '>=', now());
+            })
             ->take(8)
             ->get();
 
@@ -57,6 +70,8 @@ class FrontController extends Controller
         $data['states'] = State::where('country_id', 1)->get();
         $data['categories'] = Category::whereNull('parent_id')->get();
         $data['packages'] = Package::orderBy('offered_price', 'asc')->get();
+        $data['invoiceSetting'] = InvoiceSetting::first();
+
         return view('front.list-your-institute', $data);
     }
 
@@ -69,15 +84,47 @@ class FrontController extends Controller
 
         return view('front.faq', compact('faqs'));
     }
+
     public function plans()
     {
-        $data['packages'] = Package::orderBy('offered_price', 'asc')->get();
-
-        // correct guard
         $user = auth('institute')->user();
-        $data['currentPlanId'] = $user?->latestPlan?->plan_id ?? null;
 
-        return view('front.plan', $data);
+        // ✅ Check if user has paid before
+        $hasPaidBefore = Payment::where('institute_id', $user->id)
+            ->where('status', 'success')
+            ->exists();
+
+        // ✅ Base query
+        $query = Package::orderBy('offered_price', 'asc');
+
+        // ❌ Remove free plan after first purchase
+        if ($hasPaidBefore) {
+            $query->where('offered_price', '>', 0);
+        }
+
+        // ✅ Current plan price
+        $currentPrice = $user?->latestPlan?->plan?->offered_price ?? 0;
+
+        // ✅ Get packages with downgrade flag
+        $packages = $query->get()->map(function ($plan) use ($currentPrice) {
+
+            $plan->is_downgrade = $plan->offered_price < $currentPrice;
+
+            return $plan;
+        });
+
+        // ✅ Expiry check
+        $isExpired = false;
+        if ($user?->latestPlan?->expiry_date) {
+            $isExpired = $user->latestPlan->expiry_date < now();
+        }
+
+        return view('front.plan', [
+            'packages' => $packages,
+            'currentPlanId' => $user?->latestPlan?->plan_id ?? null,
+            'currentPrice' => $currentPrice,
+            'isExpired' => $isExpired
+        ]);
     }
 
     public function contactus()
@@ -139,7 +186,11 @@ class FrontController extends Controller
 
         // Institutes query
         $institutesQuery = Institute::with('category', 'subcategory', 'courses', 'latestPlan')
-            ->where('status', 'approved');
+            ->where('status', 'approved')
+            ->whereHas('latestPlan', function ($q) {
+                $q->where('plan_status', 'completed')
+                    ->where('expiry_date', '>=', now());
+            });
 
         // If subcategory selected → filter by subcategory
         if ($selectedSubcategory) {
@@ -178,7 +229,7 @@ class FrontController extends Controller
                     'id' => $inst->id,
                     'name' => $inst->name,
                     'desc' => $inst->description,
-                    'location' => $inst->billing_address ?? $inst->city->name ?? '',
+                    'location' => $inst->profile_address ?? $inst->city->name ?? '',
                     'verified' => $verified,
                     'preferred' => $preferred,
                     'slug' => $inst->slug,
@@ -231,12 +282,15 @@ class FrontController extends Controller
     public function details($slug)
     {
         // dd($slug);
-        $institute = Institute::with([
-            'courses',
-            'timings' => function ($query) {
-                $query->orderBy('is_active', 'desc'); // active (1) pehle aayenge
-            }
-        ])->where('slug', $slug)->where('status', 'approved')->first();
+        $institute = Institute::with(['courses', 'timings'])
+            ->where('slug', $slug)
+            ->where('status', 'approved')
+            ->whereHas('latestPlan', function ($q) {
+                $q->where('plan_status', 'completed')
+                    ->where('expiry_date', '>=', now());
+            })
+            ->first();
+
         if (!$institute) {
             return redirect()->route('home');
         } else {

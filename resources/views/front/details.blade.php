@@ -1611,12 +1611,12 @@
               <div class="flex-1">
                 <p class="text-xs uppercase tracking-widest font-medium text-gray-500 mb-1">Location</p>
                 <p class="text-gray-800 text-[17px] leading-tight font-medium">
-                  {{$institute->billing_address ?? 'Not Available'}}
+                  {{$institute->profile_address ?? 'Not Available'}}
                 </p>
 
                 @if($institute->address)
                   <p class="text-gray-600 text-sm mt-2 leading-relaxed">
-                    {{$institute->billing_address}}
+                    {{$institute->profile_address}}
                   </p>
                 @endif
               </div>

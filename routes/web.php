@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\InvoiceSettingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\ContactController;
@@ -115,6 +116,7 @@ Route::get('/login', function () {
 Route::middleware(['auth:institute'])->group(function () {
     Route::get('/institute/profile', [InstituteController::class, 'profile'])->name('institute.profile');
     Route::get('/institute/dashboard', [InstituteController::class, 'dashboard'])->name('institute.dashboard');
+    Route::get('/invoice/{id}', [InstituteController::class, 'showInvoice'])->name('invoice.show');
     Route::get('institute/check-slug', [InstituteController::class, 'checkSlug'])->name('institute.check-slug');
     Route::post('institute/save-slug', [InstituteController::class, 'saveSlug'])->name('institute.save-slug');
     Route::post('institute/update-profile/{id}', [InstituteController::class, 'updateProfile'])->name('institute.update-profile');
@@ -210,8 +212,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth']], function ()
     Route::resource('manage-faq', FaqController::class)
         ->names('admin.manage-faq');
 
-    Route::resource('manage-institute', ManageInstituteController::class)
-        ->names('admin.manage-institute');
+    Route::get('manage-institute/new-listings', [ManageInstituteController::class, 'newListings'])->name('admin.institute.new.index');
+    Route::get('manage-institute/published-listings', [ManageInstituteController::class, 'publishedListings'])->name('admin.institute.published.index');
+    Route::get('manage-institute/subscriptions', [ManageInstituteController::class, 'subscriptions'])->name('admin.institute.subscriptions.index');
+    Route::resource('manage-institute', ManageInstituteController::class)->names('admin.manage-institute');
+    Route::get('/order/{id}', [ManageInstituteController::class, 'orderDetail'])->name('admin.order.detail');
+
     Route::post('/upgrade-plan', [ManageInstituteController::class, 'adminUpgradePlan']);
 
     Route::get('/invoice/{id}', [ManageInstituteController::class, 'showInvoice'])
@@ -266,7 +272,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth']], function ()
         ->name('admin.institute.profile.update');
     Route::resource('manage-jobs', JobOpeningController::class)->names('admin.manage-jobs');
 
+    Route::get('/invoice-settings', [InvoiceSettingController::class, 'index'])
+        ->name('admin.invoice-settings.index');
 
+    Route::post('/invoice-settings', [InvoiceSettingController::class, 'store'])
+        ->name('admin.invoice-settings.store');
 
 });
 

@@ -72,11 +72,14 @@
 
               </a>
 
-              <a class="dropdown-item" href="{{ url('admin/logout') }}">
+             <a class="dropdown-item" href="javascript:void(0);" 
+   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+    <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+</a>
 
-                <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
-
-              </a>
+<form id="logout-form" action="{{ route('voyager.logout') }}" method="POST" style="display: none;">
+    @csrf
+</form>
 
             </div>
 

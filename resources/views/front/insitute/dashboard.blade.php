@@ -31,9 +31,6 @@
     <!-- ================= CONTENT ================= -->
     <main class="flex-1 max-w-7xl mx-auto px-1 sm:px-6 py-6 sm:py-8 space-y-8 pb-24 md:pb-8 " style="width: 100%;">
 
-
-
-        <!-- OVERVIEW -->
         <!-- OVERVIEW -->
         <div id="overview" class="tab-content">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Last 7 Days Performance</h2>
@@ -134,7 +131,17 @@
                                 </select>
                                 <input type="number" name="established_year" value="{{$institute->established_year ?? ''}}" class="input" placeholder="Established Year">
                                 <input type="text" name="registration_number" value="{{ $institute->registration_number ?? '' }}" class="input" placeholder="Registration Number">
-                                <input type="url" name="website" value="{{ $institute->website ?? '' }}" class="input" placeholder="Website">
+                                <div>
+
+                                  <input type="url" name="website" 
+         value="{{ $institute->website ?? '' }}" 
+         class="input" 
+         placeholder="Website">
+  
+  <p class="text-xs text-gray-500 mt-1">
+      Example: https://www.xyz.com
+  </p>
+                                </div>
                                 <textarea name="description" class="input md:col-span-2" placeholder="Short Description">{{ $institute->description ?? '' }}</textarea>
                                 <textarea name="detailed_information" class="input md:col-span-2" placeholder="Detail Content">{{ $institute->detailed_information ?? '' }}</textarea>
                                 <input type="text" name="billing_address" value="{{ $institute->billing_address ?? '' }}" class="input md:col-span-2" placeholder="Full Address">
@@ -186,12 +193,75 @@
                               
                                   <input type="hidden" name="social_ins_id" value="{{ $institute->id }}">
 
-                                  <input name="facebook_url" value="{{ $institute->facebook_url ?? '' }}" class="input" placeholder="Facebook">
-                                  <input name="linkedin_url" value="{{ $institute->linkedin_url ?? '' }}" class="input" placeholder="LinkedIn">
-                                  <input name="twitter_url" value="{{ $institute->twitter_url ?? '' }}" class="input" placeholder="Twitter">
-                                   <input name="instagram_url" value="{{ $institute->instagram_url ?? '' }}" class="input" placeholder="Instagram">
-                                  <input name="google_url" value="{{ $institute->google_url ?? '' }}" class="input" placeholder="Google Plus">
-                                  <input name="youtube_url" value="{{ $institute->youtube_url ?? '' }}" class="input" placeholder="YouTube">
+                                 <!-- Facebook -->
+                                  <div>
+                                    <input name="facebook_url" 
+                                           value="{{ $institute->facebook_url ?? '' }}" 
+                                           class="input" 
+                                           placeholder="Facebook">
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Example: https://www.facebook.com/username
+                                    </p>
+
+                                  </div>
+
+<!-- LinkedIn -->
+ <div>
+   <input name="linkedin_url" 
+          value="{{ $institute->linkedin_url ?? '' }}" 
+          class="input" 
+          placeholder="LinkedIn">
+   <p class="text-xs text-gray-500 mt-1">
+       Example: https://www.linkedin.com/in/username
+   </p>
+
+ </div>
+
+<!-- Google (Note: Google Plus is outdated) -->
+ <div>
+
+   <input name="google_url" 
+          value="{{ $institute->google_url ?? '' }}" 
+          class="input" 
+          placeholder="Google Business Profile">
+   <p class="text-xs text-gray-500 mt-1">
+       Example: https://g.page/your-business-name
+   </p>
+ </div>
+
+ <div>
+   <input name="twitter_url" 
+value="{{ $institute->twitter_url ?? '' }}" 
+class="input" 
+placeholder="Twitter">
+
+<p class="text-xs text-gray-500 mt-1">
+Example: https://twitter.com/username
+</p>
+
+ </div>
+ <div>
+   <input name="instagram_url" 
+value="{{ $institute->instagram_url ?? '' }}" 
+class="input" 
+placeholder="Instagram">
+
+<p class="text-xs text-gray-500 mt-1">
+Example: https://www.instagram.com/username
+</p>
+
+ </div>
+ <div>
+   <input name="instagram_url" 
+value="{{ $institute->instagram_url ?? '' }}" 
+class="input" 
+placeholder="Instagram">
+
+<p class="text-xs text-gray-500 mt-1">
+Example: https://www.instagram.com/username
+</p>
+
+ </div>
 
                    
                               </div>
@@ -251,7 +321,6 @@
         </div>
 
 
-        <!-- COURSES -->
        <!-- COURSES -->
 <div id="courses" class="tab-content hidden space-y-10">
 
@@ -320,8 +389,8 @@
 
     <!-- Available Seats -->
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Available Seats</label>
-      <input type="number" name="available_seats" class="input w-full" placeholder="e.g. 30">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Available Seats *</label>
+      <input type="number" name="available_seats" class="input w-full" placeholder="e.g. 30" required>
      <span class="error-text text-red-600 text-sm mt-1 block"></span>
     </div>
 
@@ -355,6 +424,43 @@
     </div>
   </div>
 </form>
+@else
+
+    <!-- ❌ Limit Reached -->
+    <div class="text-center py-10">
+
+        <h3 class="text-xl font-bold text-gray-800 mb-4">
+            Course Limit Reached
+        </h3>
+
+        @if($isMaxPlan)
+
+            <!-- 🔴 MAX PLAN -->
+            <p class="text-gray-600 mb-6">
+                Please Contact Support, If You want to Add More Courses
+            </p>
+
+            <a href="{{ route('contact-us') }}"
+               class="bg-red-600 text-white px-6 py-3 rounded-lg">
+                Contact Support
+            </a>
+
+        @else
+
+            <!-- 🟡 NORMAL UPGRADE -->
+            <p class="text-gray-600 mb-6">
+                Upgrade your Plan to Add More Courses
+            </p>
+
+            <a href="{{ route('plans') }}"
+               class="bg-blue-600 text-white px-6 py-3 rounded-lg">
+                Upgrade Now
+            </a>
+
+        @endif
+
+    </div>
+
 @endif
   </div>
 
@@ -463,7 +569,6 @@
 </div>
 
         <!-- GALLERY -->
-       <!-- GALLERY -->
 <div id="gallery" class="tab-content hidden space-y-10">
 
   <!-- Upload Section -->
@@ -529,9 +634,95 @@
   <p id="lightboxCaption" class="absolute bottom-8 text-white text-lg bg-black/50 px-6 py-2 rounded-full"></p>
 </div>
 
-        <!-- LEADS SECTION -->
-        <!-- LEADS SECTION -->
-        <!-- LEADS SECTION -->
+<!-- ================= BANNERS / SLIDERS ================= -->
+<div id="banners" class="tab-content hidden space-y-10">
+
+  <!-- Upload Section -->
+  <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-6 md:p-8">
+    <h3 class="text-xl font-bold text-gray-800 mb-6">Add New Banner / Slider</h3>
+
+    <form id="bannerForm" enctype="multipart/form-data">
+      @csrf
+      <input type="hidden" name="institute_id" value="{{ $institute->id }}">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Image -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Banner Image *</label>
+          <input type="file" name="image" required accept="image/*"
+            class="block w-full text-sm text-gray-500 
+            file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 
+            file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 
+            hover:file:bg-blue-100 transition cursor-pointer">
+        </div>
+
+        <!-- Title -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title (optional)</label>
+          <input type="text" name="title" class="input w-full" placeholder="Banner Title">
+        </div>
+
+        <!-- Link -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Redirect Link (optional)</label>
+          <input type="url" name="link" class="input w-full" placeholder="https://example.com">
+        </div>
+
+        <!-- Submit -->
+        <div class="md:col-span-2 flex justify-end">
+          <button type="submit"
+            class="bg-blue-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-blue-700 transition shadow-md">
+            Upload Banner
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <!-- Banner Grid -->
+  <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-6 md:p-8">
+    <h3 class="text-xl font-bold text-gray-800 mb-6">
+      Your Banners ({{ count($banners) ?? 0 }})
+    </h3>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+
+      @forelse($banners as $banner)
+      <div class="relative group overflow-hidden rounded-xl shadow-sm hover:shadow-lg transition-all duration-300">
+
+        <img src="{{ asset('storage/'.$banner->image) }}"
+          class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105">
+
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex flex-col justify-center items-center gap-2">
+
+          @if($banner->title)
+          <span class="text-white text-sm font-semibold text-center px-2">
+            {{ $banner->title }}
+          </span>
+          @endif
+
+          <div class="flex gap-2">
+            <button data-id="{{ $banner->id }}"
+              class="delete-banner bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow">
+              Delete
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+      @empty
+        <p class="col-span-4 text-center text-gray-500">No Banners Found.</p>
+      @endforelse
+
+    </div>
+  </div>
+
+</div>
+
        <!-- LEADS SECTION -->
 <div id="leads" class="tab-content hidden flex flex-col h-full w-full bg-gray-50 overflow-hidden">
 
@@ -635,6 +826,8 @@
   <!-- Optional backdrop for mobile (click to close) -->
   <div id="drawerBackdrop" class="fixed inset-0 bg-black/40 z-30 hidden lg:hidden" onclick="closeLead()"></div>
 </div>
+
+
 <!-- NOTIFICATION TAB -->
 <div id="notification" class="tab-content hidden ">
   <div class=" mx-auto">
@@ -832,7 +1025,6 @@
             </div>
         </div>
 
-        <!-- PLAN -->
        <!-- PLAN -->
 <div id="plan" class="tab-content hidden">
   <div class="max-w-4xl mx-auto">
@@ -1092,7 +1284,7 @@
     </p>
   </div>
 </div>
-        <!-- SETTINGS -->
+   
       <!-- SETTINGS -->
 <div id="settings" class="tab-content hidden ">
   <div class="max-w-3xl mx-auto space-y-8">
@@ -1228,6 +1420,22 @@
 </main>
 @endsection
 @push('after-scripts')
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+
+    if (tab) {
+        // find correct button and trigger click
+        let btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`);
+        if (btn) btn.click();
+    }
+
+});
+</script>
+
 <script>
   $('input, select, textarea').on('input change', function () {
       $(this).removeClass('border-red-500');
@@ -1380,10 +1588,12 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
-                toastr.success('Course added successfully!');
-                form.reset();
-            },
+           success: function(response) {
+    toastr.success('Course added successfully!');
+    setTimeout(() => {
+        location.reload();
+    }, 800);
+},
             error: function(xhr) {
                 if(xhr.status === 422) {
                     let errors = xhr.responseJSON.errors;
@@ -1570,6 +1780,52 @@ $(document).on('click', '.delete-gallery-btn', function(){
         }
     });
 });
+
+    // Upload Banner
+    $('#bannerForm').submit(function(e){
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: "{{ route('institute.banners.store') }}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            success: function(res){
+                toastr.success(res.message);
+                location.reload();
+            },
+
+            error: function(xhr){
+                toastr.error('Something went wrong');
+            }
+        });
+    });
+
+    // Delete Banner
+    $(document).on('click', '.delete-banner', function(){
+        let id = $(this).data('id');
+
+        if(confirm('Delete this banner?')){
+            $.ajax({
+                url: "/institute/banners/"+id,
+                type: "DELETE",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(res){
+                    toastr.success(res.message);
+                    location.reload();
+                }
+            });
+        }
+    });
+
+
 </script>
+
 @endpush
     

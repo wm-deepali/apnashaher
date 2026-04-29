@@ -16,7 +16,10 @@ class Category extends Model
         'is_popular',
         'status',
         'parent_id',
-        'icons'
+        'icons',
+        'title',
+        'short_description',
+        'detail_content'
     ];
 
     public function institutes()
@@ -25,11 +28,11 @@ class Category extends Model
     }
     public function parent()
     {
-        return $this->belongsTo(Category::class,'parent_id');
+        return $this->belongsTo(Category::class, 'parent_id');
     }
 
     public function children()
     {
-        return $this->hasMany(Category::class,'parent_id');
+        return $this->hasMany(Category::class, 'parent_id');
     }
 }

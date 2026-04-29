@@ -33,16 +33,23 @@ class CategoryController extends Controller
         Category::create([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
+
+            // ✅ NEW SEO FIELDS
+            'title' => $request->title,
+            'short_description' => $request->short_description,
+            'detail_content' => $request->detail_content,
+
             'meta_title' => $request->meta_title,
             'meta_description' => $request->meta_description,
             'tags' => $request->tags,
+
             'is_popular' => $request->is_popular ? 1 : 0,
             'status' => $request->status,
             'parent_id' => $request->parent_id,
             'icons' => $request->icons ?? ""
         ]);
         return redirect()->route('admin.manage-categories.index')
-            ->with('success','Category Created Successfully');
+            ->with('success', 'Category Created Successfully');
     }
 
     // Show edit form
@@ -51,24 +58,31 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $categories = Category::whereNull('parent_id')->get();
 
-        return view('admin.category.form', compact('category','categories'));
+        return view('admin.category.form', compact('category', 'categories'));
     }
 
     // Update category
     public function update(Request $request, $id)
     {
-         $request->validate([
+        $request->validate([
             'name' => 'required'
         ]);
 
         $category = Category::findOrFail($id);
 
         $category->update([
-           'name' => $request->name,
+            'name' => $request->name,
             'slug' => Str::slug($request->name),
+
+            // ✅ NEW SEO FIELDS
+            'title' => $request->title,
+            'short_description' => $request->short_description,
+            'detail_content' => $request->detail_content,
+
             'meta_title' => $request->meta_title,
             'meta_description' => $request->meta_description,
             'tags' => $request->tags,
+
             'is_popular' => $request->is_popular ? 1 : 0,
             'status' => $request->status,
             'parent_id' => $request->parent_id,
@@ -76,7 +90,7 @@ class CategoryController extends Controller
         ]);
 
         return redirect()->route('admin.manage-categories.index')
-            ->with('success','Category Updated Successfully');
+            ->with('success', 'Category Updated Successfully');
     }
 
     // Delete category
@@ -86,6 +100,6 @@ class CategoryController extends Controller
         $category->delete();
 
         return redirect()->route('admin.manage-categories.index')
-            ->with('success','Category Deleted Successfully');
+            ->with('success', 'Category Deleted Successfully');
     }
 }

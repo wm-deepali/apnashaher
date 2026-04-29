@@ -45,98 +45,117 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th>Date & Time</th>
-                                    <th>Name</th>
-                                    <th>Category/Subcategory</th>
-                                    <th>Is Registration Completed </th>
-                                    <th>Is Profile Completed</th>
-                                    <th>Total Courses</th>
-                                    <th>Plan</th>
+                                    <th>Logo</th>
+                                    <th>Institute Name</th>
+                                    <th>Contact Detail</th>
+                                    <th>Location</th>
+                                    <th>Subscription</th>
+                                    <th>Valid Till</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
 
+                            
                             <tbody>
                                 @foreach($institutes as $institute)
+<tr>
 
-                                    <tr>
+    <!-- Date -->
+    <td>{{ date('d M Y, h:i A', strtotime($institute->created_at)) }}</td>
 
-                                        <td>{{ date('Y-m-d g:i A', strtotime($institute->created_at)) }}</td>
+    <!-- Logo -->
+    <td>
+        @if($institute->logo)
+            <img src="{{ asset('storage/'.$institute->logo) }}" width="50" height="50" style="border-radius:6px;">
+        @else
+            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800" width="50">
+        @endif
+    </td>
 
-                                        <td>{{$institute->name}}</td>
+    <!-- Name -->
+    <td>{{ $institute->name }}</td>
 
-                                        <td>{{$institute->category->name ?? ""}} @if(isset($institute->subcategory))
-                                        ({{$institute->subcategory->name ?? ""}}) @endif</td>
+    <!-- Contact -->
+    <td>
+    {{ $institute->mobile }} <br>
+{{ $institute->owner_email ?? '-' }}
+    </td>
 
-                                        <td>
-                                            @if($institute->registration_complete)
-                                                <span class="badge badge-success">Yes</span>
-                                            @else
-                                                <span class="badge badge-secondary">No</span>
-                                            @endif
-                                        </td>
+    <!-- Location -->
+    <td>
+        {{ $institute->city->name ?? '' }}, {{ $institute->state->name ?? '' }}
+    </td>
 
-                                        <td>
-                                            @if($institute->profile_completed)
-                                                <span class="badge badge-success">Yes</span>
-                                            @else
-                                                <span class="badge badge-secondary">No</span>
-                                            @endif
-                                        </td>
-                                        <td>{{$institute->courses->count() ?? 0}}</td>
-                                        <td>{{$institute->latestPlan->plan->name ?? ""}}</td>
-                                        <td>
-                                            @if($institute->status == "approved")
-                                                <span class="badge badge-success">Approved</span>
-                                            @else
-                                                <form action="{{ route('admin.manage-institute.approve', $institute->id) }}"
-                                                    method="POST" style="display:inline-block">
-                                                    @csrf
-                                                    <button class="btn btn-warning btn-sm">
-                                                        Approve
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </td>
-                                        <td>
+    <!-- Subscription -->
+    <td>
+        {{ $institute->latestPlan->plan->name ?? '-' }}
+    </td>
 
-                                            <!-- View -->
-                                            <a href="{{ route('admin.manage-institute.show', $institute->id) }}"
-                                                class="btn btn-primary btn-sm" title="View">
-                                                <i class="fa fa-eye"></i>
-                                            </a>
+    <!-- Valid Till -->
+    <td>
+        {{ isset($institute->latestPlan) ? \Carbon\Carbon::parse($institute->latestPlan->expiry_date)->format('d M Y') : '-' }}
+    </td>
 
-                                            <!-- Edit -->
-                                            <a href="{{ route('admin.institutes-full.edit', $institute->id) }}"
-                                                class="btn btn-primary btn-sm" title="Edit">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
+    <!-- Status -->
+    <td>
+        @if($institute->status == "approved")
+            <span class="badge badge-success">Approved</span>
+        @else
+            <span class="badge badge-warning">Pending</span>
+        @endif
+    </td>
 
-                                            <!-- Profile -->
-                                            <button class="btn btn-primary btn-sm loadModal" data-id="{{$institute->id}}"
-                                                title="Add/Edit Profile">
-                                                <i class="fa fa-user"></i>
-                                            </button>
+    <!-- Actions -->
+    <td>
+    <div class="dropdown">
+        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+            Actions
+        </button>
 
-                                            <!-- Delete -->
-                                            <form action="{{ route('admin.manage-institute.destroy', $institute->id) }}"
-                                                method="POST" style="display:inline-block">
+        <div class="dropdown-menu">
 
-                                                @csrf
-                                                @method('DELETE')
+            <!-- View -->
+            <a class="dropdown-item" href="{{ route('admin.manage-institute.show', $institute->id) }}">
+                👁 View Details
+            </a>
 
-                                                <button class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Delete this category?')" title="Delete">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
+            <!-- Edit -->
+            <a class="dropdown-item" href="{{ route('admin.institutes-full.edit', $institute->id) }}">
+                ✏ Edit
+            </a>
 
-                                            </form>
+            <!-- Profile -->
+            <button class="dropdown-item loadModal" data-id="{{ $institute->id }}">
+                👤 Edit Profile
+            </button>
 
-                                        </td>
+            <!-- Invoice (only if paid) -->
+            @if(isset($institute->payments) && $institute->payments->count() > 0 && $institute->payments->first()->amount > 0)
+                <a class="dropdown-item" href="{{ route('admin.invoice.show', $institute->payments->first()->id) }}">
+                    🧾 View Invoice
+                </a>
+            @endif
 
-                                    </tr>
+            <div class="dropdown-divider"></div>
 
-                                @endforeach
+            <!-- Delete -->
+            <form action="{{ route('admin.manage-institute.destroy', $institute->id) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button class="dropdown-item text-danger"
+                        onclick="return confirm('Delete this institute?')">
+                    🗑 Delete
+                </button>
+            </form>
+
+        </div>
+    </div>
+</td>
+
+</tr>
+@endforeach
+                        
 
                             </tbody>
 

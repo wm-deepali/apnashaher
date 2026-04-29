@@ -3,7 +3,7 @@
 namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; 
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\VerifyInstituteEmail;
@@ -47,7 +47,7 @@ class Institute extends Authenticatable implements MustVerifyEmail
         'approved_by',
         'approved_date',
         'profile_completed',
-         'registration_number',
+        'registration_number',
         'zipcode',
         'logo',
         'linkedin_url',
@@ -73,14 +73,14 @@ class Institute extends Authenticatable implements MustVerifyEmail
     }
     public function latestPlan()
     {
-        return $this->hasOne(InstitutePlan::class) ->where('plan_status', 'completed')->latestOfMany();
+        return $this->hasOne(InstitutePlan::class)->where('plan_status', 'completed')->latestOfMany();
     }
     public function activePlan()
     {
         return $this->hasOne(InstitutePlan::class)
-                    ->where('plan_status', 'completed')
-                    ->where('expiry_date', '>=', Carbon::now())
-                    ->latestOfMany();
+            ->where('plan_status', 'completed')
+            ->where('expiry_date', '>=', Carbon::now())
+            ->latestOfMany();
     }
     public function payments()
     {
@@ -94,7 +94,7 @@ class Institute extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Gallery::class);
     }
-    
+
     public function timings()
     {
         return $this->hasMany(InstituteTiming::class);
@@ -110,13 +110,13 @@ class Institute extends Authenticatable implements MustVerifyEmail
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id')
-                    ->whereNull('parent_id');
+            ->whereNull('parent_id');
     }
 
     public function subcategory()
     {
         return $this->belongsTo(Category::class, 'subcategory_id')
-                    ->whereNotNull('parent_id');
+            ->whereNotNull('parent_id');
     }
     public function state()
     {
@@ -158,5 +158,10 @@ class Institute extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new VerifyInstituteEmail());
+    }
+
+    public function banners()
+    {
+        return $this->hasMany(InstituteBanner::class);
     }
 }

@@ -423,9 +423,15 @@ border-color:#e74c3c;
 
               <div class="form-group full">
                 <label class="form-label">Detailed Information About the Institute *</label>
-                <textarea class="form-textarea" id="institute-desc" name="institute_desc" rows="5" required>{{$institute->detailed_information ?? ''}}</textarea>
-                <span class="error-text institute_desc_error"></span>
                 
+              <textarea class="form-textarea" id="institute-desc" name="institute_desc" rows="5" required>
+{{$institute->detailed_information ?? ''}}
+</textarea>
+<span class="error-text institute_desc_error"></span>
+
+<span class="help-text">
+  Minimum 20 characters required (Please write detailed information about your institute)
+</span>
               </div>
 
               <div class="form-group">
@@ -770,9 +776,14 @@ function validateProfile(){
         errors.est_year=["Established year required"];
     }
 
-    if($("#institute-desc").val().trim()==""){
-        errors.institute_desc=["Institute description required"];
-    }
+    let desc = $("#institute-desc").val().trim();
+
+if(desc == ""){
+    errors.institute_desc = ["Institute description required"];
+}
+else if(desc.length < 20){
+    errors.institute_desc = ["Minimum 20 characters required"];
+}
 
     if(Object.keys(errors).length>0){
         showErrors(errors);
@@ -1009,10 +1020,9 @@ function saveProfileData(callback){
 
             if(xhr.status === 422){ // validation error
                 let errors = xhr.responseJSON.errors;
-                $.each(errors, function(key, value){
-                    // show the first error for each field
-                    $('#' + key + 'Error').text(value[0]);
-                });
+               $.each(errors, function(key, value){
+    $("."+key+"_error").text(value[0]);
+});
             } else {
                 alert('Something went wrong!');
             }

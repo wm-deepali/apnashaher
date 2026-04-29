@@ -2,26 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Institute;
-use App\Models\InstituteReview;
-use App\Models\InstituteTiming;
+use Carbon\Carbon;
+use App\Models\City;
+use App\Models\State;
+use App\Models\Payment;
 use App\Models\Enquiry;
 use App\Models\Gallery;
-use Illuminate\Validation\Rule;
-use App\Models\Payment;
-use App\Models\Country;
-use App\Models\State;
-use App\Models\City;
- use App\Models\InstitutePlan;
-use App\Models\Category;
-use App\Models\InstituteCourseProgram;
-use App\Models\InstituteAnalytics;
 use App\Models\Package;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Category;
+use App\Models\Institute;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\InstitutePlan;
+use Illuminate\Validation\Rule;
+use App\Models\InstituteReview;
+use App\Models\InstituteBanner;
+use App\Models\InstituteTiming;
+use App\Http\Controllers\Controller;
+use App\Models\InstituteCourseProgram;
+use Illuminate\Support\Facades\Storage;
 use App\Notifications\ListingApprovedNotification;
 
 class ManageInstituteController extends Controller
@@ -31,7 +30,8 @@ class ManageInstituteController extends Controller
      */
     public function index()
     {
-        $institutes = Institute::with('plans', 'timings', 'courses', 'category', 'subcategory','leads', 'galleries')
+        $institutes = Institute::with('plans', 'timings', 'courses', 'category', 'subcategory', 'leads', 'galleries')
+            ->latest()
             ->paginate(10);
 
         return view('admin.institute.index', compact('institutes'));
@@ -43,7 +43,7 @@ class ManageInstituteController extends Controller
     public function createFullForm()
     {
         $states = State::all();
-        $categories =  Category::whereNull('parent_id')->get();
+        $categories = Category::whereNull('parent_id')->get();
         $packages = Package::all();
         return view('admin.institute.create', compact('states', 'categories', 'packages'));
     }
@@ -53,14 +53,14 @@ class ManageInstituteController extends Controller
      */
     public function storeFullForm(Request $request)
     {
-        
+
         $request->validate([
-            'name' =>  ['required','min:3','max:80','regex:/^[A-Za-z\s\(\)\.\-&]+$/'],
+            'name' => ['required', 'min:3', 'max:80', 'regex:/^[A-Za-z\s\(\)\.\-&]+$/'],
             'state_id' => 'required',
             'city_id' => 'required',
-            'mobile' => ['required','digits:10','regex:/^[6-9]\d{9}$/','unique:institutes,mobile'],
+            'mobile' => ['required', 'digits:10', 'regex:/^[6-9]\d{9}$/', 'unique:institutes,mobile'],
             'category_id' => 'required',
-        ],[
+        ], [
             'name.regex' => 'Name can contain only letters and spaces.',
             'mobile.regex' => 'Enter valid Indian mobile number.'
         ]);
@@ -87,12 +87,12 @@ class ManageInstituteController extends Controller
         $institute->city_id = $request->city_id;
         $institute->mobile = $request->mobile;
         $institute->mobile_verified = true;
-         $institute->registration_complete = true;
+        $institute->registration_complete = true;
         $institute->whatsapp = $request->whatsapp;
         $institute->category_id = $request->category_id;
         $institute->subcategory_id = $request->subcategory_id;
         $institute->description = $request->description;
-        
+
 
         // GST Fields
         if (isset($request->gstCheck)) {
@@ -116,24 +116,22 @@ class ManageInstituteController extends Controller
         $institutepPlan->expiry_date = now()->addDays(365);
         $institutepPlan->save();
 
-        if($plan->offered_price > 0)
-        {
-            $orderId = "ORD".time();
-        }
-        else{
-            $orderId = 'FREE'.str_pad($institute->id, 5, '0', STR_PAD_LEFT);
+        if ($plan->offered_price > 0) {
+            $orderId = "ORD" . time();
+        } else {
+            $orderId = 'FREE' . str_pad($institute->id, 5, '0', STR_PAD_LEFT);
         }
 
         $payment = new Payment();
         $payment->institute_id = $institute->id;
         $payment->order_id = $orderId;
         $payment->institute_plan_id = $institutepPlan->id;
-        $payment->payment_id =  $request->transaction_id ?? null;
-        $payment->method =  $request->payment_method ?? null;
+        $payment->payment_id = $request->transaction_id ?? null;
+        $payment->method = $request->payment_method ?? null;
         $payment->amount = $plan->offered_price;
         $payment->status = "success";
         $payment->save();
-        
+
         return redirect()
             ->route('admin.manage-institute.index')
             ->with('success', 'Institute Added Successfully');
@@ -144,53 +142,55 @@ class ManageInstituteController extends Controller
      */
     public function show(string $id)
     {
-         $institute = Institute::with([
-        'courses',
-        'timings',
-        'payments',
-        'category',
-        'reviews',
-        'subcategory','leads', 'galleries'
+        $institute = Institute::with([
+            'courses',
+            'timings',
+            'payments',
+            'category',
+            'reviews',
+            'subcategory',
+            'leads',
+            'galleries'
         ])->findOrFail($id);
 
-             $institute->analytics_data = [
-                '7' => [
-                    'calls' => $institute->analytics()
-                        ->where('type', 'call')
-                        ->where('created_at', '>=', now()->subDays(7))
-                        ->count(),
+        $institute->analytics_data = [
+            '7' => [
+                'calls' => $institute->analytics()
+                    ->where('type', 'call')
+                    ->where('created_at', '>=', now()->subDays(7))
+                    ->count(),
 
-                    'whatsapp' => $institute->analytics()
-                        ->where('type', 'whatsapp')
-                        ->where('created_at', '>=', now()->subDays(7))
-                        ->count(),
+                'whatsapp' => $institute->analytics()
+                    ->where('type', 'whatsapp')
+                    ->where('created_at', '>=', now()->subDays(7))
+                    ->count(),
 
-                    'views' => $institute->analytics()
-                        ->where('type', 'view')
-                        ->where('created_at', '>=', now()->subDays(7))
-                        ->count(),
-                ],
+                'views' => $institute->analytics()
+                    ->where('type', 'view')
+                    ->where('created_at', '>=', now()->subDays(7))
+                    ->count(),
+            ],
 
-                '15' => [
-                    'calls' => $institute->analytics()->where('type', 'call')->where('created_at', '>=', now()->subDays(15))->count(),
-                    'whatsapp' => $institute->analytics()->where('type', 'whatsapp')->where('created_at', '>=', now()->subDays(15))->count(),
-                    'views' => $institute->analytics()->where('type', 'view')->where('created_at', '>=', now()->subDays(15))->count(),
-                ],
+            '15' => [
+                'calls' => $institute->analytics()->where('type', 'call')->where('created_at', '>=', now()->subDays(15))->count(),
+                'whatsapp' => $institute->analytics()->where('type', 'whatsapp')->where('created_at', '>=', now()->subDays(15))->count(),
+                'views' => $institute->analytics()->where('type', 'view')->where('created_at', '>=', now()->subDays(15))->count(),
+            ],
 
-                '30' => [
-                    'calls' => $institute->analytics()->where('type', 'call')->where('created_at', '>=', now()->subDays(30))->count(),
-                    'whatsapp' => $institute->analytics()->where('type', 'whatsapp')->where('created_at', '>=', now()->subDays(30))->count(),
-                    'views' => $institute->analytics()->where('type', 'view')->where('created_at', '>=', now()->subDays(30))->count(),
-                ],
+            '30' => [
+                'calls' => $institute->analytics()->where('type', 'call')->where('created_at', '>=', now()->subDays(30))->count(),
+                'whatsapp' => $institute->analytics()->where('type', 'whatsapp')->where('created_at', '>=', now()->subDays(30))->count(),
+                'views' => $institute->analytics()->where('type', 'view')->where('created_at', '>=', now()->subDays(30))->count(),
+            ],
 
-                'all' => [
-                    'calls' => $institute->analytics()->where('type', 'call')->count(),
-                    'whatsapp' => $institute->analytics()->where('type', 'whatsapp')->count(),
-                    'views' => $institute->analytics()->where('type', 'view')->count(),
-                ],
-            ];
+            'all' => [
+                'calls' => $institute->analytics()->where('type', 'call')->count(),
+                'whatsapp' => $institute->analytics()->where('type', 'whatsapp')->count(),
+                'views' => $institute->analytics()->where('type', 'view')->count(),
+            ],
+        ];
 
-        return view('admin.institute.view',compact('institute'));
+        return view('admin.institute.view', compact('institute'));
     }
 
     /**
@@ -198,16 +198,62 @@ class ManageInstituteController extends Controller
      */
     public function edit($id)
     {
-        $institute = Institute::findOrFail($id);
+        $institute = Institute::with('latestPlan')->findOrFail($id);
+
         $states = State::all();
-        $categories =  Category::whereNull('parent_id')->get();
+        $categories = Category::whereNull('parent_id')->get();
         $packages = Package::all();
+
+        // ✅ COURSES
+        $courses = InstituteCourseProgram::where('institute_id', $id)
+            ->latest()
+            ->get();
+
+        // ✅ GALLERY
+        $galleries = Gallery::where('institute_id', $id)
+            ->latest()
+            ->get();
+
+        // ✅ TIMINGS
+        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        $timingsFromDB = InstituteTiming::where('institute_id', $id)
+            ->get()
+            ->keyBy('day');
+
+        $timings = [];
+
+        foreach ($daysOfWeek as $day) {
+            $timings[$day] = $timingsFromDB[$day] ?? (object) [
+                'open_time' => '00:00',
+                'close_time' => '00:00',
+                'is_active' => 0
+            ];
+        }
+
+        $plan = $institute->latestPlan;
+
+        // ✅ Safe features (no crash if no plan)
+        $features = optional($plan->plan)->features;
+
+        // Course limit logic
+        $limitCourse = $features?->courses_programs ?? 0;
+        $instuteCourse = $institute->courses->count() ?? 0;
+
+        $remainingCourses = max($limitCourse - $instuteCourse, 0);
+
+        $banners = InstituteBanner::where('institute_id', $institute->id)->get();
 
         return view('admin.institute.edit', compact(
             'institute',
             'states',
             'categories',
-            'packages'
+            'packages',
+            'courses',
+            'galleries',
+            'timings',
+            'remainingCourses',
+            'banners'
         ));
     }
 
@@ -216,18 +262,17 @@ class ManageInstituteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //dd($request->all());
         $request->validate([
-            'name' =>  ['required','min:3','max:80','regex:/^[A-Za-z\s\(\)\.\-&]+$/'],
+            'name' => ['required', 'min:3', 'max:80', 'regex:/^[A-Za-z\s\(\)\.\-&]+$/'],
             'state_id' => 'required',
             'city_id' => 'required',
-            'mobile' =>  [
-            'required',
-            'digits:10',
-            Rule::unique('institutes', 'mobile')->ignore($id),
-        ],
+            'mobile' => [
+                'required',
+                'digits:10',
+                Rule::unique('institutes', 'mobile')->ignore($id),
+            ],
             'category_id' => 'required',
-        ],[
+        ], [
             'name.regex' => 'Name can contain only letters and spaces.',
             'mobile.regex' => 'Enter valid Indian mobile number.'
         ]);
@@ -253,12 +298,12 @@ class ManageInstituteController extends Controller
         $institute->category_id = $request->category_id;
         $institute->subcategory_id = $request->subcategory_id;
         $institute->description = $request->description;
-     
-        
+
+
 
         // GST update
         if (isset($request->gstCheck)) {
-           $institute->gst_invoice = true;
+            $institute->gst_invoice = true;
             $institute->gstin = $request->gstin;
             $institute->business_name = $request->business_name;
             $institute->billing_address = $request->billing_address;
@@ -276,30 +321,26 @@ class ManageInstituteController extends Controller
         $plan = Package::findOrFail($request->plan_id);
         $payment = Payment::findOrFail($request->payment_id);
 
-        if($request->plan_id != $institutepPlan->plan_id)
-        {
+        if ($request->plan_id != $institutepPlan->plan_id) {
             $institutepPlan->institute_id = $institute->id;
             $institutepPlan->plan_id = $request->plan_id;
             $institutepPlan->price = $plan->offered_price;
             $institutepPlan->save();
 
-            if($plan->offered_price > 0)
-            {
-                $orderId = "ORD".time();
-            }
-            else{
-                $orderId = 'FREE'.str_pad($institute->id, 5, '0', STR_PAD_LEFT);
+            if ($plan->offered_price > 0) {
+                $orderId = "ORD" . time();
+            } else {
+                $orderId = 'FREE' . str_pad($institute->id, 5, '0', STR_PAD_LEFT);
             }
             $payment->institute_id = $institute->id;
             $payment->order_id = $orderId;
-            $payment->payment_id =  $request->transaction_id ?? null;
-            $payment->method =  $request->payment_method ?? null;
+            $payment->payment_id = $request->transaction_id ?? null;
+            $payment->method = $request->payment_method ?? null;
             $payment->amount = $plan->offered_price;
             $payment->save();
-        }
-        else{
-            $payment->payment_id =  $request->transaction_id ?? null;
-            $payment->method =  $request->payment_method ?? null;
+        } else {
+            $payment->payment_id = $request->transaction_id ?? null;
+            $payment->method = $request->payment_method ?? null;
             $payment->amount = $plan->offered_price;
             $payment->save();
         }
@@ -316,7 +357,7 @@ class ManageInstituteController extends Controller
         $institute = Institute::findOrFail($id);
         $institute->delete();
         return redirect()->route('admin.manage-institute.index')
-            ->with('success','Category Deleted Successfully');
+            ->with('success', 'Category Deleted Successfully');
     }
 
     public function approve($id)
@@ -328,8 +369,9 @@ class ManageInstituteController extends Controller
 
         $institute->save();
         $institute->notify(new ListingApprovedNotification($institute->name));
-        return redirect()->back()->with('success','Institute approved successfully');
+        return redirect()->back()->with('success', 'Institute approved successfully');
     }
+
     public function approveReview($id)
     {
         $review = InstituteReview::findOrFail($id);
@@ -338,17 +380,46 @@ class ManageInstituteController extends Controller
 
         $review->save();
 
-        return redirect()->back()->with('success','Review approved successfully');
+        return redirect()->back()->with('success', 'Review approved successfully');
     }
+
+
+    // courses curd
+    public function storeCourse(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'duration' => 'required',
+            'duration_unit' => 'required',
+            'mode' => 'required',
+            'course_fee' => 'required',
+            'available_seats' => 'required',
+        ]);
+
+        $data = $request->except(['_token']);
+
+        // MAIN IMAGE (optional)
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('courses', 'public');
+        }
+
+        // THUMB IMAGE
+        if ($request->hasFile('thumb_image')) {
+            $data['thumb_image'] = $request->file('thumb_image')->store('courses/thumb', 'public');
+        }
+
+        InstituteCourseProgram::create($data);
+
+        return redirect()->back()->with('success', 'Course Added Successfully');
+    }
+
     public function editCourse($id)
     {
-
         $course = InstituteCourseProgram::findOrFail($id);
-
-        return view('admin.institute.partials.edit_course_modal',compact('course'));
-
+        return response()->json($course);
     }
-    public function updateCourse(Request $request,$id)
+
+    public function updateCourse(Request $request, $id)
     {
 
         $course = InstituteCourseProgram::findOrFail($id);
@@ -362,103 +433,154 @@ class ManageInstituteController extends Controller
             'available_seats' => 'required',
             'start_date' => 'required'
         ]);
-    
+
         $data = $request->all();
         $data = $request->except(['_token']);
 
         // Image Upload
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
 
-        if($course->image){
-            Storage::delete('public/'.$course->image);
-        }
+            if ($course->image) {
+                Storage::delete('public/' . $course->image);
+            }
 
-            $data['image'] = $request->file('image')->store('courses','public');
+            $data['image'] = $request->file('image')->store('courses', 'public');
 
         }
 
 
         // Thumb Image Upload
-        if($request->hasFile('thumb_image')){
+        if ($request->hasFile('thumb_image')) {
 
-            if($course->thumb_image){
-                Storage::delete('public/'.$course->thumb_image);
+            if ($course->thumb_image) {
+                Storage::delete('public/' . $course->thumb_image);
             }
 
-            $data['thumb_image'] = $request->file('thumb_image')->store('courses/thumb','public');
+            $data['thumb_image'] = $request->file('thumb_image')->store('courses/thumb', 'public');
 
         }
 
         $course->update($data);
 
-        return response()->json([
-            'success'=>true,
-            'message'=>'Course Updated Successfully'
-        ]);
+        return redirect()->back()->with('success', 'Course Updated Successfully');
 
     }
+
     public function coursedestroy($id)
     {
 
         $course = InstituteCourseProgram::findOrFail($id);
 
-        if($course->image){
-            Storage::delete('public/'.$course->image);
+        if ($course->image) {
+            Storage::delete('public/' . $course->image);
         }
 
-        if($course->thumb_image){
-            Storage::delete('public/'.$course->thumb_image);
+        if ($course->thumb_image) {
+            Storage::delete('public/' . $course->thumb_image);
         }
 
         $course->delete();
 
-        return redirect()->back()->with('success','Course Deleted Successfully');
-
-    }
-
-
-    public function editTiming($id)
-    {
-
-        $timing = InstituteTiming::findOrFail($id);
-
-        return view(
-            'admin.institute.partials.edit_timing_modal',
-            compact('timing')
-        );
-
-    }
-    public function updateTiming(Request $request,$id)
-    {
-
-        $timing = InstituteTiming::findOrFail($id);
-
-        $timing->update([
-
-            'day' => $request->day,
-            'open_time' => $request->open_time,
-            'close_time' => $request->close_time,
-            'is_active' => $request->is_active, // <-- important
-
+        return response()->json([
+            'success' => true,
+            'message' => 'Course Deleted Successfully'
         ]);
+
+    }
+
+
+    // gallery curd
+    public function storeGallery(Request $request)
+    {
+        $request->validate([
+            'images.*' => 'required|image|max:5120'
+        ]);
+
+        foreach ($request->file('images') as $image) {
+
+            $path = $image->store('gallery', 'public');
+
+            Gallery::create([
+                'institute_id' => $request->institute_id,
+                'image' => $path
+            ]);
+        }
 
         return response()->json([
-            'success'=>true,
-            'message'=>'Timing updated successfully'
+            'success' => true,
+            'message' => 'Images uploaded successfully'
         ]);
-
     }
-    public function destroyTiming($id)
+
+    public function destroyGallery($id)
     {
 
-        $timing = InstituteTiming::findOrFail($id);
+        $gallery = Gallery::findOrFail($id);
+        if ($gallery->image) {
+            Storage::delete('public/' . $gallery->image);
+        }
+        $gallery->delete();
 
-        $timing->delete();
-
-        return redirect()->back()
-        ->with('success','Timing deleted successfully');
-
+        return response()->json([
+            'success' => true
+        ]);
     }
+
+    // banner curd
+    public function storeBanner(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image'
+        ]);
+
+        $path = $request->file('image')->store('banners', 'public');
+
+        InstituteBanner::create([
+            'institute_id' => $request->institute_id,
+            'image' => $path,
+            'title' => $request->title,
+            'link' => $request->link,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyBanner($id)
+    {
+        $banner = InstituteBanner::findOrFail($id);
+
+        if ($banner->image) {
+            Storage::delete('public/' . $banner->image);
+        }
+
+        $banner->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    // timing curd
+    public function updateTimings(Request $request)
+    {
+        $instituteId = $request->institute_id;
+
+        foreach ($request->timings as $day => $data) {
+
+            InstituteTiming::updateOrCreate(
+                [
+                    'institute_id' => $instituteId,
+                    'day' => $day
+                ],
+                [
+                    'open_time' => $data['open_time'] ?? '00:00',
+                    'close_time' => $data['close_time'] ?? '00:00',
+                    'is_active' => isset($data['is_active']) ? 1 : 0
+                ]
+            );
+        }
+
+        return redirect()->back()->with('success', 'Timings updated successfully');
+    }
+
     public function destroyReview($id)
     {
 
@@ -467,16 +589,16 @@ class ManageInstituteController extends Controller
         $instuteId = $review->institute_id;
         $review->delete();
         $avg = InstituteReview::where('institute_id', $instuteId)
-            ->whereNotNull('rating')       
-            ->avg('rating');    
+            ->whereNotNull('rating')
+            ->avg('rating');
 
         Institute::where('id', $instuteId)
             ->update(['rating' => round($avg, 2)]); // round to 2 decimals   
-                   
-        
+
+
 
         return redirect()->back()
-        ->with('success','Review deleted successfully');
+            ->with('success', 'Review deleted successfully');
 
     }
     public function destroyLead($id)
@@ -485,26 +607,18 @@ class ManageInstituteController extends Controller
         $lead = Enquiry::findOrFail($id);
         $lead->delete();
         return redirect()->back()
-        ->with('success','Enquiry deleted successfully');
+            ->with('success', 'Enquiry deleted successfully');
     }
-    public function destroyGallery($id)
+
+
+    public function getCities($state_id)
     {
-
-        $gallery = Gallery::findOrFail($id);
-        if($gallery->image){
-            Storage::delete('public/'.$gallery->image);
-        }
-        $gallery->delete();
-        return redirect()->back()
-        ->with('success','Image deleted successfully');
-    }
-
-    public function getCities($state_id) {
         return City::where('state_id', $state_id)->get();
     }
 
-    public function getSubcategories($category_id) {
-         
+    public function getSubcategories($category_id)
+    {
+
         return Category::where('parent_id', $category_id)->get();
     }
     public function generateUniqueSlug($slug)
@@ -533,7 +647,10 @@ class ManageInstituteController extends Controller
         $validated = $request->validate([
             'owner_name' => 'required|string|max:255',
             'designation' => 'required',
-             'email' => 'required','email','max:255',Rule::unique('institutes', 'owner_email')->ignore($institute->id),
+            'email' => 'required',
+            'email',
+            'max:255',
+            Rule::unique('institutes', 'owner_email')->ignore($institute->id),
             'established_year' => 'required|integer|min:1900|max:2026',
             'institute_desc' => 'required',
             'website' => 'nullable|url',
@@ -551,7 +668,7 @@ class ManageInstituteController extends Controller
         ]);
 
 
-        
+
 
         if (!$institute) {
             $institute = new Institute();
@@ -575,4 +692,63 @@ class ManageInstituteController extends Controller
             'message' => 'Saved Successfully'
         ]);
     }
+
+    public function showInvoice($id)
+    {
+        $payment = Payment::with([
+            'institute.state',
+            'institute.city',
+            'instituteplan.plan'
+        ])->findOrFail($id);
+
+        return view('admin.institute.show-invoice', compact('payment'));
+    }
+
+    public function adminUpgradePlan(Request $request)
+    {
+        $request->validate([
+            'institute_id' => 'required',
+            'plan_id' => 'required',
+            'method' => 'required'
+        ]);
+
+        $plan = Package::findOrFail($request->plan_id);
+
+        // ❌ same plan block
+        $existingPlan = InstitutePlan::where('institute_id', $request->institute_id)->first();
+        if ($existingPlan && $existingPlan->plan_id == $plan->id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Already on this plan'
+            ]);
+        }
+
+        // ✅ create/update plan (direct completed)
+        $institutePlan = InstitutePlan::updateOrCreate(
+            ['institute_id' => $request->institute_id],
+            [
+                'plan_id' => $plan->id,
+                'price' => $plan->offered_price,
+                'start_date' => now(),
+                'expiry_date' => now()->addDays(365),
+                'plan_status' => 'completed'
+            ]
+        );
+
+        // ✅ create payment
+        Payment::create([
+            'institute_id' => $request->institute_id,
+            'institute_plan_id' => $institutePlan->id,
+            'order_id' => strtoupper($request->method) . time(),
+            'payment_id' => $request->transaction_id ?? null,
+            'method' => ucfirst($request->method),
+            'amount' => $plan->offered_price,
+            'status' => 'success'
+        ]);
+
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
 }

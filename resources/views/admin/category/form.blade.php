@@ -171,6 +171,33 @@
                                 </div>
                             </div>
 
+
+                            <div class="col-md-12">
+    <div class="form-group">
+        <label>Title (H1)</label>
+        <input type="text" name="title" class="form-control"
+               value="{{ $category->title ?? '' }}">
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="form-group">
+        <label>Short Description</label>
+        <textarea name="short_description" class="form-control" rows="3">
+{{ $category->short_description ?? '' }}
+        </textarea>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="form-group">
+        <label>Detail Content (SEO Content)</label>
+        <textarea name="detail_content" class="form-control" rows="6">
+{{ $category->detail_content ?? '' }}
+        </textarea>
+    </div>
+</div>
+
                             <div class="col-md-6">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="is_popular" value="1"

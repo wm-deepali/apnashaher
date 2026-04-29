@@ -11,11 +11,10 @@ use App\Models\State;
 use App\Models\City;
 use App\Models\InstituteCourseProgram;
 use App\Models\InstituteReview;
+use App\Models\InstituteBanner;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
@@ -31,160 +30,175 @@ use Illuminate\Support\Facades\Auth;
 
 class InstituteController extends Controller
 {
-    public function step1(Request $request){
+    public function step1(Request $request)
+    {
         $request->validate([
-            'name' => ['required','min:3','max:80','regex:/^[A-Za-z\s\(\)\.\-&]+$/'],
-            'state' => ['required','exists:states,id'],
-            'city' => ['required','exists:cities,id'],
-            'mobile' => ['required','digits:10','regex:/^[6-9]\d{9}$/']
-            ],[
+            'name' => ['required', 'min:3', 'max:80', 'regex:/^[A-Za-z\s\(\)\.\-&]+$/'],
+            'state' => ['required', 'exists:states,id'],
+            'city' => ['required', 'exists:cities,id'],
+            'mobile' => ['required', 'digits:10', 'regex:/^[6-9]\d{9}$/']
+        ], [
             'name.regex' => 'Name can contain only letters and spaces.',
             'mobile.regex' => 'Enter valid Indian mobile number.'
         ]);
-        
-        $existing = Institute::where('mobile',$request->mobile)->first();
 
-        if($existing){
+        $existing = Institute::where('mobile', $request->mobile)->first();
+
+        if ($existing) {
 
             // If registration already completed
-            if($existing->registration_complete){
+            if ($existing->registration_complete) {
 
                 return response()->json([
-                    'status'=>false,
-                    'message'=>'Mobile number already registered'
+                    'status' => false,
+                    'message' => 'Mobile number already registered'
                 ]);
 
             }
             // If registration incomplete → continue
             return response()->json([
-                'status'=>true,
-                'institute_id'=>$existing->id,
-                'resume'=>true
+                'status' => true,
+                'institute_id' => $existing->id,
+                'resume' => true
             ]);
 
         }
-        $otpVerified = Otp::where('mobile',$request->mobile)
-        ->where('verified',true)
-        ->exists();
+        $otpVerified = Otp::where('mobile', $request->mobile)
+            ->where('verified', true)
+            ->exists();
 
-        if(!$otpVerified){
+        if (!$otpVerified) {
             return response()->json([
-                'status'=>false,
-                'message'=>'Mobile not verified'
+                'status' => false,
+                'message' => 'Mobile not verified'
             ]);
         }
-        
+
         $slug = Str::slug($request->name);
 
         $slug = $this->generateUniqueSlug($slug);
 
         $institute = Institute::create([
-            'name'=>$request->name,
+            'name' => $request->name,
             'slug' => $slug,
-            'country'=>'India',
-            'state_id'=>$request->state,
-            'city_id'=>$request->city,
-            'mobile'=>$request->mobile,
-            'mobile_verified'=>true
+            'country' => 'India',
+            'state_id' => $request->state,
+            'city_id' => $request->city,
+            'mobile' => $request->mobile,
+            'mobile_verified' => true
         ]);
 
-        return response()->json(['status'=>true,'institute_id'=>$institute->id]);
+        return response()->json(['status' => true, 'institute_id' => $institute->id]);
     }
 
-    public function step2(Request $request){
+    public function step2(Request $request)
+    {
         //dd($request->all());
         $request->validate([
-            'institute_id' => ['required','exists:institutes,id'],
-            'category_id' => ['required','exists:categories,id'],
+            'institute_id' => ['required', 'exists:institutes,id'],
+            'category_id' => ['required', 'exists:categories,id'],
             'subcategory_id' => ['nullable'],
-            'description' => ['required','max:200'],
-            'whatsapp' => ['nullable','digits:10','regex:/^[6-9]\d{9}$/', 'unique:institutes,whatsapp']
+            'description' => ['required', 'max:200'],
+            'whatsapp' => ['nullable', 'digits:10', 'regex:/^[6-9]\d{9}$/', 'unique:institutes,whatsapp']
         ]);
 
-        Institute::where('id',$request->institute_id)->update([
-             'category_id'=>$request->category_id,
-            'subcategory_id'=>$request->subcategory_id,
-            'description'=>$request->description,
-            'whatsapp'=>$request->whatsapp
+        Institute::where('id', $request->institute_id)->update([
+            'category_id' => $request->category_id,
+            'subcategory_id' => $request->subcategory_id,
+            'description' => $request->description,
+            'whatsapp' => $request->whatsapp
         ]);
 
-        return response()->json(['status'=>true]);
+        return response()->json(['status' => true]);
     }
 
-    public function step4(Request $request){
+    public function step4(Request $request)
+    {
         $request->validate([
-            'institute_id' => ['required','exists:institutes,id'],
+            'institute_id' => ['required', 'exists:institutes,id'],
             'terms' => ['accepted'],
-            'invoice_email' => ['nullable','email:rfc,dns'],
-            'gstin' => ['nullable','regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/']
-        ],[
-            'gstin.regex'=>'Enter valid GSTIN number'
+            'invoice_email' => ['nullable', 'email:rfc,dns'],
+            'gstin' => ['nullable', 'regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/']
+        ], [
+            'gstin.regex' => 'Enter valid GSTIN number'
         ]);
 
-        Institute::where('id',$request->institute_id)->update([
-            'gst_invoice'=>$request->gst_invoice == false ? 0 : 1,
-            'gstin'=>$request->gstin,
-            'business_name'=>$request->business_name,
-            'billing_address'=>$request->billing_address,
-            'invoice_email'=>$request->invoice_email,
+        Institute::where('id', $request->institute_id)->update([
+            'gst_invoice' => $request->gst_invoice == false ? 0 : 1,
+            'gstin' => $request->gstin,
+            'business_name' => $request->business_name,
+            'billing_address' => $request->billing_address,
+            'invoice_email' => $request->invoice_email,
         ]);
-        
-        
-        return response()->json(['status'=>true]);
+
+
+        return response()->json(['status' => true]);
     }
     public function profile()
     {
         $institute = Auth::guard('institute')->user();
 
-        if(!$institute){
+        if (!$institute) {
             return redirect()->route('home');
         }
-        if($institute->profile_completed)
-        {
+        if ($institute->profile_completed) {
             return redirect()->route('institute.dashboard');
         }
         $institute = Institute::where('id', $institute->id)->first();
         $plan = $institute->latestPlan;
-       
+
         $features = $plan->plan->features ?? null;
         $limitCourse = $features?->courses_programs ?? 0;
         $instuteCourse = $institute->courses->count() ?? 0;
         $remainingCourses = max($limitCourse - $instuteCourse, 0);
-        
+
         return view('front.insitute.profile', compact('institute', 'remainingCourses'));
     }
     public function dashboard()
     {
         $institute = Auth::guard('institute')->user();
 
-        if(!$institute){
+        if (!$institute) {
             return redirect()->route('home');
         }
-        $institute = Institute::with('category','subcategory','latestPlan')->where('id', $institute->id)->first();
+        $institute = Institute::with('category', 'subcategory', 'latestPlan')->where('id', $institute->id)->first();
+
         $plan = $institute->latestPlan;
-       
-        $features = $plan->plan->features ?? null;
+
+        // ✅ Safe features (no crash if no plan)
+        $features = optional($plan->plan)->features;
+
+        // Course limit logic
         $limitCourse = $features?->courses_programs ?? 0;
         $instuteCourse = $institute->courses->count() ?? 0;
+
         $data['remainingCourses'] = max($limitCourse - $instuteCourse, 0);
+
+        // ✅ NEW: Max Plan Check
+        $allPlans = \App\Models\Package::orderByDesc('offered_price')->get();
+        $maxPlan = $allPlans->first();
+
+        $currentPlanId = $plan->plan_id ?? null;
+
+        $data['isMaxPlan'] = ($currentPlanId == $maxPlan->id);
 
         $data['states'] = State::where('country_id', 1)->get();
         $data['cities'] = City::where('state_id', $institute->state_id)->get();
-        $daysOfWeek = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
         // Fetch timings from DB
         $timingsFromDB = InstituteTiming::where('institute_id', $institute->id)->get()->keyBy('day');
 
         // Build full timings array for all 7 days
         $timings = [];
-        
+
 
         foreach ($daysOfWeek as $day) {
             if (isset($timingsFromDB[$day])) {
                 $timings[$day] = $timingsFromDB[$day]; // use DB values
             } else {
                 // default OFF day
-                $timings[$day] = (object)[
+                $timings[$day] = (object) [
                     'open_time' => '00:00',
                     'close_time' => '00:00',
                     'is_active' => 0
@@ -198,7 +212,8 @@ class InstituteController extends Controller
         $data['leads'] = Enquiry::with('course')->where('institute_id', $institute->id)->orderBy('id', 'desc')->get();
         $data['reviews'] = InstituteReview::where('institute_id', $institute->id)->where('status', 'approved')->orderBy('id', 'desc')->get();
         $data['notifications'] = $institute->notifications()->latest()->get(); // all notifications
-    
+        $data['banners'] = InstituteBanner::where('institute_id', $institute->id)->get();
+
         return view('front.insitute.dashboard', $data);
     }
     public function saveProfile(Request $request)
@@ -208,7 +223,10 @@ class InstituteController extends Controller
 
             'owner_name' => 'required|string|max:255',
             'designation' => 'required|string|max:100',
-             'email' => 'required','email','max:255',Rule::unique('institutes', 'owner_email')->ignore($institute->id),
+            'email' => 'required',
+            'email',
+            'max:255',
+            Rule::unique('institutes', 'owner_email')->ignore($institute->id),
             'est_year' => 'required|integer|min:1900|max:' . date('Y'),
             'institute_desc' => 'required|string|min:20',
             'website' => 'nullable|url',
@@ -229,8 +247,8 @@ class InstituteController extends Controller
         if ($validator->fails()) {
 
             return response()->json([
-                'errors'=>$validator->errors()
-            ],422);
+                'errors' => $validator->errors()
+            ], 422);
 
         }
         $institute = Auth::guard('institute')->user();
@@ -242,7 +260,7 @@ class InstituteController extends Controller
             ], 401); // 401 Unauthorized is more correct
         }
 
-    
+
         $institute->update([
             'owner_name' => $request->owner_name,
             'designation' => $request->designation,
@@ -301,16 +319,16 @@ class InstituteController extends Controller
                 'message' => 'Please login first'
             ], 401); // 401 Unauthorized is more correct
         }
-        $plan = InstitutePlan::where('institute_id',$institute->id)->first();
+        $plan = InstitutePlan::where('institute_id', $institute->id)->first();
         foreach ($request->courses as $index => $course) {
 
             $imagePath = null;
 
-           if ($request->hasFile("courses.$index.image")) {
+            if ($request->hasFile("courses.$index.image")) {
 
                 $file = $request->file("courses.$index.image");
 
-                $filename = uniqid().'_'.$file->getClientOriginalName();
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
 
                 $imagePath = $file->storeAs('courses', $filename, 'public');
 
@@ -332,7 +350,7 @@ class InstituteController extends Controller
                     'thumb_image' => $imagePath
                 ]
             );
-            
+
         }
 
         return response()->json([
@@ -350,7 +368,7 @@ class InstituteController extends Controller
 
     public function saveTiming(Request $request)
     {
-//dd($request->all());
+        //dd($request->all());
         $validator = Validator::make($request->all(), [
 
             'timings' => 'required|array',
@@ -368,8 +386,8 @@ class InstituteController extends Controller
         if ($validator->fails()) {
 
             return response()->json([
-                'status'=>false,
-                'errors'=>$validator->errors()
+                'status' => false,
+                'errors' => $validator->errors()
             ]);
         }
 
@@ -387,26 +405,27 @@ class InstituteController extends Controller
             InstituteTiming::updateOrCreate(
 
                 [
-                    'institute_id'=>$institute->id,
-                    'day'=>$timing['day']
+                    'institute_id' => $institute->id,
+                    'day' => $timing['day']
                 ],
 
                 [
-                    'open_time'=>$timing['open'],
-                    'close_time'=>$timing['close'],
-                    'is_active'=>$timing['active']
+                    'open_time' => $timing['open'],
+                    'close_time' => $timing['close'],
+                    'is_active' => $timing['active']
                 ]
 
             );
         }
 
         return response()->json([
-            'status'=>true,
-            'message'=>'Timing saved successfully'
+            'status' => true,
+            'message' => 'Timing saved successfully'
         ]);
     }
 
-    public function checkSlug(Request $request){
+    public function checkSlug(Request $request)
+    {
 
         $slug = Str::slug($request->slug);
 
@@ -417,27 +436,28 @@ class InstituteController extends Controller
         ]);
     }
 
-    
-    public function saveSlug(Request $request){
+
+    public function saveSlug(Request $request)
+    {
 
         $institute = Auth::guard('institute')->user();
 
         $slug = Str::slug($request->slug);
 
-        $blocked = ['admin','login','register'];
+        $blocked = ['admin', 'login', 'register'];
 
-        if(in_array($slug, $blocked)){
-            return response()->json(['message'=>'This URL is not allowed'],422);
+        if (in_array($slug, $blocked)) {
+            return response()->json(['message' => 'This URL is not allowed'], 422);
         }
 
-        if(Institute::where('slug',$slug)->exists()){
-            return response()->json(['message'=>'Slug already taken'],422);
+        if (Institute::where('slug', $slug)->exists()) {
+            return response()->json(['message' => 'Slug already taken'], 422);
         }
 
         $institute->slug = $slug;
         $institute->save();
 
-        return response()->json(['status'=>true]);
+        return response()->json(['status' => true]);
     }
 
     public function generateUniqueSlug($slug)
@@ -452,14 +472,14 @@ class InstituteController extends Controller
 
         return $slug;
     }
-    
+
 
     public function updateProfile(Request $request, $id)
     {
         $institute = Institute::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|min:3|max:80|regex:/^[A-Za-z\s\(\)\.\-&]+$/',
             'owner_name' => 'required|string|max:255',
             'designation' => 'nullable|string|max:255',
             'established_year' => 'nullable|digits:4',
@@ -510,19 +530,19 @@ class InstituteController extends Controller
         $institute = Institute::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'facebook_url'  => ['nullable','url'],
-            'linkedin_url'  => ['nullable','url'],
-            'twitter_url'   => ['nullable','url'],
-            'instagram_url' => ['nullable','url'],
-            'youtube_url'   => ['nullable','url'],
-            'google_url'    => ['nullable','url'],
+            'facebook_url' => ['nullable', 'url'],
+            'linkedin_url' => ['nullable', 'url'],
+            'twitter_url' => ['nullable', 'url'],
+            'instagram_url' => ['nullable', 'url'],
+            'youtube_url' => ['nullable', 'url'],
+            'google_url' => ['nullable', 'url'],
         ], [
             '*.url' => 'Please enter a valid URL (e.g., https://www.example.com)',
 
-            'facebook_url.url'  => 'Enter valid Facebook URL (https://www.facebook.com/username)',
+            'facebook_url.url' => 'Enter valid Facebook URL (https://www.facebook.com/username)',
             'instagram_url.url' => 'Enter valid Instagram URL (https://www.instagram.com/username)',
-            'youtube_url.url'   => 'Enter valid YouTube URL (https://www.youtube.com/@channel)',
-            'twitter_url.url'   => 'Enter valid Twitter (X) URL (https://twitter.com/username)',
+            'youtube_url.url' => 'Enter valid YouTube URL (https://www.youtube.com/@channel)',
+            'twitter_url.url' => 'Enter valid Twitter (X) URL (https://twitter.com/username)',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -546,17 +566,17 @@ class InstituteController extends Controller
     }
     public function updateTimings(Request $request, $institute_id)
     {
-        $daysOfWeek = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
         // Validation rules
-        $daysOfWeek = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
         $rules = [];
         $messages = [];
 
         foreach ($daysOfWeek as $day) {
             $rules["timings.$day.open_time"] = 'required';
-            $rules["timings.$day.close_time"] = 'required|after_or_equal:timings.'.$day.'.open_time';
+            $rules["timings.$day.close_time"] = 'required|after_or_equal:timings.' . $day . '.open_time';
             $rules["timings.$day.is_active"] = 'sometimes|boolean';
 
             // Custom messages
@@ -601,17 +621,17 @@ class InstituteController extends Controller
 
         // Handle file upload
         if ($request->hasFile('thumb_image')) {
-            
+
             $manager = new ImageManager(new Driver());
 
-           $file = $request->file('thumb_image');
+            $file = $request->file('thumb_image');
 
             // ✅ 1. Store ORIGINAL image
             $originalPath = $file->store('courses', 'public');
             $validated['image'] = $originalPath;
 
             // ✅ 2. Create THUMBNAIL (resized)
-             $thumbnail = $manager->read($file)
+            $thumbnail = $manager->read($file)
                 ->cover(400, 300)   // best for fixed size
                 ->toJpeg(80);       // compression
 
@@ -639,6 +659,7 @@ class InstituteController extends Controller
 
         return view('front.insitute.edit-modal', compact('course'));
     }
+
     public function updateCourses(Request $request)
     {
         $course = InstituteCourseProgram::findOrFail($request->id);
@@ -672,7 +693,7 @@ class InstituteController extends Controller
                     Storage::disk('public')->delete($course->thumb_image);
                 }
 
-                
+
                 $file = $request->file('thumb_image');
 
                 // ✅ 1. Store ORIGINAL image
@@ -680,7 +701,7 @@ class InstituteController extends Controller
                 $validated['image'] = $originalPath;
 
                 // ✅ 2. Create THUMBNAIL (resized)
-               $thumbnail = $manager->read($file)
+                $thumbnail = $manager->read($file)
                     ->cover(400, 300)   // best for fixed size
                     ->toJpeg(80);       // compression
 
@@ -776,13 +797,13 @@ class InstituteController extends Controller
             'value' => 'required'
         ]);
 
-       
+
         $type = $request->type;
         $value = $request->value;
 
         // 🔥 UNIQUE CHECK
         if ($type == 'email') {
-           $request->validate([
+            $request->validate([
                 'value' => [
                     'required',
                     'email',
@@ -827,22 +848,20 @@ class InstituteController extends Controller
         Session::put('update_type', $request->type);
         Session::put('new_value', $request->value);
         Session::put('otp_time', now());
-        if($request->type == 'email')
-        {
+        if ($request->type == 'email') {
             Mail::to($request->value)->send(new SendOtpMail($otp));
-        }
-        else{
+        } else {
             $message = "{$otp} is the One Time Password(OTP) to verify your MOB number at Web Mingo, This OTP is Usable only once and is valid for 10 min,PLS DO NOT SHARE THE OTP WITH ANYONE";
             $dlt_id = '1307161465983326774';
-            $pe_id  = '1301160576431389865';
+            $pe_id = '1301160576431389865';
             $authkey = '133780AWLy8zZpC690b124aP1';
-    
+
             $params = [
                 'authkey' => $authkey,
                 'mobiles' => $request->mobile,
-                'sender'  => 'WMINGO',
+                'sender' => 'WMINGO',
                 'message' => urlencode($message),
-                'route'   => '4',
+                'route' => '4',
                 'country' => '91',
                 'DLT_TE_ID' => $dlt_id,
                 'PE_ID' => $pe_id
@@ -855,12 +874,12 @@ class InstituteController extends Controller
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+
             $output = curl_exec($ch);
             $curl_error = curl_error($ch);
             curl_close($ch);
         }
-         
+
 
         return response()->json([
             'success' => true,
@@ -885,9 +904,12 @@ class InstituteController extends Controller
 
         $institute = Auth::guard('institute')->user();
 
-        if ($type == 'mobile') $institute->mobile = $value;
-        if ($type == 'whatsapp') $institute->whatsapp = $value;
-        if ($type == 'email') $institute->owner_email = $value;
+        if ($type == 'mobile')
+            $institute->mobile = $value;
+        if ($type == 'whatsapp')
+            $institute->whatsapp = $value;
+        if ($type == 'email')
+            $institute->owner_email = $value;
 
         $institute->save();
 
@@ -910,5 +932,37 @@ class InstituteController extends Controller
         return response()->json(['success' => true]);
     }
 
-   
+
+    public function storeBanners(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|max:2048'
+        ]);
+
+        $path = $request->file('image')->store('banners', 'public');
+
+        InstituteBanner::create([
+            'institute_id' => $request->institute_id,
+            'image' => $path,
+            'title' => $request->title,
+            'link' => $request->link,
+        ]);
+
+        return response()->json(['message' => 'Banner uploaded successfully']);
+    }
+
+    public function destroyBanners($id)
+    {
+        $banner = InstituteBanner::findOrFail($id);
+
+        if ($banner->image) {
+            Storage::delete('public/' . $banner->image);
+        }
+
+        $banner->delete();
+
+        return response()->json(['message' => 'Banner deleted']);
+    }
+
+
 }

@@ -2,23 +2,84 @@
 
 <style>
     .form-check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-}
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
 
-.form-check-input {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-}
+    .form-check-input {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
 
-.form-check-label {
-    margin: 0;
-    cursor: pointer;
-}
+    .form-check-label {
+        margin: 0;
+        cursor: pointer;
+    }
+</style>
 
+<style>
+    /* Multi Select Subcategory - Clean & Nice Look */
+    .subcategory-multi-select {
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        background: #ffffff;
+        padding: 16px;
+        min-height: 140px;
+        max-height: 320px;
+        overflow-y: auto;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .subcategory-multi-select label {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 10px 12px;
+        margin: 0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .subcategory-multi-select label:hover {
+        background-color: #f8fafc;
+    }
+
+    .subcategory-multi-select input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        accent-color: #3b82f6;
+        cursor: pointer;
+        flex-shrink: 0;
+        /* Important - checkbox size fixed rahe */
+    }
+
+    .subcategory-multi-select span {
+        font-size: 15px;
+        line-height: 1.4;
+        color: #374151;
+        flex: 1;
+    }
+
+    /* Scrollbar Styling (Optional but looks premium) */
+    .subcategory-multi-select::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .subcategory-multi-select::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .subcategory-multi-select label {
+        display: flex;
+        align-items: center;
+    }
 </style>
 
 @section('page_title', isset($institute) ? 'Edit Institute' : 'Add Institute')
@@ -125,8 +186,12 @@
                             <!-- WhatsApp -->
                             <div class="form-group">
                                 <label>WhatsApp</label>
-                                <input type="text" name="whatsapp" class="form-control"
+                                <input type="text" id="whatsapp" name="whatsapp" class="form-control"
                                     value="{{ $institute->whatsapp ?? '' }}">
+
+                                <small id="whatsappError" style="color:red; display:none;">
+                                    WhatsApp already exists!
+                                </small>
                             </div>
 
                             <!-- Category -->
@@ -144,10 +209,19 @@
 
                             <!-- Subcategory -->
                             <div class="form-group">
-                                <label>Subcategory</label>
-                                <select class="form-control" id="subcategory_id" name="subcategory_id">
-                                    <option value="">Select Subcategory</option>
-                                </select>
+                                <label>Sub Categories</label>
+
+                                <div id="subcategoryContainer"
+                                    class="subcategory-multi-select border border-gray-300 rounded-xl p-4 bg-white min-h-[140px] max-h-[320px] overflow-auto">
+
+                                    <div id="subcategoryCheckboxes" class="space-y-3">
+                                        <!-- Dynamic checkboxes will come here -->
+                                    </div>
+                                </div>
+
+
+                                <!-- Hidden input to store selected IDs -->
+                                <input type="hidden" name="subcategory_id" id="subcategory_id">
                             </div>
 
                             <!-- Description -->
@@ -173,18 +247,35 @@
 
                                 <div class="form-group">
                                     <label>Transaction ID *</label>
-                                    <input type="text" name="transaction_id" id="transaction_id" class="form-control">
+                                   <input type="text" name="transaction_id" id="transaction_id" class="form-control"
+       value="{{ $institute->activePlan->payment->payment_id ?? '' }}">
                                 </div>
 
                                 <div class="form-group">
                                     <label>Payment Method *</label>
-                                    <select name="payment_method" id="payment_method" class="form-control">
-                                        <option value="">Select Method</option>
-                                        <option value="upi">UPI</option>
-                                        <option value="card">Card</option>
-                                        <option value="netbanking">Net Banking</option>
-                                        <option value="cash">Cash</option>
-                                    </select>
+<select name="payment_method" id="payment_method" class="form-control">
+    <option value="">Select Method</option>
+
+    <option value="upi"
+        {{ optional($institute->activePlan->payment)->method == 'upi' ? 'selected' : '' }}>
+        UPI
+    </option>
+
+    <option value="card"
+        {{ optional($institute->activePlan->payment)->method == 'card' ? 'selected' : '' }}>
+        Card
+    </option>
+
+    <option value="netbanking"
+        {{ optional($institute->activePlan->payment)->method == 'netbanking' ? 'selected' : '' }}>
+        Net Banking
+    </option>
+
+    <option value="cash"
+        {{ optional($institute->activePlan->payment)->method == 'cash' ? 'selected' : '' }}>
+        Cash
+    </option>
+</select>
                                 </div>
 
                             </div>
@@ -261,18 +352,18 @@
 
         // ✅ Payment Toggle
         function togglePaymentSection() {
-            let price = parseFloat($('#plan_id option:selected').data('price')) || 0;
+    let price = parseFloat($('#plan_id option:selected').data('price')) || 0;
 
-            if (price > 0) {
-                $('#paymentSection').show();
-                $('#transaction_id').attr('required', true);
-                $('#payment_method').attr('required', true);
-            } else {
-                $('#paymentSection').hide();
-                $('#transaction_id').removeAttr('required');
-                $('#payment_method').removeAttr('required');
-            }
-        }
+    if (price > 0 || $('#transaction_id').val()) {
+        $('#paymentSection').show();
+        $('#transaction_id').attr('required', true);
+        $('#payment_method').attr('required', true);
+    } else {
+        $('#paymentSection').hide();
+        $('#transaction_id').removeAttr('required');
+        $('#payment_method').removeAttr('required');
+    }
+}
 
         $('#plan_id').change(togglePaymentSection);
         togglePaymentSection(); // page load
@@ -296,20 +387,43 @@
             }
         }
 
+        $(document).on('change', '.subcat-checkbox', function () {
+            updateSelectedSubcategories();
+        });
+
+        function updateSelectedSubcategories() {
+            let selected = [];
+
+            $('.subcat-checkbox:checked').each(function () {
+                selected.push($(this).val());
+            });
+
+            $('#subcategory_id').val(selected.join(','));
+        }
+
         function loadSubcategories(category_id) {
             if (category_id) {
                 let subcateurl = "{{ url('/admin/get-subcategories/') }}/";
+
                 $.get(subcateurl + category_id, function (data) {
-                    let options = '<option value="">Select Subcategory</option>';
+
+                    let html = '';
+                    let selected = (selectedSubcategory || '').split(',');
 
                     data.forEach(function (sub) {
-                        options += `<option value="${sub.id}" 
-                        ${sub.id == selectedSubcategory ? 'selected' : ''}>
-                        ${sub.name}
-                    </option>`;
+                        let checked = selected.includes(String(sub.id)) ? 'checked' : '';
+
+                        html += `
+                    <label>
+                        <input type="checkbox" value="${sub.id}" ${checked} class="subcat-checkbox">
+                        <span>${sub.name}</span>
+                    </label>
+                `;
                     });
 
-                    $('#subcategory_id').html(options);
+                    $('#subcategoryCheckboxes').html(html);
+
+                    updateSelectedSubcategories();
                 });
             }
         }
@@ -356,6 +470,40 @@
                 }
 
             });
+        }
+    });
+
+    let whatsappExists = false;
+
+    $('#whatsapp').on('blur', function () {
+        let whatsapp = $(this).val();
+
+        if (whatsapp.length === 10) {
+            let url = "{{ url('admin/institutes/check-whatsapp') }}";
+
+            $.get(url, { whatsapp: whatsapp }, function (response) {
+
+                if (response == 1) {
+                    $('#whatsappError').show();
+                    whatsappExists = true;
+                } else {
+                    $('#whatsappError').hide();
+                    whatsappExists = false;
+                }
+
+            });
+        }
+    });
+
+    $('form').on('submit', function (e) {
+        if (mobileExists) {
+            alert("Mobile number already exists!");
+            e.preventDefault();
+        }
+
+        if (whatsappExists) {
+            alert("WhatsApp number already exists!");
+            e.preventDefault();
         }
     });
 </script>

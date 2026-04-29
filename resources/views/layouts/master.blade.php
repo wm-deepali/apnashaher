@@ -304,11 +304,20 @@ if($institute) {
     }
 
     // Step 5: Social links added (all 4 required)
-    if(!empty($institute->facebook_url) && !empty($institute->instagram_url) && !empty($institute->youtube_url) && !empty($institute->twitter_url)) {
-        $percentage += 10;
-    } elseif($showtext == "") {
-        $showtext = "Add social media links to improve score";
-    }
+   $socialCount = collect([
+    $institute->facebook_url,
+    $institute->linkedin_url,
+    $institute->twitter_url,
+    $institute->instagram_url,
+    $institute->google_url,
+    $institute->youtube_url,
+])->filter()->count();
+
+if($socialCount >= 2) {
+    $percentage += 10;
+} elseif($showtext == "") {
+    $showtext = "Add at least 2 social media links to improve score";
+}
 
     // Step 6: Email verified
     if($institute->hasVerifiedEmail()) {
@@ -366,6 +375,8 @@ if($institute) {
                     class="tab-btn py-4 border-b-2 border-transparent text-gray-500">Courses</button>
                 <button onclick="showTab(event,'gallery')"
                     class="tab-btn py-4 border-b-2 border-transparent text-gray-500">Gallery</button>
+                <button onclick="showTab(event,'banners')"
+                    class="tab-btn py-4 border-b-2 border-transparent text-gray-500">Banners</button>
                 <button onclick="showTab(event,'leads')"
                     class="tab-btn py-4 border-b-2 border-transparent text-gray-500">Leads</button>
                     <button onclick="showTab(event,'notification')"

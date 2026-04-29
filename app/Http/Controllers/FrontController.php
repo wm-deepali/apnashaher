@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Country;
 use App\Models\State;
 use App\Models\City;
- use App\Models\Faq;
- use App\Models\Institute;
+use App\Models\Faq;
+use App\Models\Institute;
 use App\Models\Page;
 use App\Models\Blog;
 use App\Models\Category;
@@ -19,39 +19,64 @@ use App\Models\JobOpening;
 
 class FrontController extends Controller
 {
-  public function home($city = null)
-{
-    $data['poppularcities'] = City::where('is_popular', 1)->get();
-    $data['categories'] = Category::get();
+    public function home($city = null)
+    {
+        $data['poppularcities'] = City::where('is_popular', 1)->get();
+        $data['categories'] = Category::whereNull('parent_id')->get();
 
-    $data['faqs'] = Faq::where('status', 1)
-                        ->where('show_on_home', 1)
-                        ->orderBy('sort_order', 'asc')
-                        ->get();
-    $data['cityslug'] = $city;
-    return view('front.home', $data);
-}
+        $data['faqs'] = Faq::where('status', 1)
+            ->where('show_on_home', 1)
+            ->orderBy('sort_order', 'asc')
+            ->get();
+        $data['cityslug'] = $city;
+
+        // Featured (based on plan or flag)
+        $data['featuredInstitutes'] = Institute::with('latestPlan.plan.features')
+            ->whereHas('latestPlan.plan.features', function ($q) {
+                $q->where('featured_in_category_listings', true);
+            })
+            ->latest()
+            ->take(8)
+            ->get();
+
+        // Popular (based on views)
+        $data['popularInstitutes'] = Institute::orderByDesc('views')
+            ->take(8)
+            ->get();
+
+        // Recent
+        $data['recentInstitutes'] = Institute::latest()
+            ->take(8)
+            ->get();
+
+        return view('front.home', $data);
+    }
 
     public function listyourinstitute()
     {
-        $data['states']=State::where('country_id', 1)->get();
+        $data['states'] = State::where('country_id', 1)->get();
         $data['categories'] = Category::whereNull('parent_id')->get();
         $data['packages'] = Package::orderBy('offered_price', 'asc')->get();
         return view('front.list-your-institute', $data);
     }
 
-  
-public function faqs()
-{
-    $faqs = Faq::where('status',1)
-                ->orderBy('sort_order','asc')
-                ->get();
 
-    return view('front.faq', compact('faqs'));
-}
+    public function faqs()
+    {
+        $faqs = Faq::where('status', 1)
+            ->orderBy('sort_order', 'asc')
+            ->get();
+
+        return view('front.faq', compact('faqs'));
+    }
     public function plans()
     {
         $data['packages'] = Package::orderBy('offered_price', 'asc')->get();
+
+        // correct guard
+        $user = auth('institute')->user();
+        $data['currentPlanId'] = $user?->latestPlan?->plan_id ?? null;
+
         return view('front.plan', $data);
     }
 
@@ -73,49 +98,49 @@ public function faqs()
     public function explore($city = null)
     {
         $data['cityslug'] = $city;
-        
+
         return view('front.explore', $data);
     }
 
-   
+
     public function listing($categorySlug, $citySlug = null)
     {
-        
-       
-    $citySlug = $citySlug ? str_replace('-in-', '', $citySlug) : null;
-    $cityslug = $citySlug;
-   
-    $selectedSubcategory = Category::where('slug', $categorySlug)
-        ->whereNotNull('parent_id') // subcategory
-        ->first();
 
-    if ($selectedSubcategory) {
-        // It's a subcategory
-        $category = Category::findOrFail($selectedSubcategory->parent_id);
-    } else {
-        // It's a parent category
-        $category = Category::where('slug', $categorySlug)
-            ->whereNull('parent_id')
-            ->firstOrFail();
-    }
 
-  
-    $city = $citySlug ? City::where('slug', $citySlug)->first() : null;
+        $citySlug = $citySlug ? str_replace('-in-', '', $citySlug) : null;
+        $cityslug = $citySlug;
 
-   
-       $filteredCategories = Category::withCount('institutes')
-        ->whereNull('parent_id') // only parent categories
-        ->get();
+        $selectedSubcategory = Category::where('slug', $categorySlug)
+            ->whereNotNull('parent_id') // subcategory
+            ->first();
 
-       $filteredSubcategories = Category::whereNotNull('parent_id')
-        ->get()
-        ->groupBy('parent_id');
+        if ($selectedSubcategory) {
+            // It's a subcategory
+            $category = Category::findOrFail($selectedSubcategory->parent_id);
+        } else {
+            // It's a parent category
+            $category = Category::where('slug', $categorySlug)
+                ->whereNull('parent_id')
+                ->firstOrFail();
+        }
 
-   
+
+        $city = $citySlug ? City::where('slug', $citySlug)->first() : null;
+
+
+        $filteredCategories = Category::withCount('institutes')
+            ->whereNull('parent_id') // only parent categories
+            ->get();
+
+        $filteredSubcategories = Category::whereNotNull('parent_id')
+            ->get()
+            ->groupBy('parent_id');
+
+
         // Institutes query
-        $institutesQuery = Institute::with('category','subcategory','courses','latestPlan')
+        $institutesQuery = Institute::with('category', 'subcategory', 'courses', 'latestPlan')
             ->where('status', 'approved');
-    
+
         // If subcategory selected → filter by subcategory
         if ($selectedSubcategory) {
             $institutesQuery->where('subcategory_id', $selectedSubcategory->id);
@@ -124,19 +149,19 @@ public function faqs()
             // else filter by category
             $institutesQuery->where('category_id', $category->id);
         }
-    
+
         if ($city) {
             $institutesQuery->where('city_id', $city->id);
         }
-        
+
         $listingInstitutes = $institutesQuery->get()
-            ->map(function($inst) {
+            ->map(function ($inst) {
                 $plan = $inst->latestPlan?->plan;
                 $features = $plan?->features;
-    
+
                 $preferred = $features->preferred_institute_badge ?? false;
-                $verified  = $features->verified_badge ?? false;
-    
+                $verified = $features->verified_badge ?? false;
+
                 if ($inst->logo) {
                     $logo = asset('storage/' . $inst->logo);
                     $logoType = 'image';
@@ -148,7 +173,7 @@ public function faqs()
                     $bgColor = pastelColor();
                     $textColor = '#333';
                 }
-    
+
                 return [
                     'id' => $inst->id,
                     'name' => $inst->name,
@@ -173,12 +198,12 @@ public function faqs()
                     'views' => $inst->views ?? 0,
                 ];
             });
-    
+
         return view('front.listing', compact(
-           'category',
+            'category',
             'city',
-            'filteredCategories',          
-            'filteredSubcategories',      
+            'filteredCategories',
+            'filteredSubcategories',
             'listingInstitutes',
             'cityslug',
             'selectedSubcategory'
@@ -199,20 +224,22 @@ public function faqs()
     public function blogDetails($slug)
     {
         $date['blog'] = Blog::where('slug', $slug)->where('status', 1)->first();
-        $date['realted_blogs'] = Blog::where('slug', '!=' ,$slug)->where('status', 1)->take(6)->get();
+        $date['realted_blogs'] = Blog::where('slug', '!=', $slug)->where('status', 1)->take(6)->get();
         return view('front.blog-details', $date);
     }
 
     public function details($slug)
     {
-       // dd($slug);
-        $institute = Institute::with(['courses', 'timings' => function ($query) {
+        // dd($slug);
+        $institute = Institute::with([
+            'courses',
+            'timings' => function ($query) {
                 $query->orderBy('is_active', 'desc'); // active (1) pehle aayenge
-            }])->where('slug', $slug)->where('status', 'approved')->first();
-        if(!$institute){
+            }
+        ])->where('slug', $slug)->where('status', 'approved')->first();
+        if (!$institute) {
             return redirect()->route('home');
-        }
-        else{
+        } else {
             InstituteAnalytics::create([
                 'institute_id' => $institute->id,
                 'type' => 'view',
@@ -224,9 +251,9 @@ public function faqs()
             }
             $verified = $institute->verified; // or is_verified
 
-return view('front.details', compact('institute', 'verified'));
+            return view('front.details', compact('institute', 'verified'));
         }
-        
+
     }
     public function getcourseById($id)
     {
@@ -270,8 +297,8 @@ return view('front.details', compact('institute', 'verified'));
     {
         return view('front.why-us');
     }
-   
-   public function jobOpenings()
+
+    public function jobOpenings()
     {
         $jobs = JobOpening::latest()->get();
 

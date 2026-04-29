@@ -183,35 +183,40 @@
 </a>
 
 
-    @if(Auth::guard('institute')->check())
+   @if(Auth::guard('institute')->check())
+
+    <!-- ✅ Logged-in user -->
+    <a href="{{route('institute.dashboard')}}" class="footer-item">
+        <i class="fas fa-user"></i>
+        <span>Dashboard</span>
+    </a>
+
+
+<a href="{{ route('institute.dashboard') }}?tab=leads" class="footer-item">
+    <i class="fas fa-envelope"></i>
+    <span>Enquiries</span>
+</a>
+
+@else
+
+    <!-- ✅ Guest user -->
     <div class="app-mode-footer">
         <a href="{{route('list-your-institute')}}" class="footer-item highlight">
             <i class="fas fa-plus"></i>
-            <!--<span>List</span>-->
         </a>
         <a href="{{route('list-your-institute')}}" class="footer-item">
-            <!--<i class="fas fa-plus"></i>-->
             <span>List</span>
         </a>
-        </div>
+    </div>
 
-        <a href="{{route('login')}}" class="footer-item">
-            <i class="fas fa-sign-in-alt"></i>
-            <span>Sign-In</span>
-        </a>
-    @else
-        <a href="{{route('institute.dashboard')}}" class="footer-item">
-            <i class="fas fa-user"></i>
-            <span>Dashboard</span>
-        </a>
+    <a href="{{route('login')}}" class="footer-item">
+        <i class="fas fa-sign-in-alt"></i>
+        <span>Sign-In</span>
+    </a>
 
-        <a href="#" class="footer-item">
-            <i class="fas fa-envelope"></i>
-            <span>Enquiries</span>
-        </a>
-    @endif
+@endif
 
-    <a href="#" class="footer-item">
+    <a href="{{ route('seller-supports') }}" class="footer-item">
         <i class="fas fa-headset"></i>
         <span>Support</span>
     </a>

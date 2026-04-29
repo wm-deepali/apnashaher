@@ -105,7 +105,7 @@ if (!function_exists('getHomeSeller')) {
     
          return $query->get()
             ->map(function($inst) {
-                $plan = $inst->latestPlan->plan;
+                $plan = $inst->latestPlan->plan ?? null;
                 $features = $plan->features ?? null;
 
                 // âœ… Priority logic (scalable)

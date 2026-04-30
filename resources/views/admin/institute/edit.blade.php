@@ -785,11 +785,20 @@
                 <select id="plan_id" class="form-control mb-3">
                     <option value="">Select Plan</option>
                     @foreach(\App\Models\Package::all() as $pkg)
-                        <option value="{{ $pkg->id }}">
+                        <option value="{{ $pkg->id }}" data-price="{{ $pkg->offered_price }}">
                             {{ $pkg->name }} - ₹{{ $pkg->offered_price }}
                         </option>
                     @endforeach
                 </select>
+
+                <div id="pricePreview" class="border p-3 mb-3" style="display:none;">
+                    <p><strong>Base:</strong> ₹<span id="base_price">0</span></p>
+                    <p>CGST: ₹<span id="cgst">0</span></p>
+                    <p>SGST: ₹<span id="sgst">0</span></p>
+                    <p>IGST: ₹<span id="igst">0</span></p>
+                    <hr>
+                    <h5>Total: ₹<span id="total_price">0</span></h5>
+                </div>
 
                 <!-- 🔥 Payment Method -->
                 <select id="payment_method" class="form-control mb-3">
@@ -1198,6 +1207,43 @@
 
         }
 
+    });
+
+
+    $('#plan_id').on('change', function () {
+
+        let base = parseFloat($(this).find(':selected').data('price')) || 0;
+
+        if (!base) {
+            $('#pricePreview').hide();
+            return;
+        }
+
+        let companyState = {{ $invoiceSetting->company_state ?? 0 }};
+        let instituteState = {{ $institute->state_id ?? 0 }};
+
+        let cgstPercent = {{ $invoiceSetting->cgst ?? 0 }};
+        let sgstPercent = {{ $invoiceSetting->sgst ?? 0 }};
+        let igstPercent = {{ $invoiceSetting->igst ?? 0 }};
+
+        let cgst = 0, sgst = 0, igst = 0;
+
+        if (companyState == instituteState) {
+            cgst = (base * cgstPercent) / 100;
+            sgst = (base * sgstPercent) / 100;
+        } else {
+            igst = (base * igstPercent) / 100;
+        }
+
+        let total = base + cgst + sgst + igst;
+
+        $('#base_price').text(base.toFixed(2));
+        $('#cgst').text(cgst.toFixed(2));
+        $('#sgst').text(sgst.toFixed(2));
+        $('#igst').text(igst.toFixed(2));
+        $('#total_price').text(total.toFixed(2));
+
+        $('#pricePreview').show();
     });
 
 </script>

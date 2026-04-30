@@ -1,12 +1,12 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InvoiceSetting;
 use App\Models\State;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceSettingController extends Controller
 {
@@ -23,19 +23,27 @@ class InvoiceSettingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'company_name' => 'required|string|max:255',
-            'company_address' => 'required|string',
-            'company_state' => 'required',
-            'company_city' => 'required',
-            'company_pincode' => 'required',
-            'invoice_prefix' => 'required|string|max:10',
+            'company_name'     => 'required|string|max:255',
+            'company_address'  => 'required|string',
+
+            // 🔥 Invoice validation
+            'invoice_type'     => 'required|in:serial,random',
+            'invoice_serial'   => 'required_if:invoice_type,serial|nullable|integer|min:1',
+            'random_length'    => 'required_if:invoice_type,random|nullable|integer|min:4|max:10',
         ]);
 
         $data = $request->all();
 
-        // 🔥 Checkbox handling
-        $data['random_invoice'] = $request->has('random_invoice');
+        // 🔥 GST checkbox
         $data['gst_enabled'] = $request->has('gst_enabled');
+
+        // 🔥 Invoice Type Logic (IMPORTANT)
+        if ($request->invoice_type === 'random') {
+            $data['invoice_serial'] = $data['invoice_serial'] ?? 1; // fallback
+        } else {
+            $data['invoice_serial'] = $data['invoice_serial'] ?? 1;
+            $data['random_length'] = null; // clean unused field
+        }
 
         // 🔥 Logo upload
         if ($request->hasFile('company_logo')) {
@@ -51,33 +59,37 @@ class InvoiceSettingController extends Controller
         return back()->with('success', 'Invoice & GST settings saved successfully');
     }
 
-    // 🔥 Generate Invoice Number
-
+    // 🔥 Generate Invoice Number (SAFE VERSION)
     public static function generateInvoiceNumber()
     {
-        $setting = \App\Models\InvoiceSetting::first();
+        return DB::transaction(function () {
 
-        if (!$setting) {
-            return 'INV-00001';
-        }
+            $setting = InvoiceSetting::lockForUpdate()->first();
 
-        // 🔥 RANDOM MODE
-        if ($setting->random_invoice) {
+            if (!$setting) {
+                return 'INV-00001';
+            }
 
-            $length = $setting->random_length ?? 6;
+            // 🔥 RANDOM MODE
+            if ($setting->isRandom()) {
 
-            $random = strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, $length));
+                $length = $setting->random_length ?? 6;
 
-            return $setting->invoice_prefix . '-' . $random;
-        }
+                $random = strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, $length));
 
-        // 🔥 SERIAL MODE
-        $number = $setting->invoice_prefix . '-' .
-            str_pad($setting->invoice_serial, 5, '0', STR_PAD_LEFT);
+                return $setting->invoice_prefix . '-' . $random;
+            }
 
-        // increment serial safely
-        $setting->increment('invoice_serial');
+            // 🔥 SERIAL MODE (race-condition safe)
+            $currentSerial = $setting->invoice_serial;
 
-        return $number;
+            $number = $setting->invoice_prefix . '-' .
+                str_pad($currentSerial, 5, '0', STR_PAD_LEFT);
+
+            // increment safely
+            $setting->increment('invoice_serial');
+
+            return $number;
+        });
     }
 }

@@ -8,7 +8,7 @@ class InvoiceSetting extends Model
 {
     protected $fillable = [
 
-        // Company
+        // 🔹 Company
         'company_name',
         'company_logo',
         'company_address',
@@ -18,14 +18,14 @@ class InvoiceSetting extends Model
         'company_city',
         'company_pincode',
 
-        // Invoice
+        // 🔹 Invoice
         'invoice_prefix',
         'invoice_serial',
-        'random_invoice',
+        'invoice_type', // ✅ NEW (serial / random)
         'random_length',
         'terms_conditions',
 
-        // GST
+        // 🔹 GST
         'cgst',
         'sgst',
         'igst',
@@ -33,11 +33,33 @@ class InvoiceSetting extends Model
     ];
 
     protected $casts = [
-        'random_invoice' => 'boolean',
         'gst_enabled' => 'boolean',
+        'invoice_serial' => 'integer',
+        'random_length' => 'integer',
     ];
 
-    // 🔥 Relations (useful later)
+    /*
+    |--------------------------------------------------------------------------
+    | 🔥 Helper Methods (important for clean usage)
+    |--------------------------------------------------------------------------
+    */
+
+    public function isSerial()
+    {
+        return $this->invoice_type === 'serial';
+    }
+
+    public function isRandom()
+    {
+        return $this->invoice_type === 'random';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 🔗 Relations
+    |--------------------------------------------------------------------------
+    */
+
     public function state()
     {
         return $this->belongsTo(State::class, 'company_state');

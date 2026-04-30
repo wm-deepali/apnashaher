@@ -411,11 +411,14 @@ class ManageInstituteController extends Controller
      */
     public function edit($id)
     {
-        $institute = Institute::with('latestPlan')->findOrFail($id);
+        $institute = Institute::with('latestPlan', 'courses')->findOrFail($id);
 
         $states = State::all();
         $categories = Category::whereNull('parent_id')->get();
         $packages = Package::all();
+
+        // ✅ GST SETTINGS
+        $invoiceSetting = InvoiceSetting::first();
 
         // ✅ COURSES
         $courses = InstituteCourseProgram::where('institute_id', $id)
@@ -452,10 +455,9 @@ class ManageInstituteController extends Controller
             $features = $plan->plan->features;
         }
 
-        // Course limit logic
+        // ✅ Course limit
         $limitCourse = $features?->courses_programs ?? 0;
         $instuteCourse = $institute->courses->count() ?? 0;
-
         $remainingCourses = max($limitCourse - $instuteCourse, 0);
 
         $banners = InstituteBanner::where('institute_id', $institute->id)->get();
@@ -469,10 +471,10 @@ class ManageInstituteController extends Controller
             'galleries',
             'timings',
             'remainingCourses',
-            'banners'
+            'banners',
+            'invoiceSetting' // 🔥 IMPORTANT
         ));
     }
-
     /**
      * Update the specified resource in storage.
      */
@@ -920,6 +922,7 @@ class ManageInstituteController extends Controller
 
         return view('admin.institute.show-invoice', compact('invoice', 'setting'));
     }
+
     public function adminUpgradePlan(Request $request)
     {
         $request->validate([
@@ -939,31 +942,97 @@ class ManageInstituteController extends Controller
             ]);
         }
 
-        // ✅ create/update plan (direct completed)
+        // ✅ get institute + settings
+        $institute = Institute::findOrFail($request->institute_id);
+        $setting = InvoiceSetting::first();
+
+        $base = $plan->offered_price;
+
+        // 🔥 GST calculation (same as PaymentController)
+        $sameState = $setting->company_state == $institute->state_id;
+
+        if ($sameState) {
+            $cgst = ($base * $setting->cgst) / 100;
+            $sgst = ($base * $setting->sgst) / 100;
+            $igst = 0;
+        } else {
+            $cgst = 0;
+            $sgst = 0;
+            $igst = ($base * $setting->igst) / 100;
+        }
+
+        $total = $base + $cgst + $sgst + $igst;
+
+        // ✅ create/update plan
         $institutePlan = InstitutePlan::updateOrCreate(
             ['institute_id' => $request->institute_id],
             [
                 'plan_id' => $plan->id,
-                'price' => $plan->offered_price,
+                'price' => $base,
                 'start_date' => now(),
                 'expiry_date' => now()->addDays(365),
                 'plan_status' => 'completed'
             ]
         );
 
-        // ✅ create payment
-        Payment::create([
+        // ✅ create payment (ADMIN = success directly)
+        $payment = Payment::create([
             'institute_id' => $request->institute_id,
             'institute_plan_id' => $institutePlan->id,
             'order_id' => strtoupper($request->method) . time(),
             'payment_id' => $request->transaction_id ?? null,
             'method' => ucfirst($request->method),
-            'amount' => $plan->offered_price,
+            'amount' => $base,
+            'cgst' => $cgst,
+            'sgst' => $sgst,
+            'igst' => $igst,
+            'total' => $total,
             'status' => 'success'
         ]);
 
+        // 🔥 Invoice number
+        $invoiceNumber = \App\Http\Controllers\Admin\InvoiceSettingController::generateInvoiceNumber();
+
+        // 🔥 Invoice type
+        $invoiceType = $institute->gst_invoice ? 'Tax Invoice' : 'Sale Invoice';
+
+        // 🔥 Billing address
+        $billingAddress = $institute->gst_invoice
+            ? $institute->billing_address
+            : $institute->profile_address;
+
+        // ✅ create invoice (same snapshot logic)
+        Invoice::create([
+            'payment_id' => $payment->id,
+            'institute_id' => $institute->id,
+
+            'invoice_number' => $invoiceNumber,
+            'invoice_type' => $invoiceType,
+
+            // company snapshot
+            'company_name' => $setting->company_name,
+            'company_address' => $setting->company_address,
+            'company_gstin' => $setting->company_gstin,
+            'billing_email' => $institute->invoice_email ?: "test@example.com",
+
+            // customer snapshot
+            'customer_name' => $institute->business_name ?? $institute->name,
+            'billing_address' => $billingAddress,
+            'customer_gstin' => $institute->gst_invoice ? $institute->gstin : null,
+
+            // pricing
+            'base_amount' => $base,
+            'cgst' => $cgst,
+            'sgst' => $sgst,
+            'igst' => $igst,
+            'total' => $total,
+
+            'terms_conditions' => $setting->terms_conditions
+        ]);
+
         return response()->json([
-            'status' => true
+            'status' => true,
+            'message' => 'Plan upgraded successfully with invoice'
         ]);
     }
 

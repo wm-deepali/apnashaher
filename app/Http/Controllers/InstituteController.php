@@ -210,18 +210,13 @@ class InstituteController extends Controller
         $data['canUpgrade'] = false;
 
         if ($plan && $plan->expiry_date) {
-
             $expiry = Carbon::parse($plan->expiry_date);
+            $today = Carbon::now();
 
-            // ❌ expired
-            if ($expiry->lt($today)) {
-                $data['isExpired'] = true;
-            }
+            $data['isExpired'] = $expiry->isPast();
 
-            // ⚠️ expiring in 5 days
-            elseif ($expiry->diffInDays($today) <= 5) {
-                $data['isExpiringSoon'] = true;
-            }
+            $data['isExpiringSoon'] = !$data['isExpired']
+                && $expiry->lte($today->copy()->addDays(5));
         }
 
         // ✅ Upgrade logic

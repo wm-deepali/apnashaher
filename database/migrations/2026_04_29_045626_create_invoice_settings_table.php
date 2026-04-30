@@ -19,16 +19,23 @@ return new class extends Migration {
             $table->string('company_phone')->nullable();
             $table->string('company_gstin')->nullable();
 
-            // 🔥 NEW (important for GST logic)
+            // 🔹 Location
             $table->unsignedBigInteger('company_state')->nullable();
             $table->unsignedBigInteger('company_city')->nullable();
-            $table->string('company_pincode')->nullable();
+            $table->string('company_pincode', 10)->nullable();
 
             // 🔹 Invoice Settings
             $table->string('invoice_prefix')->default('INV');
+
+            // ✅ NEVER NULL (important fix)
             $table->bigInteger('invoice_serial')->default(1);
-            $table->boolean('random_invoice')->default(false);
+
+            // 🔥 Mode control (better than checkbox logic confusion)
+            $table->enum('invoice_type', ['serial', 'random'])->default('serial');
+
+            // optional for random mode
             $table->integer('random_length')->nullable();
+
             $table->text('terms_conditions')->nullable();
 
             // 🔹 GST Settings

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Packages')
+@section('meta_title', 'Packages')
 @push('styles')
 <style>
   .thank-you-section {

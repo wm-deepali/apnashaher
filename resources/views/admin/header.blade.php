@@ -113,6 +113,12 @@
                     </a>
                 </li>
 
+                <li class="{{ request()->routeIs('admin.seo-settings.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.seo-settings.index') }}">
+                        <i class="fa-solid fa-globe"></i> SEO Settings
+                    </a>
+                </li>
+
             </ul>
         </li>
 

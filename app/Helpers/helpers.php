@@ -4,6 +4,7 @@ use App\Models\Category;
 use App\Models\Page;
 use App\Models\Institute;
 use Torann\GeoIP\Facades\GeoIP;
+use App\Models\SeoSetting;
 
 if (!function_exists('topcities')) {
     function topcities()
@@ -13,6 +14,7 @@ if (!function_exists('topcities')) {
         return $dropcities;
     }
 }
+
 if (!function_exists('getmylocation')) {
     function getmylocation()
     {
@@ -172,6 +174,7 @@ function pastelColor()
     $b = rand(127, 255);
     return sprintf("#%02X%02X%02X", $r, $g, $b);
 }
+
 if (!function_exists('listingCategories')) {
     /**
      * Get all top-level categories with institute counts
@@ -197,6 +200,7 @@ if (!function_exists('listingCategories')) {
             ->toArray();
     }
 }
+
 if (!function_exists('listingSubcategories')) {
     /**
      * Get all subcategories grouped by parent category
@@ -219,6 +223,7 @@ if (!function_exists('listingSubcategories')) {
         return $data;
     }
 }
+
 if (!function_exists('listingInstitutes')) {
     /**
      * Get all approved institutes for listing page
@@ -302,11 +307,20 @@ if (!function_exists('listingInstitutes')) {
             ->toArray();
     }
 }
+
 if (!function_exists('getDreawerCategories')) {
     function getDreawerCategories()
     {
         return $categories = Category::with('children')
             ->whereNull('parent_id')
             ->get();
+    }
+}
+
+if (!function_exists('getSeo')) {
+
+    function getSeo($pageKey)
+    {
+        return SeoSetting::where('page_key', $pageKey)->first();
     }
 }

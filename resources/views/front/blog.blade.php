@@ -1,5 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Blogs')
+
+@php
+    $seo = getSeo('blogs');
+@endphp
+
+@section('meta_title', $seo->meta_title ?? 'Blogs')
+
+@section('meta_description', $seo->meta_description ?? '')
+
+@section('other_scripts')
+
+    {!! $seo->other_scripts ?? '' !!}
+
+@endsection
+
 @push('styles')
 <style>
     .pricing-cards-container {

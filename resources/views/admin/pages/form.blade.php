@@ -77,7 +77,63 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
+                        {{-- SEO Section --}}
+                        <div class="card border-0 shadow-sm mt-4">
+
+                            <div class="card-header bg-light">
+                                <strong>SEO Settings</strong>
+                            </div>
+
+                            <div class="card-body">
+
+                                {{-- Meta Title --}}
+                                <div class="mb-3">
+
+                                    <label for="meta_title" class="form-label">
+                                        Meta Title
+                                    </label>
+
+                                    <input type="text" name="meta_title" id="meta_title"
+                                        class="form-control @error('meta_title') is-invalid @enderror"
+                                        value="{{ old('meta_title', $page->meta_title ?? '') }}"
+                                        placeholder="Enter meta title">
+
+                                    @error('meta_title')
+
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+
+                                    @enderror
+
+                                </div>
+
+                                {{-- Meta Description --}}
+                                <div class="mb-0">
+
+                                    <label for="meta_description" class="form-label">
+                                        Meta Description
+                                    </label>
+
+                                    <textarea name="meta_description" id="meta_description" rows="4"
+                                        class="form-control @error('meta_description') is-invalid @enderror"
+                                        placeholder="Enter meta description">{{ old('meta_description', $page->meta_description ?? '') }}</textarea>
+
+                                    @error('meta_description')
+
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+
+                                    @enderror
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-3">
                             {{ isset($page) ? 'Update Page' : 'Create Page' }}
                         </button>
                     </form>

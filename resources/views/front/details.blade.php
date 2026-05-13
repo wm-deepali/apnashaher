@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Help & Support')
+@section('meta_title', 'Help & Support')
 @push('styles')
   <style>
     .en-mobile-btn {

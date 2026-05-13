@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Institute Dashboard')
+@section('meta_title', 'Institute Dashboard')
 @section('content')
   <style>
     .timing-card {

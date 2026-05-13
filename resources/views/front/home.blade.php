@@ -1,8 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Home')
+
 @php
-  $pagebanner = 'partials.home-slider';
+    $seo = getSeo('home');
+    $pagebanner = 'partials.home-slider';
 @endphp
+
+@section('meta_title', $seo->meta_title ?? 'Home')
+
+@section('meta_description', $seo->meta_description ?? '')
+
+@section('other_scripts')
+
+    {!! $seo->other_scripts ?? '' !!}
+
+@endsection
 
 @section('content')
   <style>

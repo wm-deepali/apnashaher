@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Login')
+@section('meta_title', 'Login')
 @push('styles')
   <!-- ==================== FIXED & PREMIUM CSS ==================== -->
   <style>

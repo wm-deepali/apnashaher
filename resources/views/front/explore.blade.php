@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Institute Listing')
+@section('meta_title', 'Institute Listing')
 @push('styles')
 <style>
         .listing-page-section {

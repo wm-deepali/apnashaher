@@ -1,5 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Contact Us')
+
+@php
+    $seo = getSeo('contact-us');
+@endphp
+
+@section('meta_title', $seo->meta_title ?? 'Contact Us')
+
+@section('meta_description', $seo->meta_description ?? '')
+
+@section('other_scripts')
+
+    {!! $seo->other_scripts ?? '' !!}
+
+@endsection
+
 @push('styles')
 <!-- Custom CSS -->
 <style>

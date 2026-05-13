@@ -1,7 +1,14 @@
 @extends('layouts.app')
-@section('title')
-{{$page->title}}
+
+@section('meta_title', $page->meta_title ?? $page->title)
+
+@section('meta_description', $page->meta_description ?? '')
+
+@section('other_scripts')
+
 @endsection
+
+
 @push('styles')
 <!-- Custom CSS -->
 <style>

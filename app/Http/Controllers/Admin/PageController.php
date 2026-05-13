@@ -13,8 +13,9 @@ class PageController extends Controller
      */
     public function index()
     {
-        // Only show published pages (status = 1)
-        $pages = Page::where('status', 1)->orderBy('title')->get();
+        $pages = Page::where('status', 1)
+            ->orderBy('title')
+            ->get();
 
         return view('admin.pages.index', compact('pages'));
     }
@@ -33,14 +34,38 @@ class PageController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+
             'title' => 'required|string|max:255',
+
             'slug'  => 'required|string|max:255|unique:pages,slug',
+
             'content' => 'required',
+
+            'meta_title' => 'nullable|string|max:255',
+
+            'meta_description' => 'nullable|string',
+
         ]);
 
-        Page::create($request->all());
+        Page::create([
 
-        return redirect()->route('admin.manage-page.index')->with('success', 'Page created successfully!');
+            'title' => $request->title,
+
+            'slug' => $request->slug,
+
+            'content' => $request->content,
+
+            'status' => $request->status ?? 1,
+
+            'meta_title' => $request->meta_title,
+
+            'meta_description' => $request->meta_description,
+
+        ]);
+
+        return redirect()
+            ->route('admin.manage-page.index')
+            ->with('success', 'Page created successfully!');
     }
 
     /**
@@ -57,6 +82,7 @@ class PageController extends Controller
     public function edit(string $id)
     {
         $page = Page::findOrFail($id);
+
         return view('admin.pages.form', compact('page'));
     }
 
@@ -68,14 +94,38 @@ class PageController extends Controller
         $page = Page::findOrFail($id);
 
         $request->validate([
+
             'title' => 'required|string|max:255',
+
             'slug'  => 'required|string|max:255|unique:pages,slug,' . $page->id,
+
             'content' => 'required',
+
+            'meta_title' => 'nullable|string|max:255',
+
+            'meta_description' => 'nullable|string',
+
         ]);
 
-        $page->update($request->all());
+        $page->update([
 
-        return redirect()->route('admin.manage-page.index', $page->id)->with('success', 'Page updated successfully!');
+            'title' => $request->title,
+
+            'slug' => $request->slug,
+
+            'content' => $request->content,
+
+            'status' => $request->status ?? 1,
+
+            'meta_title' => $request->meta_title,
+
+            'meta_description' => $request->meta_description,
+
+        ]);
+
+        return redirect()
+            ->route('admin.manage-page.index')
+            ->with('success', 'Page updated successfully!');
     }
 
     /**
@@ -84,7 +134,11 @@ class PageController extends Controller
     public function destroy(string $id)
     {
         $page = Page::findOrFail($id);
+
         $page->delete();
-         return redirect()->route('admin.manage-page.index', $page->id)->with('success', 'Page deleted successfully!');
+
+        return redirect()
+            ->route('admin.manage-page.index')
+            ->with('success', 'Page deleted successfully!');
     }
 }

@@ -1,5 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Why Us')
+
+@php
+    $seo = getSeo('why-apnashaher');
+@endphp
+
+@section('meta_title', $seo->meta_title ?? 'Why ApnaShaher')
+
+@section('meta_description', $seo->meta_description ?? '')
+
+@section('other_scripts')
+
+    {!! $seo->other_scripts ?? '' !!}
+
+@endsection
+
 @push('styles')
 
 <!-- Custom CSS -->

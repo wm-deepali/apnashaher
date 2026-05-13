@@ -1,5 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Advertise With Us')
+
+@php
+    $seo = getSeo('advertise-with-us');
+@endphp
+
+@section('meta_title', $seo->meta_title ?? 'Advertise With Us')
+
+@section('meta_description', $seo->meta_description ?? '')
+
+@section('other_scripts')
+
+    {!! $seo->other_scripts ?? '' !!}
+
+@endsection
+
 @push('styles')
 
 <!-- Font Awesome for social icons -->

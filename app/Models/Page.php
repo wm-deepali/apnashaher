@@ -9,5 +9,18 @@ class Page extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'slug', 'content', 'status'];
+    protected $fillable = [
+
+        'title',
+
+        'slug',
+
+        'content',
+
+        'status',
+
+        'meta_title',
+
+        'meta_description',
+    ];
 }

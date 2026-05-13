@@ -1,5 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Institute Listing')
+
+@php
+    $seo = getSeo('all-categories');
+@endphp
+
+@section('meta_title', $seo->meta_title ?? 'All Categories')
+
+@section('meta_description', $seo->meta_description ?? '')
+
+@section('other_scripts')
+
+    {!! $seo->other_scripts ?? '' !!}
+
+@endsection
+
 @push('styles')
     <style>
         .listing-page-section {

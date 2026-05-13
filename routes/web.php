@@ -15,11 +15,8 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\JobOpeningController;
-use App\Http\Controllers\DocumentController;
 use TCG\Voyager\Facades\Voyager;
-use App\Http\Controllers\Admin\JobApplicationController;
-use App\Http\Controllers\Admin\ContactMessageController;
-use App\Http\Controllers\Admin\UploadDocumentController;
+use App\Http\Controllers\Admin\SeoSettingController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\InstitutePlanController;
 use App\Http\Controllers\InstituteController;
@@ -51,6 +48,19 @@ Route::get('contact-us', [ContactController::class, 'index'])->name('contact-us'
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 Route::get('seller-supports', [FrontController::class, 'sellerSupports'])->name('seller-supports');
+
+Route::get('/share-your-feedback', function () {
+
+return view('front.share-your-feedback');
+
+})->name('share-your-feedback');
+
+
+Route::get('/report-an-issue', function () {
+
+    return view('front.report-an-issue');
+
+})->name('report-an-issue');
 
 Route::get('/career', [FrontController::class, 'jobOpenings'])->name('career');
 
@@ -229,6 +239,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth']], function ()
         Route::get('/subscriptions', [ManageInstituteController::class, 'subscriptions'])->name('subscriptions.index');
 
     });
+
+    Route::get('/seo-settings', [SeoSettingController::class, 'index'])->name('admin.seo-settings.index');
+    Route::post('/seo-settings/update', [SeoSettingController::class, 'update'])->name('admin.seo-settings.update');
 
     Route::resource('manage-institute', ManageInstituteController::class)->names('admin.manage-institute');
     Route::get('/order/{id}', [ManageInstituteController::class, 'orderDetail'])->name('admin.order.detail');

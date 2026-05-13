@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Terms & Condition')
+@section('meta_title', 'Terms & Condition')
 @push('styles')
 <!-- Custom CSS -->
 <style>

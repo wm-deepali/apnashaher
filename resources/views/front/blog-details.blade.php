@@ -1,7 +1,15 @@
 @extends('layouts.app')
-@section('title')
-{{$blog->title ?? "Blog Details"}}
+
+@section('meta_title', $blog->meta_title ?? $blog->title ?? 'Blog Details')
+
+@section('meta_description', $blog->meta_description ?? '')
+
+@section('meta_keywords', $blog->meta_keywords ?? '')
+
+@section('other_scripts')
+
 @endsection
+
 @push('styles')
 <style>
     .pricing-cards-container {

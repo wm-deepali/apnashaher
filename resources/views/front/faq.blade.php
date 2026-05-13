@@ -1,5 +1,18 @@
 @extends('layouts.app')
-@section('title', 'FAQs')
+
+@php
+    $seo = getSeo('faq');
+@endphp
+
+@section('meta_title', $seo->meta_title ?? 'FAQ')
+
+@section('meta_description', $seo->meta_description ?? '')
+
+@section('other_scripts')
+
+    {!! $seo->other_scripts ?? '' !!}
+
+@endsection
 
 @section('content')
 <style>

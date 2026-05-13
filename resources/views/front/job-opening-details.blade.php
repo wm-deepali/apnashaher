@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Job Details')
+@section('meta_title','Job Details')
 
 
 <style>

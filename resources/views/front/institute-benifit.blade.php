@@ -1,5 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Institute Benifit')
+
+@php
+    $seo = getSeo('institute-benefits');
+@endendphp
+
+@section('meta_title', $seo->meta_title ?? 'Institute Benefits')
+
+@section('meta_description', $seo->meta_description ?? '')
+
+@section('other_scripts')
+
+    {!! $seo->other_scripts ?? '' !!}
+
+@endsection
+
 @push('styles')
 <style>
 .pricing-cards-container {

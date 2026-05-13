@@ -31,6 +31,7 @@ class FrontController extends Controller
 
         // Featured (based on plan or flag)
         $data['featuredInstitutes'] = Institute::with('latestPlan.plan.features')
+            ->where('status', 'approved')
             ->whereHas('latestPlan', function ($q) {
                 $q->where('plan_status', 'completed')
                     ->where('expiry_date', '>=', now());
@@ -44,6 +45,7 @@ class FrontController extends Controller
 
         // Popular (based on views)
         $data['popularInstitutes'] = Institute::orderByDesc('views')
+            ->where('status', 'approved')
             ->with('latestPlan.plan.features')
             ->whereHas('latestPlan', function ($q) {
                 $q->where('plan_status', 'completed')
@@ -54,6 +56,7 @@ class FrontController extends Controller
 
         // Recent
         $data['recentInstitutes'] = Institute::latest()
+            ->where('status', 'approved')
             ->with('latestPlan.plan.features')
             ->whereHas('latestPlan', function ($q) {
                 $q->where('plan_status', 'completed')
@@ -90,7 +93,7 @@ class FrontController extends Controller
         $user = auth('institute')->user();
 
         // ✅ Check if user has paid before
-        $hasPaidBefore = Payment::where('institute_id', $user->id)
+        $hasPaidBefore = Payment::where('institute_id', $user?->id)
             ->where('status', 'success')
             ->exists();
 

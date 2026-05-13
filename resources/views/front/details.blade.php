@@ -1328,26 +1328,18 @@
 
             @else
 
-              {{-- ❌ NO BANNERS → SHOW STATIC --}}
-              <div class="mySlides fade">
-                <img src="{{ asset('assets/slider/slider1.jpg') }}" style="width:100%; height:100%; object-fit:cover;">
-              </div>
+<div class="mySlides fade">
 
-              <div class="mySlides fade">
-                <img src="{{ asset('assets/slider/slider2.jpg') }}" style="width:100%; height:100%; object-fit:cover;">
-              </div>
+    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-secondary"
+         style="min-height:270px; font-size:22px; font-weight:600; display:flex; align-items:center; justify-content:center;">
 
-              <div class="mySlides fade">
-                <img src="{{ asset('assets/slider/slider3.jpg') }}" style="width:100%; height:100%; object-fit:cover;">
-              </div>
+        No Image Available
 
-              <div class="dots-container">
-                <span class="dot" onclick="currentSlide(1)"></span>
-                <span class="dot" onclick="currentSlide(2)"></span>
-                <span class="dot" onclick="currentSlide(3)"></span>
-              </div>
+    </div>
 
-            @endif
+</div>
+
+@endif
 
           </div>
 
@@ -1792,8 +1784,10 @@
                     WhatsApp Now
                   </a>
                 @endif
-                <p class="" style="width:100%; display:flex; text-align:center;justify-content: center;">Member Since:
-                  23/11/2026</p>
+<p class="" style="width:100%; display:flex; text-align:center;justify-content: center;">
+    Member Since:
+    {{ \Carbon\Carbon::parse($institute->created_at)->format('d/m/Y') }}
+</p>
               </div>
 
 

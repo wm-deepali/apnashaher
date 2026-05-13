@@ -507,6 +507,8 @@
   <!-- this section will be done once we finalised other things -->
 
 <!-- SECTION 1 -->
+@if(isset($featuredInstitutes) && $featuredInstitutes->count() > 0)
+
  <section class="py-10 bg-white">
   <div class="max-w-7xl mx-auto px-4">
 
@@ -530,7 +532,7 @@
     <!-- Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-      @forelse($featuredInstitutes as $inst)
+      @foreach($featuredInstitutes as $inst)
 
       <div onclick="window.location.href='{{ url('/') }}/{{ $inst->slug }}'"
            class="border rounded-xl p-4 hover:shadow-lg transition bg-white cursor-pointer">
@@ -591,120 +593,16 @@
 
       </div>
 
-      @empty
-
-      <!-- Empty State -->
-      <div class="col-span-full text-center py-10 text-gray-500">
-        No featured institutes available
-      </div>
-
-      @endforelse
+      @endforeach
 
     </div>
   </div>
 </section>
+@endif
 
 
-  <!-- SECTION 2 -->
- <section class="py-10 bg-gray-50">
-  <div class="max-w-7xl mx-auto px-4">
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-      <div>
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
-          Popular Institutes
-        </h2>
-        <p class="text-gray-500 text-base md:text-lg mt-2 max-w-2xl">
-          Most searched institutes by students
-        </p>
-      </div>
-
-      <a href="{{ url('/explore-institutes') }}"
-         class="text-blue-600 font-semibold hover:underline whitespace-nowrap text-base md:text-lg">
-        View All Institutes →
-      </a>
-    </div>
-
-    <!-- Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 bg-[#f8f7ff] py-8 px-6 -mx-6 rounded-3xl">
-
-      @forelse($popularInstitutes as $inst)
-
-      <div onclick="window.location.href='{{ url('/') }}/{{ $inst->slug }}'"
-           class="border rounded-xl p-4 hover:shadow-lg transition bg-white cursor-pointer">
-
-        <!-- Tag -->
-        <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
-          Popular
-        </span>
-
-        <!-- Logo -->
-        <div class="flex justify-center my-4">
-          @if($inst->logo)
-            <img src="{{ asset('storage/'.$inst->logo) }}"
-                 class="w-16 h-16 rounded-full object-contain">
-          @else
-            <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold">
-              {{ strtoupper(substr($inst->name,0,1)) }}
-            </div>
-          @endif
-        </div>
-
-        <!-- Name + Verified -->
-        <div class="text-center">
-          <h3 class="font-semibold text-lg flex justify-center items-center gap-1">
-            {{ $inst->name }}
-
-            @if(optional(optional($inst->latestPlan)->plan)->features?->verified_badge)
-              <span class="text-blue-500 text-sm">✔</span>
-            @endif
-          </h3>
-        </div>
-
-        <!-- Description -->
-        <p class="text-gray-500 text-sm text-center mt-2 line-clamp-2">
-          {{ \Illuminate\Support\Str::limit($inst->description, 80) }}
-        </p>
-
-        <!-- Location -->
-        <div class="text-center text-sm text-gray-600 mt-2">
-          📍 {{ $inst->city->name ?? '' }}
-        </div>
-
-        <!-- Buttons -->
-        <div class="mt-4 space-y-2">
-
-          <a href="tel:{{ $inst->mobile }}"
-             class="block w-full bg-blue-600 text-white py-2 rounded-lg text-center">
-            Call Now
-          </a>
-
-          <a href="https://wa.me/{{ $inst->whatsapp }}"
-             target="_blank"
-             class="block w-full border border-blue-600 text-blue-600 py-2 rounded-lg text-center">
-            WhatsApp
-          </a>
-
-        </div>
-
-      </div>
-
-      @empty
-
-      <!-- Empty State -->
-      <div class="col-span-full text-center py-10 text-gray-500">
-        No popular institutes available
-      </div>
-
-      @endforelse
-
-    </div>
-  </div>
-</section>
-  
-
-
+@if(isset($recentInstitutes) && $recentInstitutes->count() > 0)
   <!-- SECTION 3 -->
 <section class="py-10 bg-white">
   <div class="max-w-7xl mx-auto px-4">
@@ -729,7 +627,7 @@
     <!-- Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-      @forelse($recentInstitutes as $inst)
+      @foreach($recentInstitutes as $inst)
 
       <div onclick="window.location.href='{{ url('/') }}/{{ $inst->slug }}'"
            class="border rounded-xl p-4 hover:shadow-lg transition bg-white cursor-pointer">
@@ -790,18 +688,12 @@
 
       </div>
 
-      @empty
-
-      <!-- Empty State -->
-      <div class="col-span-full text-center py-10 text-gray-500">
-        No new institutes available
-      </div>
-
-      @endforelse
+      @endforeach
 
     </div>
   </div>
 </section>
+@endif
 
   <!-- this section will be done once we finalised other things -->
 
@@ -906,6 +798,101 @@
     </div>
   </section>
 
+
+@if(isset($popularInstitutes) && $popularInstitutes->count() > 0)
+  <!-- SECTION 2 -->
+ <section class="py-10 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+          Popular Institutes
+        </h2>
+        <p class="text-gray-500 text-base md:text-lg mt-2 max-w-2xl">
+          Most searched institutes by students
+        </p>
+      </div>
+
+      <a href="{{ url('/explore-institutes') }}"
+         class="text-blue-600 font-semibold hover:underline whitespace-nowrap text-base md:text-lg">
+        View All Institutes →
+      </a>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 bg-[#f8f7ff] py-8 px-6 -mx-6 rounded-3xl">
+
+      @foreach($popularInstitutes as $inst)
+
+      <div onclick="window.location.href='{{ url('/') }}/{{ $inst->slug }}'"
+           class="border rounded-xl p-4 hover:shadow-lg transition bg-white cursor-pointer">
+
+        <!-- Tag -->
+        <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
+          Popular
+        </span>
+
+        <!-- Logo -->
+        <div class="flex justify-center my-4">
+          @if($inst->logo)
+            <img src="{{ asset('storage/'.$inst->logo) }}"
+                 class="w-16 h-16 rounded-full object-contain">
+          @else
+            <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold">
+              {{ strtoupper(substr($inst->name,0,1)) }}
+            </div>
+          @endif
+        </div>
+
+        <!-- Name + Verified -->
+        <div class="text-center">
+          <h3 class="font-semibold text-lg flex justify-center items-center gap-1">
+            {{ $inst->name }}
+
+            @if(optional(optional($inst->latestPlan)->plan)->features?->verified_badge)
+              <span class="text-blue-500 text-sm">✔</span>
+            @endif
+          </h3>
+        </div>
+
+        <!-- Description -->
+        <p class="text-gray-500 text-sm text-center mt-2 line-clamp-2">
+          {{ \Illuminate\Support\Str::limit($inst->description, 80) }}
+        </p>
+
+        <!-- Location -->
+        <div class="text-center text-sm text-gray-600 mt-2">
+          📍 {{ $inst->city->name ?? '' }}
+        </div>
+
+        <!-- Buttons -->
+        <div class="mt-4 space-y-2">
+
+          <a href="tel:{{ $inst->mobile }}"
+             class="block w-full bg-blue-600 text-white py-2 rounded-lg text-center">
+            Call Now
+          </a>
+
+          <a href="https://wa.me/{{ $inst->whatsapp }}"
+             target="_blank"
+             class="block w-full border border-blue-600 text-blue-600 py-2 rounded-lg text-center">
+            WhatsApp
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+      @endforeach
+
+    </div>
+  </div>
+</section>
+  @endif
 
   <!-- ==================== WHY APNASHAHER SECTION ==================== -->
   <!-- ==================== UNDERSTAND FRUSTRATION - NUMBERED CARDS ==================== -->

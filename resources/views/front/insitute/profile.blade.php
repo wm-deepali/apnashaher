@@ -436,8 +436,8 @@ border-color:#e74c3c;
 
               <div class="form-group">
                 <label class="form-label">Website (optional)</label>
-                <input type="url" class="form-input" placeholder="https://example.com" title="Please enter a valid URL starting with http:// or https://" pattern="https?://.+" id="website" value="{{$institute->website ?? ''}}">
-                  <span class="error-text" id="websiteError"></span>
+                <input type="url" name="website" class="form-input" placeholder="https://example.com" title="Please enter a valid URL starting with http:// or https://" pattern="https?://.+" id="website" value="{{$institute->website ?? ''}}">
+                  <span class="error-text website_error"></span>
                    <span class="help-text">Enter a valid URL (e.g., https://www.xyz.com)</span>
               </div>
               
@@ -449,23 +449,23 @@ border-color:#e74c3c;
                 <label class="form-label">Social Links (optional)</label>
                 <div class="social-links-grid">
                   <div class="form-group">
-                  <input type="url" class="form-input small" id="fb" placeholder="Facebook URL" value="{{$institute->facebook_url ?? ''}}"> 
-                  <span class="error-text" id="fbError"></span>
+                  <input type="url" class="form-input small" name="fb" id="fb" placeholder="Facebook URL" value="{{$institute->facebook_url ?? ''}}"> 
+                  <span class="error-text fb_error"></span>
                   <span class="help-text">Enter a valid URL (e.g., https://www.facebook.com/username)</span>
                 </div>
                 <div class="form-group">
-                    <input type="url" class="form-input small" id="ig" placeholder="Instagram URL" value="{{$institute->instagram_url ?? ''}}">
-                    <span class="error-text" id="igError"></span>
+                    <input type="url" class="form-input small" name="ig" id="ig" placeholder="Instagram URL" value="{{$institute->instagram_url ?? ''}}">
+                   <span class="error-text ig_error"></span>
                     <span class="help-text">Enter a valid URL (e.g., https://www.instagram.com/username)</span>
                 </div>
                 <div class="form-group">
-                  <input type="url" class="form-input small" id="yt" placeholder="YouTube URL" value="{{$institute->youtube_url ?? ''}}">
-                  <span class="error-text" id="ytError"></span>
+                  <input type="url" class="form-input small" name="yt' id="yt" placeholder="YouTube URL" value="{{$institute->youtube_url ?? ''}}">
+                 <span class="error-text yt_error"></span>
                   <span class="help-text">Enter a valid URL (e.g., https://youtube.com/@yourname)</span>
                 </div>
                 <div class="form-group">
-                  <input type="url" class="form-input small" id="twitter" placeholder="Twitter / X URL" value="{{$institute->twitter_url ?? ''}}">
-                  <span class="error-text" id="twitterError"></span>
+                  <input type="url" class="form-input small" name="twitter" id="twitter" placeholder="Twitter / X URL" value="{{$institute->twitter_url ?? ''}}">
+                  <span class="error-text twitter_error"></span>
                   <span class="help-text">Enter a valid URL (e.g., https://twitter.com/username)</span>
                 </div>
                   

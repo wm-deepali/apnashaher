@@ -96,13 +96,34 @@
                             <td>{{ date('d M Y', strtotime($institute->created_at)) }}</td>
 
                             <!-- Logo -->
-                            <td>
-                                @if($institute->logo)
-                                    <img src="{{ asset('storage/'.$institute->logo) }}" width="50">
-                                @else
-                                    <span class="text-muted">No Logo</span>
-                                @endif
-                            </td>
+                           <td>
+    @if($institute->logo)
+
+        <img src="{{ asset('storage/'.$institute->logo) }}"
+             width="50"
+             height="50"
+             style="border-radius:50%; object-fit:cover;">
+
+    @else
+
+        <div style="
+            width:50px;
+            height:50px;
+            border-radius:50%;
+            background:#0d6efd;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            font-size:20px;
+            text-transform:uppercase;
+        ">
+            {{ substr($institute->name ?? 'A', 0, 1) }}
+        </div>
+
+    @endif
+</td>
 
                             <!-- Name -->
                             <td>{{ $institute->name ?? '-' }}</td>

@@ -115,7 +115,21 @@
         @if($institute->logo)
             <img src="{{ asset('storage/'.$institute->logo) }}" width="50" height="50" style="border-radius:6px;">
         @else
-            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800" width="50">
+            <div style="
+            width:50px;
+            height:50px;
+            border-radius:50%;
+            background:#0d6efd;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            font-size:20px;
+            text-transform:uppercase;
+        ">
+            {{ substr($institute->name ?? 'A', 0, 1) }}
+        </div>
         @endif
     </td>
 

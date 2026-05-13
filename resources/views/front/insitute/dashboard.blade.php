@@ -272,11 +272,15 @@
                   <div class="mt-6">
                     <label class="text-sm block mb-2">Institute Logo</label>
 
-                    <div class="mb-3">
-                      <img id="logoPreview"
-                        src="{{ $institute->logo ? asset('storage/' . $institute->logo) : 'https://via.placeholder.com/80' }}"
-                        width="80" height="80" style="border-radius:10px; object-fit:cover; border:1px solid #ddd;">
-                    </div>
+                   <div class="mb-3" id="logoPreviewWrapper"
+    {{ !$institute->logo ? 'style=display:none;' : '' }}>
+    
+    <img id="logoPreview"
+        src="{{ $institute->logo ? asset('storage/' . $institute->logo) : '' }}"
+        width="80"
+        height="80"
+        style="border-radius:10px; object-fit:cover; border:1px solid #ddd;">
+</div>
 
                     <input type="file" name="logo" class="input" onchange="previewLogo(event)">
                   </div>
@@ -833,6 +837,9 @@
                                                                             file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 
                                                                             file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 
                                                                             hover:file:bg-blue-100 transition cursor-pointer">
+                                                                             <p class="text-xs text-gray-500 mt-2">
+        For better resolution, kindly upload the image with the given dimensions as width: 810 pixels and height: 260 pixels.
+    </p>
               </div>
 
               <!-- Title -->
@@ -1860,18 +1867,26 @@
 @push('after-scripts')
 
   <script>
-    function previewLogo(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+ function previewLogo(event){
 
-      const reader = new FileReader();
+    const file = event.target.files[0];
 
-      reader.onload = function (e) {
-        document.getElementById('logoPreview').src = e.target.result;
-      }
+    if(file){
 
-      reader.readAsDataURL(file);
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+
+            $("#logoPreview").attr("src", e.target.result);
+
+            $("#logoPreviewWrapper").show();
+
+        };
+
+        reader.readAsDataURL(file);
+
     }
+}
   </script>
 
   <script>

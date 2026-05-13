@@ -302,13 +302,13 @@
           <li><a href="{{route('contact-us')}}"> Contact Us</a> </li>
           <li>Follow us :</li>
           <li class="flex gap-6 mt-4">
-            <a href="#" class="apna-social"><i class="fab fa-facebook-f text-xl"></i></a>
-            <a href="#" class="apna-social"><i class="fab fa-instagram text-xl"></i></a>
+            <a href="https://www.facebook.com/apnashaherdotcom/" class="apna-social"><i class="fab fa-facebook-f text-xl"></i></a>
+            <a href="https://www.instagram.com/apnashaherdotcom" class="apna-social"><i class="fab fa-instagram text-xl"></i></a>
             <!--<i class="fab fa-linkedin-in"></i>-->
-            <a href="#" class="apna-social"><i class="fab fa-linkedin-in text-xl"></i></a>
-            <a href="#" class="apna-social"><i class="fab fa-youtube text-xl"></i></a>
+            <a href="http://linkedin.com/company/apnashaherdotcom/" class="apna-social"><i class="fab fa-linkedin-in text-xl"></i></a>
+            <a href="http://youtube.com/@apnashaherdotcom" class="apna-social"><i class="fab fa-youtube text-xl"></i></a>
             
-            <a href="#" class="apna-social"><i class="fa-brands fa-x-twitter text-xl"></i></a>
+           <!-- <a href="#" class="apna-social"><i class="fa-brands fa-x-twitter text-xl"></i></a> -->
           </li>
         </ul>
       </div>

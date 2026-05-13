@@ -23,13 +23,15 @@ class InvoiceSettingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'company_name'     => 'required|string|max:255',
-            'company_address'  => 'required|string',
+            'company_name' => 'required|string|max:255',
+            'company_address' => 'required|string',
+            'company_state' => 'nullable|exists:states,id',
+            'company_city' => 'nullable|exists:cities,id',
 
             // 🔥 Invoice validation
-            'invoice_type'     => 'required|in:serial,random',
-            'invoice_serial'   => 'required_if:invoice_type,serial|nullable|integer|min:1',
-            'random_length'    => 'required_if:invoice_type,random|nullable|integer|min:4|max:10',
+            'invoice_type' => 'required|in:serial,random',
+            'invoice_serial' => 'required_if:invoice_type,serial|nullable|integer|min:1',
+            'random_length' => 'required_if:invoice_type,random|nullable|integer|min:4|max:10',
         ]);
 
         $data = $request->all();

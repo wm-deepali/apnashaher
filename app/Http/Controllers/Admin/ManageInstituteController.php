@@ -27,51 +27,10 @@ use App\Notifications\ListingApprovedNotification;
 
 class ManageInstituteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        $query = Institute::with([
-            'plans',
-            'timings',
-            'courses',
-            'category',
-            'subcategory',
-            'leads',
-            'galleries'
-        ]);
-
-        // 🔍 Filters
-        if ($request->category_id) {
-            $query->where('category_id', $request->category_id);
-        }
-
-        if ($request->subcategory_id) {
-            $query->where('subcategory_id', $request->subcategory_id);
-        }
-
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('mobile', 'like', '%' . $request->search . '%')
-                    ->orWhere('owner_email', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        // 📅 Date Range
-        if ($request->from && $request->to) {
-            $query->whereBetween('created_at', [$request->from, $request->to]);
-        }
-
-        $institutes = $query->latest()->paginate(10);
-
-        return view('admin.institute.index', compact('institutes'));
-    }
-
     public function newListings(Request $request)
     {
         $query = Institute::with(['category', 'subcategory', 'latestPlan.plan'])
+            ->where('registration_complete', 1)
             ->where('status', 'pending');
 
         // 🔍 Category
@@ -124,7 +83,7 @@ class ManageInstituteController extends Controller
             'category',
             'subcategory',
             'latestPlan.plan'
-        ])->where('status', 'approved');
+        ])->where('status', 'approved')->where('registration_complete', 1);
 
         // 🔍 Category filter
         if ($request->category_id) {
@@ -167,6 +126,51 @@ class ManageInstituteController extends Controller
         $packages = Package::all();
 
         return view('admin.institute.published-listings', compact(
+            'institutes',
+            'categories',
+            'packages'
+        ));
+    }
+
+    public function incompleteListings(Request $request)
+    {
+        $query = Institute::with(['category', 'subcategory', 'latestPlan.plan'])
+            ->where('registration_complete', 0)   // 🔥 MAIN CONDITION
+            ->where('mobile_verified', 1);        // 🔥 only verified users
+
+        // 🔍 Category
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // 🔍 Subcategory
+        if ($request->subcategory_id) {
+            $query->where('subcategory_id', $request->subcategory_id);
+        }
+
+        // 🔍 Search
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('mobile', 'like', '%' . $request->search . '%')
+                    ->orWhere('owner_email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // 📅 Date Range
+        if ($request->from && $request->to) {
+            $query->whereBetween('created_at', [
+                $request->from . ' 00:00:00',
+                $request->to . ' 23:59:59'
+            ]);
+        }
+
+        $institutes = $query->latest()->paginate(10);
+
+        $categories = Category::whereNull('parent_id')->get();
+        $packages = Package::all();
+
+        return view('admin.institute.incomplete-listings', compact(
             'institutes',
             'categories',
             'packages'

@@ -150,7 +150,7 @@
                     </li>
 
                     <li class="breadcrumb-item">
-                        <a href="{{ route('admin.manage-institute.index') }}">Manage Institutes</a>
+                        <a href="{{ route('admin.institute.new.index') }}">Manage Institutes</a>
                     </li>
 
                     <li class="breadcrumb-item active">

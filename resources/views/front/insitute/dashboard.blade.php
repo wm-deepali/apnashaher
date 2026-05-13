@@ -4,11 +4,21 @@
   <style>
     .timing-card {
       background: #fff;
-      border: 1px solid #ddd;
-      padding: 12px;
-      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      padding: 16px;
+      border-radius: 12px;
       margin-bottom: 12px;
+      transition: 0.2s;
     }
+
+    .timing-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .timing-card input[type="time"] {
+      height: 42px;
+    }
+
 
     .timing-row {
       display: flex;
@@ -148,41 +158,59 @@
           <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
 
             <!-- LEFT SIDE (8 Columns) -->
-            <div class="md:col-span-8 space-y-10">
+            <div class="md:col-span-7 space-y-10">
 
               <!-- Institute Info -->
               <div>
                 <form id="instituteForm" enctype="multipart/form-data">
                   @csrf
                   <input type="hidden" name="id" value="{{ $institute->id }}">
+
                   <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Institute Info</h3>
-                    <button type="submit"
-                      class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700">
-                      Update Now
-                    </button>
                   </div>
 
                   <div class="grid md:grid-cols-2 gap-6">
-                    <input type="text" name="name" value="{{ $institute->name }}" class="input"
-                      placeholder="Institute Name">
-                    <input type="text" name="owner_name" value="{{ $institute->owner_name }}" class="input"
-                      placeholder="Owner Name">
-                    <select class="input" id="designation" name="designation" required>
-                      <option value="">Select Designation</option>
-                      <option value="Director" {{$institute->designation == "Director" ? 'selected' : ""}}>Director</option>
-                      <option value="Manager" {{$institute->designation == "Manager" ? 'selected' : ""}}>Manager</option>
-                      <option value="Founder" {{$institute->designation == "Founder" ? 'selected' : ""}}>Founder</option>
-                      <option value="Principal" {{$institute->designation == "Principal" ? 'selected' : ""}}>Principal
-                      </option>
-                      <option value="Others" {{$institute->designation == "Others" ? 'selected' : ""}}>Others</option>
-                    </select>
-                    <input type="number" name="established_year" value="{{$institute->established_year ?? ''}}"
-                      class="input" placeholder="Established Year">
-                    <input type="text" name="registration_number" value="{{ $institute->registration_number ?? '' }}"
-                      class="input" placeholder="Registration Number">
-                    <div>
 
+                    <div class="form-group">
+                      <input type="text" name="name" value="{{ $institute->name }}" class="input"
+                        placeholder="Institute Name">
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" name="owner_name" value="{{ $institute->owner_name }}" class="input"
+                        placeholder="Owner Name">
+                    </div>
+
+                    <div class="form-group">
+                      <select class="input" name="designation" required>
+                        <option value="">Select Designation</option>
+                        <option value="Director" {{ $institute->designation == "Director" ? 'selected' : "" }}>Director
+                        </option>
+                        <option value="Manager" {{ $institute->designation == "Manager" ? 'selected' : "" }}>Manager</option>
+                        <option value="Founder" {{ $institute->designation == "Founder" ? 'selected' : "" }}>Founder</option>
+                        <option value="Principal" {{ $institute->designation == "Principal" ? 'selected' : "" }}>Principal
+                        </option>
+                        <option value="Others" {{ $institute->designation == "Others" ? 'selected' : "" }}>Others</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <input type="email" name="owner_email" value="{{ $institute->owner_email ?? '' }}" class="input"
+                        placeholder="Email" required>
+                    </div>
+
+                    <div class="form-group">
+                      <input type="number" name="established_year" value="{{ $institute->established_year ?? '' }}"
+                        class="input" placeholder="Established Year">
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" name="registration_number" value="{{ $institute->registration_number ?? '' }}"
+                        class="input" placeholder="Registration Number">
+                    </div>
+
+                    <div class="form-group">
                       <input type="url" name="website" value="{{ $institute->website ?? '' }}" class="input"
                         placeholder="Website">
 
@@ -190,58 +218,88 @@
                         Example: https://www.xyz.com
                       </p>
                     </div>
-                    <textarea name="description" class="input md:col-span-2"
-                      placeholder="Short Description">{{ $institute->description ?? '' }}</textarea>
-                    <textarea name="detailed_information" class="input md:col-span-2"
-                      placeholder="Detail Content">{{ $institute->detailed_information ?? '' }}</textarea>
-                    <input type="text" name="profile_address" value="{{ $institute->profile_address ?? '' }}"
-                      class="input md:col-span-2" placeholder="Institute Address">
-                    <input type="text" name="country" value="{{ $institute->country ?? '' }}" class="input"
-                      placeholder="Country">
-                    <select id="state_id" name="state_id" class="input" required>
-                      <option value="">Select State</option>
-                      @if(isset($states) && count($states) > 0)
-                        @foreach($states as $state)
-                          <option value="{{$state->id}}" {{$institute->state_id == $state->id ? 'selected' : ""}}>{{$state->name}}
-                          </option>
-                        @endforeach
-                      @endif
-                      <!-- Add more -->
-                    </select>
-                    <select id="city_id" name="city_id" class="input" required>
-                      <option value="">Select City</option>
-                      @if(isset($cities) && count($cities) > 0)
-                        @foreach($cities as $city)
-                          <option value="{{$city->id}}" {{$institute->city_id == $city->id ? 'selected' : ""}}>{{$city->name}}
-                          </option>
-                        @endforeach
-                      @endif
-                      <!-- Add more -->
-                    </select>
 
-                    <input type="text" name="zipcode" value="{{ $institute->zipcode ?? '' }}" class="input"
-                      placeholder="Pin Code">
+                    <div class="form-group md:col-span-2">
+                      <textarea name="description" class="input"
+                        placeholder="Short Description">{{ $institute->description ?? '' }}</textarea>
+                    </div>
+
+                    <div class="form-group md:col-span-2">
+                      <textarea name="detailed_information" class="input"
+                        placeholder="Detail Content">{{ $institute->detailed_information ?? '' }}</textarea>
+                    </div>
+
+                    <div class="form-group md:col-span-2">
+                      <input type="text" name="profile_address" value="{{ $institute->profile_address ?? '' }}"
+                        class="input" placeholder="Institute Address">
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" name="country" value="{{ $institute->country ?? '' }}" class="input"
+                        placeholder="Country">
+                    </div>
+
+                    <div class="form-group">
+                      <select name="state_id" class="input" required>
+                        <option value="">Select State</option>
+                        @foreach($states as $state)
+                          <option value="{{$state->id}}" {{ $institute->state_id == $state->id ? 'selected' : "" }}>
+                            {{$state->name}}
+                          </option>
+                        @endforeach
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <select name="city_id" class="input" required>
+                        <option value="">Select City</option>
+                        @foreach($cities as $city)
+                          <option value="{{$city->id}}" {{ $institute->city_id == $city->id ? 'selected' : "" }}>
+                            {{$city->name}}
+                          </option>
+                        @endforeach
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" name="zipcode" value="{{ $institute->zipcode ?? '' }}" class="input"
+                        placeholder="Pin Code">
+                    </div>
+
                   </div>
 
+                  <!-- LOGO -->
                   <div class="mt-6">
                     <label class="text-sm block mb-2">Institute Logo</label>
-                    <input type="file" name="logo">
+
+                    <div class="mb-3">
+                      <img id="logoPreview"
+                        src="{{ $institute->logo ? asset('storage/' . $institute->logo) : 'https://via.placeholder.com/80' }}"
+                        width="80" height="80" style="border-radius:10px; object-fit:cover; border:1px solid #ddd;">
+                    </div>
+
+                    <input type="file" name="logo" class="input" onchange="previewLogo(event)">
                   </div>
+
+                  <!-- SUBMIT -->
+                  <div class="mt-6 flex justify-end">
+                    <button type="submit"
+                      class="submit-btn px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+                      Update Profile
+                    </button>
+                  </div>
+
                 </form>
               </div>
               <!-- Separator -->
               <div class="border-t border-gray-200 pt-8"></div>
 
               <!-- Social Media -->
-              <div>
+              <div style="margin-top: 0px;">
                 <form id="socialForm">
                   @csrf
                   <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Social Media</h3>
-                    <button type="submit"
-                      class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700">
-                      Update Now
-                    </button>
                   </div>
 
                   <div class="grid md:grid-cols-2 gap-6">
@@ -297,24 +355,31 @@
 
                     </div>
                     <div>
-                      <input name="instagram_url" value="{{ $institute->instagram_url ?? '' }}" class="input"
-                        placeholder="Instagram">
+                      <input name="youtube_url" value="{{ $institute->youtube_url ?? '' }}" class="input"
+                        placeholder="YouTube">
 
                       <p class="text-xs text-gray-500 mt-1">
-                        Example: https://www.instagram.com/username
+                        Example: https://www.youtube.com/@username
                       </p>
 
                     </div>
 
 
                   </div>
+
+                  <div class="mt-6 flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+                      Update Social Media
+                    </button>
+                  </div>
+
                 </form>
               </div>
 
             </div>
 
             <!-- RIGHT SIDE (Timing - 4 Columns) -->
-            <div class="md:col-span-4 relative">
+            <div class="md:col-span-5 relative">
 
               <!-- Vertical Divider (Desktop Only) -->
               <div class="hidden md:block absolute left-0 top-0 h-full w-px bg-gray-200"></div>
@@ -322,12 +387,8 @@
               <div class="md:pl-8 space-y-6">
                 <form id="timingForm">
                   @csrf
-                  <div class="flex justify-between items-center">
+                  <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Timing & Working Hours</h3>
-                    <button type="button" id="updateTimingsBtn"
-                      class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700">
-                      Update Now
-                    </button>
                   </div>
 
                   <div class="grid grid-cols-1 gap-4">
@@ -335,21 +396,29 @@
 
                       @foreach($timings as $day => $timing)
                         <div class="timing-card">
-                          <span class="day-name">{{ $day }}</span>
-                          <div class="timing-row">
-                            <div class="timing-time">
-                              <input type="time" class="input" name="timings[{{ $day }}][open_time]"
-                                value="{{ $timing->open_time }}">
-                              <span>to</span>
-                              <input type="time" class="input" name="timings[{{ $day }}][close_time]"
-                                value="{{ $timing->close_time }}">
-                            </div>
 
-                            <label class="active-check">
-                              <input type="checkbox" class="input" name="timings[{{ $day }}][is_active]" value="1" {{ $timing->is_active ? 'checked' : '' }}>
-                              On
+                          <!-- HEADER -->
+                          <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-semibold text-gray-800">{{ $day }}</h4>
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="timings[{{ $day }}][is_active]" value="1"
+                                class="w-4 h-4 accent-blue-600" {{ $timing->is_active ? 'checked' : '' }}>
+                              <span class="text-sm text-gray-600">Open</span>
                             </label>
                           </div>
+
+                          <!-- TIME INPUTS -->
+                          <div class="flex items-center gap-3">
+                            <input type="time" class="input flex-1" name="timings[{{ $day }}][open_time]"
+                              value="{{ $timing->open_time }}">
+
+                            <span class="text-gray-400">—</span>
+
+                            <input type="time" class="input flex-1" name="timings[{{ $day }}][close_time]"
+                              value="{{ $timing->close_time }}">
+                          </div>
+
                         </div>
                       @endforeach
                       <span class="note-text"><b>Note:</b> For any Off Days, Please remove the tick from checkbox </span>
@@ -357,6 +426,14 @@
                     </div>
 
                   </div>
+
+                  <div class="mt-6 flex justify-end">
+                    <button type="button" id="updateTimingsBtn"
+                      class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+                      Update Timings
+                    </button>
+                  </div>
+
                 </form>
               </div>
             </div>
@@ -660,9 +737,9 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Upload Images (multiple allowed)</label>
                 <input type="file" id="images" name="images[]" multiple accept="image/jpeg,image/png,image/webp,image/avif"
                   class="block w-full text-sm text-gray-500 
-                               file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 
-                               file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 
-                               hover:file:bg-blue-100 transition cursor-pointer">
+                                                                               file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 
+                                                                               file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 
+                                                                               hover:file:bg-blue-100 transition cursor-pointer">
                 <p class="text-xs text-gray-500 mt-2">JPG, PNG • Max 5MB each • Up to 10 at once</p>
                 <div id="errorBox" class="text-red-500 text-sm mt-2"></div>
               </div>
@@ -751,10 +828,11 @@
               <!-- Image -->
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Banner Image *</label>
-                <input type="file" name="image" required accept="image/*" class="block w-full text-sm text-gray-500 
-                            file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 
-                            file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 
-                            hover:file:bg-blue-100 transition cursor-pointer">
+                <input type="file" name="image" required accept="image/*"
+                  class="block w-full text-sm text-gray-500 
+                                                                            file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 
+                                                                            file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 
+                                                                            hover:file:bg-blue-100 transition cursor-pointer">
               </div>
 
               <!-- Title -->
@@ -872,12 +950,13 @@
                 <tbody class="divide-y divide-gray-200 bg-white">
                   @foreach($leads as $enquiry)
                     <tr onclick="openLead(
-                                          '{{ $enquiry->name }}', 
-                                          '{{ $enquiry->course->name ?? '' }}', 
-                                          '{{ $enquiry->phone }}', 
-                                          '{{ $enquiry->created_at->format('d M Y') }}',
-                                          '{{ $enquiry->message }}'
-                                        )" class="hover:bg-blue-50/70 cursor-pointer transition-colors duration-150">
+                                                                                                                  '{{ $enquiry->name }}', 
+                                                                                                                  '{{ $enquiry->course->name ?? '' }}', 
+                                                                                                                  '{{ $enquiry->phone }}', 
+                                                                                                                  '{{ $enquiry->created_at->format('d M Y') }}',
+                                                                                                                  '{{ $enquiry->message }}'
+                                                                                                                )"
+                      class="hover:bg-blue-50/70 cursor-pointer transition-colors duration-150">
                       <td class="px-6 py-4 font-medium text-gray-900">{{ $enquiry->name }}</td>
                       <td class="px-6 py-4 font-medium text-gray-900">{{ $enquiry->email }}</td>
                       <td class="px-6 py-4 text-gray-600">{{ $enquiry->course->name ?? "" }}</td>
@@ -1000,12 +1079,12 @@
                   @endphp
                   <tr class="notif-row hover:bg-blue-50/50 cursor-pointer transition-colors" data-notif-id="{{ $notif->id }}"
                     onclick="showNotification(
-                                              '{{ $data['message_title'] ?? $data['type'] }}',
-                                              '{{ $notif->created_at->format('d M Y') }}',
-                                              '{{ $data['message'] ?? '' }}',
-                                              '{{ $status }}',
-                                              '{{ $notif->id }}'
-                                          )">
+                                                                                                                      '{{ $data['message_title'] ?? $data['type'] }}',
+                                                                                                                      '{{ $notif->created_at->format('d M Y') }}',
+                                                                                                                      '{{ $data['message'] ?? '' }}',
+                                                                                                                      '{{ $status }}',
+                                                                                                                      '{{ $notif->id }}'
+                                                                                                                  )">
                     <td class="px-6 py-4 text-gray-600">{{ $notif->created_at->format('d M Y') }}</td>
                     <td class="px-6 py-4 font-medium text-gray-900">{{ $data['message_title'] ?? $data['type'] }}</td>
                     <td class="px-6 py-4 text-gray-600 hidden md:table-cell truncate">{{ $data['message'] ?? '' }}</td>
@@ -1025,9 +1104,9 @@
 
           <!-- Empty State (optional) -->
           <!-- <div class="text-center py-12 text-gray-500" id="noNotifications" style="display:none;">
-                      <p class="text-lg">No new notifications yet.</p>
-                      <p class="mt-2">We'll notify you when something important happens.</p>
-                    </div> -->
+                                                                      <p class="text-lg">No new notifications yet.</p>
+                                                                      <p class="mt-2">We'll notify you when something important happens.</p>
+                                                                    </div> -->
         </div>
 
       @endif
@@ -1081,7 +1160,8 @@
     <div id="mobileDrawer" class="fixed inset-0 bg-black/40 hidden z-50 lg:hidden">
 
       <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-6
-                            transform translate-y-full transition-transform duration-300" id="drawerContent">
+                                                    transform translate-y-full transition-transform duration-300"
+        id="drawerContent">
 
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold">Lead Details</h3>
@@ -1119,378 +1199,378 @@
     <!-- REVIEWS -->
     <div id="reviews" class="tab-content hidden m-0">
 
-    @if($isExpired)
+      @if($isExpired)
 
-      <div
-        class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center mb-6">
-        <div>
-          Please renew your subscription to continue.
+        <div
+          class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center mb-6">
+          <div>
+            Please renew your subscription to continue.
+          </div>
+
+          <a href="{{ route('plans') }}" class="bg-red-600 text-white px-4 py-2 rounded-lg">
+            Renew Now
+          </a>
         </div>
-
-        <a href="{{ route('plans') }}" class="bg-red-600 text-white px-4 py-2 rounded-lg">
-          Renew Now
-        </a>
-      </div>
       @else
 
-      <div class="swiper  px-4">
-        <div class="swiper-wrapper ">
+        <div class="swiper  px-4">
+          <div class="swiper-wrapper ">
 
-          @forelse($reviews as $review)
-            <div class="swiper-slide">
-              <div
-                class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 group h-full flex flex-col">
-                <div class="flex items-center gap-4 mb-6">
-                  <img src="https://ashtonwell.com/public/assets/images/adnanahmed.avif" alt="Adnan Ahmed"
-                    class="w-16 h-16 rounded-full object-cover ring-4 ring-blue-100">
-                  <div>
-                    <h4 class="font-bold text-gray-900 text-lg">{{$review->name}}</h4>
-                    <p class="text-sm text-gray-600" style="font-weight: 700;">
-                      {{date('d F Y', strtotime($review->created_at))}}
-                    </p>
+            @forelse($reviews as $review)
+              <div class="swiper-slide">
+                <div
+                  class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 group h-full flex flex-col">
+                  <div class="flex items-center gap-4 mb-6">
+                    <img src="https://ashtonwell.com/public/assets/images/adnanahmed.avif" alt="Adnan Ahmed"
+                      class="w-16 h-16 rounded-full object-cover ring-4 ring-blue-100">
+                    <div>
+                      <h4 class="font-bold text-gray-900 text-lg">{{$review->name}}</h4>
+                      <p class="text-sm text-gray-600" style="font-weight: 700;">
+                        {{date('d F Y', strtotime($review->created_at))}}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex gap-1 mb-5">
+                    @if($review->rating > 0)
+                      @for($i = 1; $i <= 5; $i++)
+                        @if($i <= floor($review->rating))
+                          {{-- Full Star --}}
+                          <i class="fas fa-star text-yellow-500 text-xl"></i>
+                        @elseif($i - $review->rating < 1)
+                          {{-- Half Star --}}
+                          <i class="fas fa-star-half-alt text-yellow-500 text-xl"></i>
+                        @else
+                          {{-- Empty Star --}}
+                          <i class="far fa-star text-gray-400 text-xl"></i>
+                        @endif
+                      @endfor
+                    @else
+                      {{-- No rating --}}
+                      @for($i = 1; $i <= 5; $i++)
+                        <i class="far fa-star text-gray-400 text-xl"></i>
+                      @endfor
+                    @endif
+                  </div>
+                  <p class="text-gray-700 italic leading-relaxed flex-grow">
+                    "{{$review->review}}"
+                  </p>
+                  <div class="mt-6 text-blue-200 text-6xl opacity-30">
+                    <i class="fas fa-quote-right"></i>
                   </div>
                 </div>
-                <div class="flex gap-1 mb-5">
-                  @if($review->rating > 0)
-                    @for($i = 1; $i <= 5; $i++)
-                      @if($i <= floor($review->rating))
-                        {{-- Full Star --}}
-                        <i class="fas fa-star text-yellow-500 text-xl"></i>
-                      @elseif($i - $review->rating < 1)
-                        {{-- Half Star --}}
-                        <i class="fas fa-star-half-alt text-yellow-500 text-xl"></i>
-                      @else
-                        {{-- Empty Star --}}
-                        <i class="far fa-star text-gray-400 text-xl"></i>
-                      @endif
-                    @endfor
-                  @else
-                    {{-- No rating --}}
-                    @for($i = 1; $i <= 5; $i++)
-                      <i class="far fa-star text-gray-400 text-xl"></i>
-                    @endfor
-                  @endif
-                </div>
-                <p class="text-gray-700 italic leading-relaxed flex-grow">
-                  "{{$review->review}}"
-                </p>
-                <div class="mt-6 text-blue-200 text-6xl opacity-30">
-                  <i class="fas fa-quote-right"></i>
-                </div>
               </div>
-            </div>
-          @empty
-            <p>No Reviews Found.</p>
-          @endforelse
+            @empty
+              <p>No Reviews Found.</p>
+            @endforelse
 
 
 
+
+
+          </div>
 
 
         </div>
 
-
-      </div>
-
-       @endif
+      @endif
     </div>
 
     <!-- PLAN -->
     <div id="plan" class="tab-content hidden">
 
-    @if($isExpired)
+      @if($isExpired)
 
-      <div
-        class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center mb-6">
-        <div>
-          Please renew your subscription to continue.
+        <div
+          class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center mb-6">
+          <div>
+            Please renew your subscription to continue.
+          </div>
+
+          <a href="{{ route('plans') }}" class="bg-red-600 text-white px-4 py-2 rounded-lg">
+            Renew Now
+          </a>
         </div>
-
-        <a href="{{ route('plans') }}" class="bg-red-600 text-white px-4 py-2 rounded-lg">
-          Renew Now
-        </a>
-      </div>
       @else
 
-      <div class="max-w-4xl mx-auto">
-        <!-- <h2 class="text-2xl font-bold text-gray-800 mb-8 text-center">Your Current Subscription</h2> -->
+        <div class="max-w-4xl mx-auto">
+          <!-- <h2 class="text-2xl font-bold text-gray-800 mb-8 text-center">Your Current Subscription</h2> -->
 
-        <!-- Current Plan Card - Professional look -->
-        {{-- <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative">
-          <!-- Popular Badge (top-right corner) -->
-          @php
-          $plan = $institute->latestPlan;
-          $package = $plan->plan;
-          $features = $plan->plan->features ?? null;
-          @endphp
-          <div
-            class="absolute top-0 right-0 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-bold px-6 py-1.5 rounded-bl-xl shadow-md transform rotate-12 translate-x-4 translate-y-2">
-            {{$package->is_popular ? 'POPULAR' : ''}}
-          </div>
-
-          <!-- Header Section -->
-          @if($features)
-          <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-3xl font-bold">{{$package->name ?? ''}}</h3>
-                <p class="text-blue-100 mt-1">Most Chosen by Institutes</p>
-              </div>
-              <div class="text-right">
-                <p class="text-4xl font-bold">₹{{$package->offered_price ?? ''}}</p>
-                <p class="text-blue-200 text-sm">/ year</p>
-              </div>
-            </div>
-
-            <!-- Current Plan Badge -->
+          <!-- Current Plan Card - Professional look -->
+          {{-- <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative">
+            <!-- Popular Badge (top-right corner) -->
+            @php
+            $plan = $institute->latestPlan;
+            $package = $plan->plan;
+            $features = $plan->plan->features ?? null;
+            @endphp
             <div
-              class="mt-6 inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white font-medium text-sm border border-white/30">
-              Current Plan • {{$plan->expiry_date > now() ? 'Active' : 'Expired'}}
-            </div>
-          </div>
-          @endif
-
-          <!-- Features List -->
-          <div class="p-8">
-            <ul class="space-y-4 text-gray-700">
-              <li class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{{$features->apnashaher_listing ? 'ApnaShaher Listing' : ''}} +
-                  {{ucfirst($features->search_visibility)}}Search Visibility</span>
-              </li>
-              <li class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{{ucfirst($features->contact_display ?? "")}} Contact Details Display
-                  {{$features->call_whatsapp_button ? '+ WhatsApp/Call CTA' : ''}}</span>
-              </li>
-              <li class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{{ucfirst($features->profile_editing ?? "")}} Profile Editing {{$features->preferred_institute_badge
-                  ? '+ Preferred Institute Badge' : ''}}</span>
-              </li>
-
-              <li class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Up to {{$features->courses_programs}} Courses/Programs {{$features->verified_badge ? '+ Verified
-                  Badge' : ''}}</span>
-              </li>
-
-              @if($features->promotional_banner_placement || $features->profile_performance_insight)
-              <li class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{{$features->promotional_banner_placement ? 'Preferred Placement' : ''}}
-                  {{$features->profile_performance_insight ? '+ Profile Analytics' : ''}}</span>
-              </li>
-              @endif
-              @if($features->featured_in_category_listings)
-              <li class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Featured In Category Listings</span>
-              </li>
-              @endif
-
-              @if($features->ai_profile_description_generator || $features->custom_profile_url)
-              <li class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{{$features->ai_profile_description_generator ? 'AI Description' : ''}}
-                  {{$features->custom_profile_url ? '+ Custom Profile URL' : ''}}</span>
-
-              </li>
-              @endif
-              <li class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{{$features->support_type ?? ""}}</span>
-              </li>
-            </ul>
-
-            <!-- Expiry & Upgrade -->
-            <div class="mt-10 pt-6 border-t border-gray-200">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <p class="text-gray-600">Expiry Date</p>
-                  <p class="text-xl font-semibold text-gray-900">{{ \Carbon\Carbon::parse($plan->expiry_date)->format('d M
-                    Y') }}</p>
-                </div>
-                <a href="{{route('plans')}}"
-                  class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md">
-                  Upgrade to Featured Plan →
-                </a>
-              </div>
-              <p class="text-sm text-gray-500 mt-3 text-center sm:text-left">
-                Unlock priority support, featured category placement & more.
-              </p>
-            </div>
-          </div>
-        </div> --}}
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden relative">
-
-          @php
-            $latestPlanRelation = $institute->latestPlan;           // ye relation hai
-            $plan = $latestPlanRelation?->plan;                     // actual Plan model
-            $features = $plan?->features;
-            $isPopular = $plan?->is_popular ?? false;
-            $isFreePlan = !$plan || $plan->name === 'Free' || ($latestPlanRelation?->amount ?? 0) == 0;
-          @endphp
-
-          <!-- Popular Badge -->
-          @if($isPopular)
-            <div
-              class="absolute top-0 right-0 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-bold px-6 py-1.5 rounded-bl-2xl shadow-md transform rotate-12 translate-x-3 translate-y-2">
-              POPULAR
-            </div>
-          @endif
-
-          <!-- Header Section -->
-          <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-3xl font-bold">
-                  {{ $plan?->name ?? 'Free Plan' }}
-                </h3>
-                <p class="text-blue-100 mt-1">
-                  {{ $isFreePlan ? 'Basic Access' : 'Most Chosen by Institutes' }}
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-4xl font-bold">₹{{ $plan?->offered_price ?? '0' }}</p>
-                <p class="text-blue-200 text-sm">/ year</p>
-              </div>
+              class="absolute top-0 right-0 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-bold px-6 py-1.5 rounded-bl-xl shadow-md transform rotate-12 translate-x-4 translate-y-2">
+              {{$package->is_popular ? 'POPULAR' : ''}}
             </div>
 
-            <!-- Current Plan Status -->
-            <div
-              class="mt-6 inline-block bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full text-white font-medium text-sm border border-white/30">
-              Current Plan •
-              @if($latestPlanRelation)
-                {{ $latestPlanRelation->expiry_date > now() ? 'Active' : 'Expired' }}
-              @else
-                Free Forever
-              @endif
-            </div>
-          </div>
-
-          <!-- Features List -->
-          <div class="p-8">
+            <!-- Header Section -->
             @if($features)
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-3xl font-bold">{{$package->name ?? ''}}</h3>
+                  <p class="text-blue-100 mt-1">Most Chosen by Institutes</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-4xl font-bold">₹{{$package->offered_price ?? ''}}</p>
+                  <p class="text-blue-200 text-sm">/ year</p>
+                </div>
+              </div>
+
+              <!-- Current Plan Badge -->
+              <div
+                class="mt-6 inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white font-medium text-sm border border-white/30">
+                Current Plan • {{$plan->expiry_date > now() ? 'Active' : 'Expired'}}
+              </div>
+            </div>
+            @endif
+
+            <!-- Features List -->
+            <div class="p-8">
               <ul class="space-y-4 text-gray-700">
                 <li class="flex items-center gap-3">
                   <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>ApnaShaher Listing + {{ ucfirst($features->search_visibility ?? 'Standard') }} Search
-                    Visibility</span>
+                  <span>{{$features->apnashaher_listing ? 'ApnaShaher Listing' : ''}} +
+                    {{ucfirst($features->search_visibility)}}Search Visibility</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{ucfirst($features->contact_display ?? "")}} Contact Details Display
+                    {{$features->call_whatsapp_button ? '+ WhatsApp/Call CTA' : ''}}</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{ucfirst($features->profile_editing ?? "")}} Profile Editing {{$features->preferred_institute_badge
+                    ? '+ Preferred Institute Badge' : ''}}</span>
                 </li>
 
                 <li class="flex items-center gap-3">
                   <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>{{ ucfirst($features->profile_editing ?? 'Limited') }} Profile Editing</span>
+                  <span>Up to {{$features->courses_programs}} Courses/Programs {{$features->verified_badge ? '+ Verified
+                    Badge' : ''}}</span>
                 </li>
 
-                @if($features->courses_programs ?? 0 > 0)
-                  <li class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Up to {{ $features->courses_programs }} Courses / Programs</span>
-                  </li>
+                @if($features->promotional_banner_placement || $features->profile_performance_insight)
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{$features->promotional_banner_placement ? 'Preferred Placement' : ''}}
+                    {{$features->profile_performance_insight ? '+ Profile Analytics' : ''}}</span>
+                </li>
+                @endif
+                @if($features->featured_in_category_listings)
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Featured In Category Listings</span>
+                </li>
                 @endif
 
-                @if($features->verified_badge)
-                  <li class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Verified Badge</span>
-                  </li>
-                @endif
+                @if($features->ai_profile_description_generator || $features->custom_profile_url)
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{$features->ai_profile_description_generator ? 'AI Description' : ''}}
+                    {{$features->custom_profile_url ? '+ Custom Profile URL' : ''}}</span>
 
-                @if($features->support_type)
-                  <li class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>{{ ucfirst($features->support_type) }} Support</span>
-                  </li>
+                </li>
                 @endif
-
-                @if($features->custom_profile_url)
-                  <li class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Custom Profile URL</span>
-                  </li>
-                @endif
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{$features->support_type ?? ""}}</span>
+                </li>
               </ul>
 
-            @else
-              <!-- Free Plan Message -->
-              <div class="py-12 text-center">
-                <div class="mx-auto w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-5">
-                  <i class="fas fa-gift text-4xl text-gray-400"></i>
+              <!-- Expiry & Upgrade -->
+              <div class="mt-10 pt-6 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <p class="text-gray-600">Expiry Date</p>
+                    <p class="text-xl font-semibold text-gray-900">{{ \Carbon\Carbon::parse($plan->expiry_date)->format('d M
+                      Y') }}</p>
+                  </div>
+                  <a href="{{route('plans')}}"
+                    class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md">
+                    Upgrade to Featured Plan →
+                  </a>
                 </div>
-                <p class="text-xl font-semibold text-gray-700">You are on Free Plan</p>
-                <p class="text-gray-500 mt-3 max-w-xs mx-auto">
-                  Upgrade your plan to unlock premium features like Featured Listing, Verified Badge, Analytics & more.
+                <p class="text-sm text-gray-500 mt-3 text-center sm:text-left">
+                  Unlock priority support, featured category placement & more.
                 </p>
+              </div>
+            </div>
+          </div> --}}
+          <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden relative">
+
+            @php
+              $latestPlanRelation = $institute->latestPlan;           // ye relation hai
+              $plan = $latestPlanRelation?->plan;                     // actual Plan model
+              $features = $plan?->features;
+              $isPopular = $plan?->is_popular ?? false;
+              $isFreePlan = !$plan || $plan->name === 'Free' || ($latestPlanRelation?->amount ?? 0) == 0;
+            @endphp
+
+            <!-- Popular Badge -->
+            @if($isPopular)
+              <div
+                class="absolute top-0 right-0 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-bold px-6 py-1.5 rounded-bl-2xl shadow-md transform rotate-12 translate-x-3 translate-y-2">
+                POPULAR
               </div>
             @endif
 
-            <!-- Expiry & Upgrade -->
-            <div class="mt-10 pt-6 border-t border-gray-200">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <!-- Header Section -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white">
+              <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-gray-500 text-sm">Expiry Date</p>
-                  <p class="text-xl font-semibold text-gray-900">
-                    @if($latestPlanRelation)
-                      {{ \Carbon\Carbon::parse($latestPlanRelation->expiry_date)->format('d M Y') }}
-                    @else
-                      Lifetime (Free)
-                    @endif
+                  <h3 class="text-3xl font-bold">
+                    {{ $plan?->name ?? 'Free Plan' }}
+                  </h3>
+                  <p class="text-blue-100 mt-1">
+                    {{ $isFreePlan ? 'Basic Access' : 'Most Chosen by Institutes' }}
                   </p>
                 </div>
-                @if($isExpired)
+                <div class="text-right">
+                  <p class="text-4xl font-bold">₹{{ $plan?->offered_price ?? '0' }}</p>
+                  <p class="text-blue-200 text-sm">/ year</p>
+                </div>
+              </div>
 
-                  <a href="{{ route('plans') }}"
-                    class="bg-red-600 text-white px-8 py-3.5 rounded-2xl font-semibold shadow-md">
-                    Renew Now →
-                  </a>
-
-                @elseif($canUpgrade)
-
-                  <a href="{{ route('plans') }}"
-                    class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3.5 rounded-2xl font-semibold shadow-md">
-                    Upgrade Plan →
-                  </a>
-
+              <!-- Current Plan Status -->
+              <div
+                class="mt-6 inline-block bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full text-white font-medium text-sm border border-white/30">
+                Current Plan •
+                @if($latestPlanRelation)
+                  {{ $latestPlanRelation->expiry_date > now() ? 'Active' : 'Expired' }}
+                @else
+                  Free Forever
                 @endif
               </div>
             </div>
+
+            <!-- Features List -->
+            <div class="p-8">
+              @if($features)
+                <ul class="space-y-4 text-gray-700">
+                  <li class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>ApnaShaher Listing + {{ ucfirst($features->search_visibility ?? 'Standard') }} Search
+                      Visibility</span>
+                  </li>
+
+                  <li class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{{ ucfirst($features->profile_editing ?? 'Limited') }} Profile Editing</span>
+                  </li>
+
+                  @if($features->courses_programs ?? 0 > 0)
+                    <li class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Up to {{ $features->courses_programs }} Courses / Programs</span>
+                    </li>
+                  @endif
+
+                  @if($features->verified_badge)
+                    <li class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Verified Badge</span>
+                    </li>
+                  @endif
+
+                  @if($features->support_type)
+                    <li class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{{ ucfirst($features->support_type) }} Support</span>
+                    </li>
+                  @endif
+
+                  @if($features->custom_profile_url)
+                    <li class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Custom Profile URL</span>
+                    </li>
+                  @endif
+                </ul>
+
+              @else
+                <!-- Free Plan Message -->
+                <div class="py-12 text-center">
+                  <div class="mx-auto w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-5">
+                    <i class="fas fa-gift text-4xl text-gray-400"></i>
+                  </div>
+                  <p class="text-xl font-semibold text-gray-700">You are on Free Plan</p>
+                  <p class="text-gray-500 mt-3 max-w-xs mx-auto">
+                    Upgrade your plan to unlock premium features like Featured Listing, Verified Badge, Analytics & more.
+                  </p>
+                </div>
+              @endif
+
+              <!-- Expiry & Upgrade -->
+              <div class="mt-10 pt-6 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <p class="text-gray-500 text-sm">Expiry Date</p>
+                    <p class="text-xl font-semibold text-gray-900">
+                      @if($latestPlanRelation)
+                        {{ \Carbon\Carbon::parse($latestPlanRelation->expiry_date)->format('d M Y') }}
+                      @else
+                        Lifetime (Free)
+                      @endif
+                    </p>
+                  </div>
+                  @if($isExpired)
+
+                    <a href="{{ route('plans') }}"
+                      class="bg-red-600 text-white px-8 py-3.5 rounded-2xl font-semibold shadow-md">
+                      Renew Now →
+                    </a>
+
+                  @elseif($canUpgrade)
+
+                    <a href="{{ route('plans') }}"
+                      class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3.5 rounded-2xl font-semibold shadow-md">
+                      Upgrade Plan →
+                    </a>
+
+                  @endif
+                </div>
+              </div>
+            </div>
           </div>
+          <!-- Optional small note below -->
+          <p class="text-center text-sm text-gray-500 mt-8">
+            Need help choosing? Contact support or explore all plans.
+          </p>
         </div>
-        <!-- Optional small note below -->
-        <p class="text-center text-sm text-gray-500 mt-8">
-          Need help choosing? Contact support or explore all plans.
-        </p>
-      </div>
 
       @endif
     </div>
@@ -1498,115 +1578,115 @@
     <!-- INVOICES -->
     <div id="invoices" class="tab-content hidden">
 
-    @if($isExpired)
+      @if($isExpired)
 
-      <div
-        class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center mb-6">
-        <div>
-          Please renew your subscription to continue.
+        <div
+          class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center mb-6">
+          <div>
+            Please renew your subscription to continue.
+          </div>
+
+          <a href="{{ route('plans') }}" class="bg-red-600 text-white px-4 py-2 rounded-lg">
+            Renew Now
+          </a>
         </div>
-
-        <a href="{{ route('plans') }}" class="bg-red-600 text-white px-4 py-2 rounded-lg">
-          Renew Now
-        </a>
-      </div>
       @else
 
-      <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-6 md:p-8">
+        <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-6 md:p-8">
 
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-xl font-bold text-gray-800">Invoices</h3>
-        </div>
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">Invoices</h3>
+          </div>
 
-        @if(isset($invoices) && count($invoices) > 0)
+          @if(isset($invoices) && count($invoices) > 0)
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm border rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border rounded-lg overflow-hidden">
 
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="px-4 py-3 text-left">Invoice No</th>
-                  <th class="px-4 py-3 text-left">Plan</th>
-                  <th class="px-4 py-3 text-left">Base</th>
-                  <th class="px-4 py-3 text-left">GST</th>
-                  <th class="px-4 py-3 text-left">Total</th>
-                  <th class="px-4 py-3 text-left">Status</th>
-                  <th class="px-4 py-3 text-left">Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-
-                @foreach($invoices as $invoice)
-
-                  <tr class="border-b">
-
-                    <td class="px-4 py-3 font-medium">
-                      {{ $invoice->invoice_number }}
-                    </td>
-
-                    <td class="px-4 py-3">
-                      {{ $invoice->payment->instituteplan->plan->name ?? '-' }}
-                    </td>
-
-                    <td class="px-4 py-3">
-                      ₹{{ number_format($invoice->base_amount, 2) }}
-                    </td>
-
-                    <!-- GST -->
-                    <td class="px-4 py-3 text-sm">
-
-                      @if($invoice->cgst > 0)
-                        CGST: ₹{{ number_format($invoice->cgst, 2) }}<br>
-                        SGST: ₹{{ number_format($invoice->sgst, 2) }}
-                      @endif
-
-                      @if($invoice->igst > 0)
-                        IGST: ₹{{ number_format($invoice->igst, 2) }}
-                      @endif
-
-                    </td>
-
-                    <td class="px-4 py-3 font-semibold">
-                      ₹{{ number_format($invoice->total, 2) }}
-                    </td>
-
-                    <td class="px-4 py-3">
-                      <span
-                        class="px-3 py-1 text-xs rounded-full
-                                                              {{ $invoice->payment->status == 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                        {{ ucfirst($invoice->payment->status) }}
-                      </span>
-                    </td>
-
-                    <!-- ACTION -->
-                    <td class="px-4 py-3">
-
-                      <a href="{{ route('invoice.show', $invoice->payment_id) }}"
-                        class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
-                        View
-                      </a>
-
-                    </td>
-
+                <thead class="bg-gray-100">
+                  <tr>
+                    <th class="px-4 py-3 text-left">Invoice No</th>
+                    <th class="px-4 py-3 text-left">Plan</th>
+                    <th class="px-4 py-3 text-left">Base</th>
+                    <th class="px-4 py-3 text-left">GST</th>
+                    <th class="px-4 py-3 text-left">Total</th>
+                    <th class="px-4 py-3 text-left">Status</th>
+                    <th class="px-4 py-3 text-left">Action</th>
                   </tr>
+                </thead>
 
-                @endforeach
+                <tbody>
 
-              </tbody>
+                  @foreach($invoices as $invoice)
 
-            </table>
-          </div>
+                    <tr class="border-b">
 
-        @else
+                      <td class="px-4 py-3 font-medium">
+                        {{ $invoice->invoice_number }}
+                      </td>
 
-          <div class="text-center py-10 text-gray-500">
-            No invoices found.
-          </div>
+                      <td class="px-4 py-3">
+                        {{ $invoice->payment->instituteplan->plan->name ?? '-' }}
+                      </td>
 
-        @endif
+                      <td class="px-4 py-3">
+                        ₹{{ number_format($invoice->base_amount, 2) }}
+                      </td>
 
-      </div>
+                      <!-- GST -->
+                      <td class="px-4 py-3 text-sm">
+
+                        @if($invoice->cgst > 0)
+                          CGST: ₹{{ number_format($invoice->cgst, 2) }}<br>
+                          SGST: ₹{{ number_format($invoice->sgst, 2) }}
+                        @endif
+
+                        @if($invoice->igst > 0)
+                          IGST: ₹{{ number_format($invoice->igst, 2) }}
+                        @endif
+
+                      </td>
+
+                      <td class="px-4 py-3 font-semibold">
+                        ₹{{ number_format($invoice->total, 2) }}
+                      </td>
+
+                      <td class="px-4 py-3">
+                        <span
+                          class="px-3 py-1 text-xs rounded-full
+                                                                                                                                                              {{ $invoice->payment->status == 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                          {{ ucfirst($invoice->payment->status) }}
+                        </span>
+                      </td>
+
+                      <!-- ACTION -->
+                      <td class="px-4 py-3">
+
+                        <a href="{{ route('invoice.show', $invoice->payment_id) }}"
+                          class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                          View
+                        </a>
+
+                      </td>
+
+                    </tr>
+
+                  @endforeach
+
+                </tbody>
+
+              </table>
+            </div>
+
+          @else
+
+            <div class="text-center py-10 text-gray-500">
+              No invoices found.
+            </div>
+
+          @endif
+
+        </div>
 
       @endif
     </div>
@@ -1614,101 +1694,101 @@
     <!-- SETTINGS -->
     <div id="settings" class="tab-content hidden ">
 
-    @if($isExpired)
+      @if($isExpired)
 
-      <div
-        class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center mb-6">
-        <div>
-          Please renew your subscription to continue.
-        </div>
-
-        <a href="{{ route('plans') }}" class="bg-red-600 text-white px-4 py-2 rounded-lg">
-          Renew Now
-        </a>
-      </div>
-      @else
-
-      <div class="max-w-3xl mx-auto space-y-8">
-
-        <!-- Header -->
-        <div class="text-center md:text-left">
-          <h2 class="text-2xl font-bold text-gray-800">Account Settings</h2>
-          <p class="text-gray-600 mt-1">Manage your contact information securely. OTP verification required for mobile &
-            WhatsApp changes.</p>
-        </div>
-
-        <!-- Contact Cards -->
-        <div class="grid gap-6">
-
-          <!-- Mobile Card -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="p-6">
-              <div class="flex items-start justify-between">
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-800">Mobile Number</h3>
-                  <p id="currentMobile" class="text-gray-700 mt-1 text-xl font-medium">+91 {{ $institute->mobile }}</p>
-                </div>
-                <button onclick="openChangeModal('mobile', '{{$institute->mobile}}', 'Mobile Number')"
-                  class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
-                  Change
-                </button>
-              </div>
-              <p class="text-xs text-gray-500 mt-3">Used for login, alerts & student calls</p>
-            </div>
+        <div
+          class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center mb-6">
+          <div>
+            Please renew your subscription to continue.
           </div>
 
-          @if($institute->owner_email != "")
-            <!-- Email Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div class="p-6">
-                <div class="flex items-start justify-between">
-                  <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Email Address</h3>
-                    <p id="currentEmail" class="text-gray-700 mt-1 text-xl font-medium">{{ $institute->owner_email ?? "" }}
-                    </p>
-                  </div>
-                  <button onclick="openChangeModal('email', '{{$institute->owner_email ?? ''}}', 'Email Address')"
-                    class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
-                    Change
-                  </button>
-                </div>
-                <p class="text-xs text-gray-500 mt-3">Used for notifications & recovery</p>
-              </div>
-            </div>
-          @endif
-
-          @if($institute->whatsapp != "")
-            <!-- WhatsApp Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div class="p-6">
-                <div class="flex items-start justify-between">
-                  <div>
-                    <h3 class="text-lg font-semibold text-gray-800">WhatsApp Number</h3>
-                    <p id="currentWhatsApp" class="text-gray-700 mt-1 text-xl font-medium"> +91 {{ $institute->whatsapp }}
-                    </p>
-                  </div>
-                  <button onclick="openChangeModal('whatsapp', '{{$institute->whatsapp}}', 'WhatsApp Number')"
-                    class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
-                    Change
-                  </button>
-                </div>
-                <p class="text-xs text-gray-500 mt-3">For direct student communication</p>
-              </div>
-            </div>
-          @endif
-
+          <a href="{{ route('plans') }}" class="bg-red-600 text-white px-4 py-2 rounded-lg">
+            Renew Now
+          </a>
         </div>
+      @else
 
-        <!-- Note -->
-        <p class="text-sm text-gray-500 text-center md:text-left">
-          All changes require OTP verification for security. Changes reflect instantly after verification.
-        </p>
-      </div>
+        <div class="max-w-3xl mx-auto space-y-8">
+
+          <!-- Header -->
+          <div class="text-center md:text-left">
+            <h2 class="text-2xl font-bold text-gray-800">Account Settings</h2>
+            <p class="text-gray-600 mt-1">Manage your contact information securely. OTP verification required for mobile &
+              WhatsApp changes.</p>
+          </div>
+
+          <!-- Contact Cards -->
+          <div class="grid gap-6">
+
+            <!-- Mobile Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div class="p-6">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Mobile Number</h3>
+                    <p id="currentMobile" class="text-gray-700 mt-1 text-xl font-medium">+91 {{ $institute->mobile }}</p>
+                  </div>
+                  <button onclick="openChangeModal('mobile', '{{$institute->mobile}}', 'Mobile Number')"
+                    class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
+                    Change
+                  </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">Used for login, alerts & student calls</p>
+              </div>
+            </div>
+
+            @if($institute->owner_email != "")
+              <!-- Email Card -->
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6">
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-800">Email Address</h3>
+                      <p id="currentEmail" class="text-gray-700 mt-1 text-xl font-medium">{{ $institute->owner_email ?? "" }}
+                      </p>
+                    </div>
+                    <button onclick="openChangeModal('email', '{{$institute->owner_email ?? ''}}', 'Email Address')"
+                      class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
+                      Change
+                    </button>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-3">Used for notifications & recovery</p>
+                </div>
+              </div>
+            @endif
+
+            @if($institute->whatsapp != "")
+              <!-- WhatsApp Card -->
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6">
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-800">WhatsApp Number</h3>
+                      <p id="currentWhatsApp" class="text-gray-700 mt-1 text-xl font-medium"> +91 {{ $institute->whatsapp }}
+                      </p>
+                    </div>
+                    <button onclick="openChangeModal('whatsapp', '{{$institute->whatsapp}}', 'WhatsApp Number')"
+                      class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
+                      Change
+                    </button>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-3">For direct student communication</p>
+                </div>
+              </div>
+            @endif
+
+          </div>
+
+          <!-- Note -->
+          <p class="text-sm text-gray-500 text-center md:text-left">
+            All changes require OTP verification for security. Changes reflect instantly after verification.
+          </p>
+        </div>
 
       @endif
     </div>
 
-    
+
     <!-- Change Modal -->
     <div id="changeModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform transition-all scale-95">
@@ -1780,6 +1860,21 @@
 @push('after-scripts')
 
   <script>
+    function previewLogo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        document.getElementById('logoPreview').src = e.target.result;
+      }
+
+      reader.readAsDataURL(file);
+    }
+  </script>
+
+  <script>
     document.addEventListener("DOMContentLoaded", function () {
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -1799,12 +1894,24 @@
       $(this).removeClass('border-red-500');
       $(this).next('.error-text').remove();
     });
+
+
     $('#instituteForm').submit(function (e) {
       e.preventDefault();
 
-      let id = $(this).find('input[name="id"]').val();
-      let formData = new FormData(this);
+      let form = this;
+      let id = $(form).find('input[name="id"]').val();
+      let btn = $('.submit-btn');
+
+      let formData = new FormData(form);
       let updateurl = "{{ url('institute/update-profile/') }}";
+
+      // reset errors
+      $('.error-text').remove();
+      $('.input').removeClass('border-red-500');
+
+      btn.prop('disabled', true).text('Updating...');
+
       $.ajax({
         url: updateurl + '/' + id,
         type: "POST",
@@ -1812,39 +1919,59 @@
         processData: false,
         contentType: false,
 
-        beforeSend: function () {
-          $('.error-text').remove();
-          $('input, select, textarea').removeClass('border-red-500');
-        },
-
         success: function (res) {
           toastr.success(res.message);
         },
 
         error: function (xhr) {
 
-          $('.error-text').remove();
-
           if (xhr.status === 422) {
-            let errors = xhr.responseJSON.errors;
 
-            // purane errors remove karo
-            $('.error-text').remove();
+            let errors = xhr.responseJSON.errors;
+            let firstInput = null; // 🔥 track first error
 
             $.each(errors, function (key, value) {
+
               let input = $('[name="' + key + '"]');
 
-              // input ke baad simple block error
-              input.after(
-                '<small class="error-text text-red-500 text-xs block mt-1">'
+              input.addClass('border-red-500');
+
+              input.closest('.form-group').find('.error-text').remove();
+
+              input.closest('.form-group').append(
+                '<small class="error-text text-red-500 text-xs mt-1 block">'
                 + value[0] +
                 '</small>'
               );
+
+              // 🔥 store first error input
+              if (!firstInput) {
+                firstInput = input;
+              }
             });
+
+            // 🔥 SCROLL + FOCUS
+            if (firstInput) {
+
+              $('html, body').animate({
+                scrollTop: firstInput.offset().top - 120
+              }, 400);
+
+              firstInput.focus();
+            }
+
+          } else {
+            toastr.error('Something went wrong');
           }
+        },
+
+        complete: function () {
+          btn.prop('disabled', false).text('Update Profile');
         }
       });
     });
+
+
     // ✅ Social Media Update
     $('#socialForm').submit(function (e) {
       e.preventDefault();
@@ -2182,7 +2309,14 @@
       }
     });
 
+    $('input[type="checkbox"]').on('change', function () {
+      let card = $(this).closest('.timing-card');
+      let inputs = card.find('input[type="time"]');
+
+      inputs.prop('disabled', !this.checked);
+    });
 
   </script>
+
 
 @endpush

@@ -288,12 +288,15 @@
             <div class="listing-process">
                 <div class="process-header" style=" margin: auto;">
                     <p class="highlight-sub">Free Listing (Basic) available • Upgrade anytime for better visibility</p>
-                    <h2 style="
-                                                                                    font-weight: 800;
-                                                                                    color: #0d1117;
-                                                                                    line-height: 1.1;
-                                                                                    margin-bottom: 10px;
-                                                                                    letter-spacing: -1px;">List your
+                    <h2
+                        style="
+                                                                                                                                                        font-weight: 800;
+                                                                                                                                                        color: #0d1117;
+                                                                                                                                                        line-height: 1.1;
+                                                                                                                                                        margin-bottom: 10px;
+                                                                                                                                                        letter-spacing: -1px;">
+                        List
+                        your
                         Institute
                         on
                         ApnaShaher.com
@@ -302,8 +305,9 @@
 
                 </div>
 
-                <ul class="featured-points" style="width: 80%; margin: auto; margin-top: 20px;
-                                                                                      margin-bottom: 20px;">
+                <ul class="featured-points"
+                    style="width: 80%; margin: auto; margin-top: 20px;
+                                                                                                                                                          margin-bottom: 20px;">
                     <li><i class="fas fa-check"></i> Get discovered by local students</li>
                     <li><i class="fas fa-check"></i> Verified & trusted listings only</li>
                     <li><i class="fas fa-check"></i> No obligation to upgrade</li>
@@ -389,8 +393,8 @@
                                         <small class="error-text" id="error_mobile"></small>
                                         <input type="tel" id="mobile" placeholder="10-digit number" maxlength="10"
                                             required />
-                                        <button type="button" class="otp-btn" id="otp-btn" onclick="sendOtp()"
-                                            style="display:none;">Send OTP</button>
+                                        <button type="button" class="otp-btn" id="otp-btn" onclick="sendOtp()" disabled>Send
+                                            OTP</button>
 
                                     </div>
                                 </div>
@@ -399,8 +403,10 @@
                                     <label>Enter OTP *</label>
                                     <input type="text" id="otp" placeholder="6-digit OTP" maxlength="6" />
                                     <div class="resend-otp-btn-new">
-                                        <button type="button" class="otp-btn" onclick="verifyOtp()">Verify OTP</button>
-                                        <button type="button" class="otp-btn resend-otp-btn" onclick="sendOtp()">Resend
+                                        <button type="button" class="otp-btn" id="verifyOtpBtn" onclick="verifyOtp()">Verify
+                                            OTP</button>
+                                        <button type="button" class="otp-btn resend-otp-btn" id="resendOtpBtn"
+                                            onclick="resendOtp()">Resend
                                             OTP</button>
                                     </div>
                                     <small class="error-text" id="error_otp"></small>
@@ -408,7 +414,7 @@
                             </div>
 
                             <div class="step-actions">
-                                <button type="button" class="next-btn" onclick="saveStep1()">Next →</button>
+                                <button type="button" class="next-btn" onclick="saveStep1()" disabled>Next →</button>
                             </div>
 
                             <div id="resumeMsg" style="display:none;color:green;">
@@ -474,10 +480,21 @@
                                     <small id="charCount">0 / 200</small>
                                 </div>
 
+                                <!-- WhatsApp -->
                                 <div class="form-group full">
                                     <label>WhatsApp Number (optional)</label>
-                                    <input type="tel" id="whatsapp" placeholder="Same as mobile or different" />
+                                    <input type="tel" id="whatsapp" />
                                     <small class="error-text" id="error_whatsapp"></small>
+                                </div>
+
+                                <!-- Logo -->
+                                <div class="form-group full">
+                                    <label>Institute Logo (optional)</label>
+                                    <input type="file" id="logo" accept="image/*" />
+                                    <div id="logoPreview" style="display:none;">
+                                        <img id="logoImg" style="max-height:80px;" />
+                                    </div>
+                                    <small class="error-text" id="error_logo"></small>
                                 </div>
                             </div>
 
@@ -542,9 +559,9 @@
                                                             </li>
                                                         @endif
                                                         <!-- <li {!! $package->features->call_whatsapp_button ? 'class="flex items-start gap-3"' : 'class="flex items-start gap-3 opacity-50"' !!}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    {!! $package->features->call_whatsapp_button ? '<span class="text-green-500 text-xl">✔</span>' : '<span class="text-gray-400 text-xl">✘</span>' !!}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span>Calls & WhatsApp Button</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                </li> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {!! $package->features->call_whatsapp_button ? '<span class="text-green-500 text-xl">✔</span>' : '<span class="text-gray-400 text-xl">✘</span>' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span>Calls & WhatsApp Button</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </li> -->
 
                                                         <li class="flex items-start gap-3">
                                                             <span class="text-green-500 text-xl">✔</span>
@@ -552,9 +569,9 @@
                                                                 Visibility</span>
                                                         </li>
                                                         <!-- <li class="flex items-start gap-3">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="text-green-500 text-xl">✔</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span>{{ ucfirst($package->features->contact_display) }} Contact Display</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                </li> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="text-green-500 text-xl">✔</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span>{{ ucfirst($package->features->contact_display) }} Contact Display</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </li> -->
 
                                                         <li class="flex items-start gap-3">
                                                             <span class="text-green-500 text-xl">✔</span>
@@ -637,9 +654,9 @@
                                                             </li>
                                                         @endif
                                                         <!-- <li {!! $package->features->call_whatsapp_button ? 'class="flex items-start gap-3"' : 'class="flex items-start gap-3 opacity-50"' !!}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    {!! $package->features->call_whatsapp_button ? '<span class="text-green-500 text-xl">✔</span>' : '<span class="text-gray-400 text-xl">✘</span>' !!}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span>Calls & WhatsApp Button</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                </li> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {!! $package->features->call_whatsapp_button ? '<span class="text-green-500 text-xl">✔</span>' : '<span class="text-gray-400 text-xl">✘</span>' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span>Calls & WhatsApp Button</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </li> -->
 
                                                         <li class="flex items-start gap-3">
                                                             <span class="text-green-500 text-xl">✔</span>
@@ -647,9 +664,9 @@
                                                                 Visibility</span>
                                                         </li>
                                                         <!-- <li class="flex items-start gap-3">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="text-green-500 text-xl">✔</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span>{{ ucfirst($package->features->contact_display) }} Contact Display</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                </li> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="text-green-500 text-xl">✔</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span>{{ ucfirst($package->features->contact_display) }} Contact Display</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </li> -->
 
                                                         <li class="flex items-start gap-3">
                                                             <span class="text-green-500 text-xl">✔</span>
@@ -1071,8 +1088,8 @@
 
                             <!-- Bottom Note -->
                             <!-- <p class="text-center text-gray-600 mt-10 text-sm">
-                                                                                                You can upgrade your plan anytime after listing.
-                                                                                              </p> -->
+                                                                                                                                                                    You can upgrade your plan anytime after listing.
+                                                                                                                                                                  </p> -->
 
                             <!-- Step Actions -->
                             <div class="step-actions flex justify-between mt-12">
@@ -1082,10 +1099,10 @@
                                     ← Back
                                 </button>
                                 <!-- <button
-                                                                                                  class="next-btn  px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition shadow-md"
-                                                                                                  onclick="goToStep(4)">
-                                                                                                  Continue →
-                                                                                                </button> -->
+                                                                                                                                                                      class="next-btn  px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition shadow-md"
+                                                                                                                                                                      onclick="goToStep(4)">
+                                                                                                                                                                      Continue →
+                                                                                                                                                                    </button> -->
                             </div>
                         </div>
                         <div class="step-card" id="step4" style="display:none; margin: auto; margin-top:15px;">
@@ -1214,6 +1231,7 @@
             cashfree = Cashfree({
                 mode: "production"
             });
+            $('#subcategoryWrapper').hide();
         };
 
         function updatePrice() {
@@ -1414,25 +1432,32 @@
 
         let mobileExists = false;
 
-        $('#mobile').on('blur', function () {
+        $('#mobile').on('input', function () {
             let mobile = $(this).val();
 
+            // reset only related things
+            $('#otp-btn').prop('disabled', true);
+            $('#error_mobile').html('');
+
             if (mobile.length === 10) {
+
                 let mobileUrl = "{{ url('/institutes/check-mobile') }}/";
+
                 $.get(mobileUrl, { mobile: mobile }, function (response) {
 
                     if (response == 1) {
-                        console.log('here');
+
                         $('#error_mobile').html(
                             'Mobile Number already registered, <a href="{{ route("login") }}">click here to Login</a>'
                         );
 
-                        $('#otp-btn').hide();
+                        $('#otp-btn').prop('disabled', true);
                         mobileExists = true;
+
                     } else {
+
                         $('#error_mobile').html('');
-                        $('#error_mobile').hide();
-                        $('#otp-btn').show();
+                        $('#otp-btn').prop('disabled', false); // ✅ enable only here
                         $('#mobile').removeClass('error');
                         mobileExists = false;
                     }
@@ -1483,6 +1508,11 @@
                 return;
             }
 
+            // ✅ FIX: convert "5,6" → ["5","6"]
+            if (selectedSubCat && typeof selectedSubCat === 'string') {
+                selectedSubCat = selectedSubCat.split(',');
+            }
+
             let url = "{{ url('/get-subcategories') }}/" + cateID;
 
             $.get(url, function (response) {
@@ -1490,7 +1520,9 @@
 
                     let html = '';
                     response.forEach(function (sub) {
+
                         let checked = '';
+
                         if (selectedSubCat) {
                             if (Array.isArray(selectedSubCat)) {
                                 checked = selectedSubCat.includes(sub.id.toString()) ? 'checked' : '';
@@ -1500,34 +1532,34 @@
                         }
 
                         html += `
-                                                                                                    <label>
-                                                                                                        <input type="checkbox" 
-                                                                                                               value="${sub.id}" 
-                                                                                                               class="subcategory-checkbox"
-                                                                                                               ${checked}>
-                                                                                                        <span>${sub.name}</span>
-                                                                                                    </label>
-                                                                                                `;
+                        <label>
+                            <input type="checkbox" 
+                                   value="${sub.id}" 
+                                   class="subcategory-checkbox"
+                                   ${checked}>
+                            <span>${sub.name}</span>
+                        </label>
+                    `;
                     });
 
                     container.html(html);
 
                     $('.subcategory-checkbox').on('change', updateSelectedSubcategories);
 
-                    wrapper.show(); // ✅ only when data exists
+                    wrapper.show();
 
                     if (selectedSubCat) {
                         updateSelectedSubcategories();
                     }
 
                 } else {
-                    // ❌ no message, just hide
                     container.html('');
                     wrapper.hide();
                     hiddenInput.val('');
                 }
             });
         }
+
         function updateSelectedSubcategories() {
             const selected = [];
             $('.subcategory-checkbox:checked').each(function () {
@@ -1536,6 +1568,36 @@
 
             $('#subcategory_id').val(selected.join(','));
         }
+
+        $('#logo').on('change', function () {
+
+            let file = this.files[0];
+
+            if (!file) return;
+
+            // ✅ Validate type
+            if (!file.type.startsWith('image/')) {
+                showError('logo', 'Only image files allowed');
+                this.value = '';
+                return;
+            }
+
+            // ✅ Validate size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showError('logo', 'Max size is 2MB');
+                this.value = '';
+                return;
+            }
+
+            // ✅ Preview
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $('#logoImg').attr('src', e.target.result);
+                $('#logoPreview').show();
+            };
+            reader.readAsDataURL(file);
+
+        });
 
         function clearErrors() {
 
@@ -1578,14 +1640,18 @@
             let regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return regex.test(email);
         }
+
         function sendOtp() {
 
             clearErrors();
+
             let mobile = $('#mobile').val();
+
             if (!validateMobile(mobile)) {
                 showError('mobile', 'Enter valid Indian mobile number');
                 return;
             }
+
             if (mobileExists) {
                 $('#error_mobile').html(
                     'Mobile Number already registered, <a href="{{ route("login") }}">click here to Login</a>'
@@ -1593,56 +1659,163 @@
                 return;
             }
 
+            let btn = $('#otp-btn');
+
+            if (btn.prop('disabled')) return;
+
+            btn.prop('disabled', true).text('Sending...');
+
             let sendotpurl = "{{ url('/send-otp') }}";
-            $.post(sendotpurl, { mobile, _token: $('meta[name=csrf-token]').attr('content') }
-                , function (res) {
 
-                    if (res.status) {
+            $.post(sendotpurl, {
+                mobile,
+                _token: $('meta[name=csrf-token]').attr('content')
+            }, function (res) {
 
-                        $('.otp-group').show();
-                        $('#otp-btn').hide();
+                // ✅ ADD THIS BLOCK
+                if (!res.status) {
+                    toastr.error(res.message || 'Something went wrong');
+                    btn.prop('disabled', false).text('Send OTP');
+                    return;
+                }
 
-                        $('#error_mobile').html('<span style="color:green;">OTP sent successfully</span>');
+                // ✅ EXISTING SUCCESS FLOW
+                toastr.success('OTP sent successfully');
 
-                    }
+                $('.otp-group').show();
 
-                }).fail(function (xhr) {
+                $('#otp-btn').hide();
 
-                    let errors = xhr.responseJSON.errors;
+                $('#error_mobile').html('<span style="color:green;">OTP sent successfully</span>');
 
-                    $.each(errors, function (field, msg) {
+                startOtpTimer();
 
-                        showError(field, msg[0]);
+                $('#resendOtpBtn')
+                    .prop('disabled', true)
+                    .text('Resend in 30s');
 
-                    });
+            }).fail(function (xhr) {
 
+                btn.prop('disabled', false).text('Send OTP');
+
+                let errors = xhr.responseJSON.errors;
+
+                $.each(errors, function (field, msg) {
+                    showError(field, msg[0]);
                 });
+
+            });
+        }
+        let otpTimer;
+        let timeLeft = 30;
+
+        function startOtpTimer() {
+
+            timeLeft = 30;
+
+            clearInterval(otpTimer);
+
+            otpTimer = setInterval(() => {
+
+                timeLeft--;
+
+                if (timeLeft <= 0) {
+                    clearInterval(otpTimer);
+
+                    $('#resendOtpBtn')
+                        .prop('disabled', false)
+                        .text('Resend OTP');
+
+                } else {
+                    $('#resendOtpBtn').text('Resend in ' + timeLeft + 's');
+                }
+
+            }, 1000);
+        }
+
+        function resendOtp() {
+
+            let btn = $('#resendOtpBtn');
+
+            if (btn.prop('disabled')) return;
+
+            let mobile = $('#mobile').val();
+
+            btn.prop('disabled', true).text('Resending...');
+
+            let sendotpurl = "{{ url('/send-otp') }}";
+
+            $.post(sendotpurl, {
+                mobile,
+                _token: $('meta[name=csrf-token]').attr('content')
+            }, function (res) {
+
+                // ✅ HANDLE FAILURE
+                if (!res.status) {
+                    toastr.error(res.message || 'Failed to resend OTP');
+                    btn.prop('disabled', false).text('Resend OTP');
+                    return;
+                }
+
+                toastr.success('OTP resent successfully');
+
+                startOtpTimer();
+
+                btn.text('Resend in 30s');
+
+            }).fail(function () {
+
+                toastr.error('Something went wrong');
+
+                // ✅ allow retry
+                btn.prop('disabled', false).text('Resend OTP');
+
+            }).always(function () {
+                // ❌ don't force disable here
+            });
         }
 
         function verifyOtp() {
+
             clearErrors();
+
             let mobile = $('#mobile').val();
             let otp = $('#otp').val();
+
             if (otp.length != 6) {
                 showError('otp', 'Enter valid OTP');
                 return;
             }
+
             let verifyotpurl = "{{ url('/verify-otp') }}";
-            $.post(verifyotpurl, { mobile, otp, _token: $('meta[name=csrf-token]').attr('content') }, function (res) {
+
+            $.post(verifyotpurl, {
+                mobile,
+                otp,
+                _token: $('meta[name=csrf-token]').attr('content')
+            }, function (res) {
 
                 if (res.status) {
 
+                    // ✅ lock mobile
                     $('#mobile').prop('readonly', true);
 
+                    // ✅ hide otp input
                     $('.otp-group').hide();
 
-                    $('.otp-btn').hide();
+                    // ✅ better control
+                    $('#verifyOtpBtn').text('Verified').prop('disabled', true);
+                    $('#resendOtpBtn').hide();
 
+                    // ✅ success message
                     $('#error_mobile').html('<span style="color:green">Mobile Verified ✓</span>');
 
-                }
-                else {
-                    showError('otp', res.message);
+                    // ✅ MOST IMPORTANT FIX
+                    $('.next-btn').prop('disabled', false);
+
+                } else {
+
+                    showError('otp', res.message || 'Invalid OTP');
 
                 }
 
@@ -1651,16 +1824,12 @@
                 let errors = xhr.responseJSON.errors;
 
                 $.each(errors, function (field, msg) {
-
                     showError(field, msg[0]);
-
                 });
 
             });
 
         }
-
-
         function saveStep1() {
 
             clearErrors();
@@ -1694,7 +1863,32 @@
                     $('#institute_id').val(res.institute_id);
 
                     if (res.resume) {
+
+                        let d = res.data;
+
+                        $('#institute_id').val(d.id);
+                        $('#institute_name').val(d.name);
+                        $('#state_id').val(d.state_id).trigger('change');
+
+                        loadCities(d.state_id, d.city_id);
+
+                        $('#profile_address').val(d.profile_address);
+
+                        // Step 2 autofill
+                        $('#category_id').val(d.category_id).trigger('change');
+                        loadSubCat(d.category_id, d.subcategory_id);
+
+                        $('#description').val(d.description);
+                        $('#whatsapp').val(d.whatsapp);
+
+                        if (d.logo) {
+                            $('#logoPreview').show();
+                            $('#logoImg').attr('src', '/storage/' + d.logo);
+                        }
+
                         $('#resumeMsg').show();
+
+                        goToStep(2);
                     }
 
                     goToStep(2);
@@ -1705,49 +1899,61 @@
             });
         }
 
+
+
         function saveStep2() {
             clearErrors();
 
             if (whatsappExists) {
                 showError('whatsapp', 'WhatsApp Number already in use, please try another number');
-                return; // ❌ STOP HERE
+                return;
             }
-
 
             let subcategoryVal = $('#subcategory_id').val();
             subcategoryVal = subcategoryVal ? subcategoryVal : null;
-            let data = {
-                institute_id: $('#institute_id').val(),
-                category_id: $('#category_id').val(),
 
-                subcategory_id: subcategoryVal,
-                description: $('#description').val(),
-                whatsapp: $('#whatsapp').val(),
-                _token: $('meta[name=csrf-token]').attr('content')
-            };
-            let step2url = "{{ url('/step2-save') }}";
-            $.post(step2url, data, function (res) {
+            // ✅ Use FormData instead of normal object
+            let formData = new FormData();
 
-                if (res.status) {
+            formData.append('institute_id', $('#institute_id').val());
+            formData.append('category_id', $('#category_id').val());
+            formData.append('subcategory_id', subcategoryVal);
+            formData.append('description', $('#description').val());
+            formData.append('whatsapp', $('#whatsapp').val());
+            formData.append('_token', $('meta[name=csrf-token]').attr('content'));
 
-                    goToStep(3);
+            // ✅ ADD LOGO FILE
+            let logoFile = $('#logo')[0].files[0];
+            if (logoFile) {
+                formData.append('logo', logoFile);
+            }
 
+            $.ajax({
+                url: "{{ url('/step2-save') }}",
+                type: "POST",
+                data: formData,
+                processData: false,   // ❗ important
+                contentType: false,   // ❗ important
+
+                success: function (res) {
+                    if (res.status) {
+                        goToStep(3);
+                    }
+                },
+
+                error: function (xhr) {
+                    let errors = xhr.responseJSON?.errors;
+
+                    if (errors) {
+                        $.each(errors, function (field, msg) {
+                            showError(field, msg[0]);
+                        });
+                    } else {
+                        toastr.error('Something went wrong');
+                    }
                 }
-
-            }).fail(function (xhr) {
-
-                let errors = xhr.responseJSON.errors;
-
-                $.each(errors, function (field, msg) {
-
-                    showError(field, msg[0]);
-
-                });
-
             });
-
         }
-
         function saveStep3(plan_id) {
 
             let step3url = "{{ url('/step3-save') }}";

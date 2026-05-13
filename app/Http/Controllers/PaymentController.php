@@ -176,7 +176,7 @@ class PaymentController extends Controller
         $institute = Institute::where('id', $payment->institute_id)->first();
         if ($institute) {
             $institute->update([
-                'registration_complete' => true,
+                'registration_complete' => 1,
                 'listing_id' => 'INS' . str_pad($institute->id, 5, '0', STR_PAD_LEFT)
             ]);
         }
@@ -201,7 +201,7 @@ class PaymentController extends Controller
         }
 
         $institute->update([
-            'registration_complete' => true,
+            'registration_complete' => 1,
             'listing_id' => 'INS' . str_pad($institute->id, 5, '0', STR_PAD_LEFT)
         ]);
         $orderId = 'FREE' . str_pad($institute->id, 5, '0', STR_PAD_LEFT);

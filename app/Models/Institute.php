@@ -58,12 +58,13 @@ class Institute extends Authenticatable implements MustVerifyEmail
         'total_clicks',
         'total_calls',
         'whatsApp_connect',
-        'status'
+        'status',
     ];
 
     protected $casts = [
         'mobile_verified' => 'boolean',
         'gst_invoice' => 'boolean',
+        'registration_complete' => 'boolean',
     ];
     protected $dates = ['login_otp_sent_at']; // Carbon timestamps
 

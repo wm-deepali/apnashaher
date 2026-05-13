@@ -131,6 +131,12 @@
 
             <ul>
 
+                <li class="{{ request()->routeIs('admin.institute.incomplete.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.institute.incomplete.index') }}">
+                        <i class="fa-solid fa-hourglass-half"></i> Incomplete Listings
+                    </a>
+                </li>
+
                 <!-- NEW LISTINGS -->
                 <li class="{{ request()->routeIs('admin.institute.new.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.institute.new.index') }}">

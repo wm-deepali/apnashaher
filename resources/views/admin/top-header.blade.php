@@ -46,46 +46,44 @@
         <div class="admin-logo">
           <img src="{{ asset('assets/images/logo.svg') }}">
         </div>
-        <div class="ml-auto">
+        <div class="ml-auto position-relative">
 
-          <div class="btn-group">
+    @php
+      $user = auth()->user();
+    @endphp
 
-            @php
-              $user = auth()->user();
-            @endphp
+    <!-- BUTTON -->
+    <button id="userDropdownBtn"
+            type="button"
+            class="btn bg-transparent p-0 d-flex align-items-center">
 
-            <button class="btn bg-transparent p-0 dropdown-toggle d-flex align-items-center" type="button"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <img src="{{ $user && $user->avatar ? asset('storage/' . $user->avatar) : asset('default-user.png') }}"
+           style="width:35px; height:35px; border-radius:50%; object-fit:cover; margin-right:8px;">
 
-              <img src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('default-user.png') }}"
-                style="width:35px; height:35px; border-radius:50%; object-fit:cover; margin-right:8px;">
+      {{ $user->name ?? 'User' }}
+    </button>
 
-              {{ $user->name }}
+    <!-- DROPDOWN -->
+    <div id="userDropdownMenu"
+         class="dropdown-menu header-dropdown"
+         style="display:none; position:absolute; right:0; top:15px; min-width:180px; z-index:999;">
 
-            </button>
+      <a class="dropdown-item" href="{{ url('admin/profile-setting') }}">
+        <i class="fa-solid fa-user mr-2"></i> Profile
+      </a>
 
-            <div class="dropdown-menu keep-open header-dropdown">
+      <a class="dropdown-item" href="#" id="logoutBtn">
+        <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+      </a>
 
-              <a class="dropdown-item" href="{{ url('admin/profile-setting') }}">
+    </div>
 
-                <i class="fa-solid fa-user mr-2"></i> Profile
+    <!-- LOGOUT FORM -->
+    <form id="logout-form" action="{{ route('voyager.logout') }}" method="POST" style="display:none;">
+      @csrf
+    </form>
 
-              </a>
-
-             <a class="dropdown-item" href="javascript:void(0);" 
-   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-    <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
-</a>
-
-<form id="logout-form" action="{{ route('voyager.logout') }}" method="POST" style="display: none;">
-    @csrf
-</form>
-
-            </div>
-
-          </div>
-
-        </div>
+</div>
       </div>
     </div>
   </div>
@@ -105,3 +103,41 @@
       alertify.prompt().set({ 'reverseButtons': true });
     }
   </script>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  const btn = document.getElementById('userDropdownBtn');
+  const menu = document.getElementById('userDropdownMenu');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const logoutForm = document.getElementById('logout-form');
+
+  if (!btn || !menu) return;
+
+  // DROPDOWN TOGGLE
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+
+    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+  });
+
+  // CLOSE DROPDOWN OUTSIDE CLICK
+  document.addEventListener('click', function () {
+    menu.style.display = 'none';
+  });
+
+  // PREVENT CLOSE WHEN CLICK INSIDE
+  menu.addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
+  // LOGOUT
+  if (logoutBtn && logoutForm) {
+    logoutBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      logoutForm.submit();
+    });
+  }
+
+});
+</script>

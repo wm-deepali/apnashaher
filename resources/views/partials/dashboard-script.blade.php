@@ -128,7 +128,23 @@
         })
       });
 
-      let data = await res.json();
+      // 🔥 HANDLE ERROR RESPONSE
+      let data;
+
+      if (!res.ok) {
+        data = await res.json();
+
+        if (data.errors) {
+          let firstError = Object.values(data.errors)[0][0];
+
+          status.textContent = firstError;
+          status.className = 'text-red-600 text-center';
+
+          return;
+        }
+      }
+
+      data = await res.json();
 
       if (data.success) {
         document.getElementById('otpSection').classList.remove('hidden');
@@ -137,7 +153,6 @@
         status.textContent = 'OTP sent successfully!';
         status.className = 'text-green-600 text-center';
       }
-
     } else {
       // STEP 2: Verify OTP
       const otp = Array.from(document.querySelectorAll('#otpSection input'))

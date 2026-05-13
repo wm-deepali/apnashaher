@@ -20,6 +20,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use App\Models\Package;
 use App\Models\Gallery;
 use App\Models\Enquiry;
 use App\Models\Invoice;
@@ -40,32 +41,37 @@ class InstituteController extends Controller
             'city' => ['required', 'exists:cities,id'],
             'mobile' => ['required', 'digits:10', 'regex:/^[6-9]\d{9}$/'],
             'profile_address' => ['required', 'max:200']
-        ], [
-            'name.regex' => 'Name can contain only letters and spaces.',
-            'mobile.regex' => 'Enter valid Indian mobile number.'
         ]);
 
         $existing = Institute::where('mobile', $request->mobile)->first();
 
         if ($existing) {
 
-            // If registration already completed
-            if ($existing->registration_complete) {
-
+            // ❌ Case 2: Already completed → block
+            if ($existing->registration_complete == 1) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Mobile number already registered'
+                    'message' => 'Mobile Number already exist, please login'
                 ]);
-
             }
-            // If registration incomplete → continue
-            return response()->json([
-                'status' => true,
-                'institute_id' => $existing->id,
-                'resume' => true
+
+            // ✅ Case 1: Incomplete → UPDATE step1 (override)
+            $existing->update([
+                'name' => $request->name,
+                'state_id' => $request->state,
+                'city_id' => $request->city,
+                'profile_address' => $request->profile_address
             ]);
 
+            return response()->json([
+                'status' => true,
+                'resume' => true,
+                'institute_id' => $existing->id,
+                'data' => $existing // ✅ autofill ke liye
+            ]);
         }
+
+        // OTP check
         $otpVerified = Otp::where('mobile', $request->mobile)
             ->where('verified', true)
             ->exists();
@@ -77,9 +83,7 @@ class InstituteController extends Controller
             ]);
         }
 
-        $slug = Str::slug($request->name);
-
-        $slug = $this->generateUniqueSlug($slug);
+        $slug = $this->generateUniqueSlug(Str::slug($request->name));
 
         $institute = Institute::create([
             'name' => $request->name,
@@ -89,31 +93,96 @@ class InstituteController extends Controller
             'city_id' => $request->city,
             'profile_address' => $request->profile_address,
             'mobile' => $request->mobile,
-            'mobile_verified' => true
+            'mobile_verified' => true,
+            'registration_complete' => 0 // ✅ important
         ]);
 
-        return response()->json(['status' => true, 'institute_id' => $institute->id]);
+        return response()->json([
+            'status' => true,
+            'institute_id' => $institute->id
+        ]);
     }
 
     public function step2(Request $request)
     {
-        //dd($request->all());
         $request->validate([
             'institute_id' => ['required', 'exists:institutes,id'],
             'category_id' => ['required', 'exists:categories,id'],
             'subcategory_id' => ['nullable'],
             'description' => ['required', 'max:200'],
-            'whatsapp' => ['nullable', 'digits:10', 'regex:/^[6-9]\d{9}$/', 'unique:institutes,whatsapp']
+            'whatsapp' => [
+                'nullable',
+                'digits:10',
+                'regex:/^[6-9]\d{9}$/',
+                Rule::unique('institutes', 'whatsapp')
+                    ->where(function ($query) {
+                        return $query->where('registration_complete', 1);
+                    })
+                    ->ignore($request->institute_id)
+            ],
+            // ✅ ADD THIS
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048']
         ]);
 
-        Institute::where('id', $request->institute_id)->update([
+        $institute = Institute::findOrFail($request->institute_id);
+
+        $data = [
             'category_id' => $request->category_id,
             'subcategory_id' => $request->subcategory_id,
             'description' => $request->description,
             'whatsapp' => $request->whatsapp
+        ];
+
+        // 🔥 LOGO UPLOAD
+        if ($request->hasFile('logo')) {
+
+            // (optional) delete old logo
+            if ($institute->logo && \Storage::disk('public')->exists($institute->logo)) {
+                \Storage::disk('public')->delete($institute->logo);
+            }
+
+            $path = $request->file('logo')->store('logos', 'public');
+
+            $data['logo'] = $path;
+        }
+
+        $institute->update($data);
+
+        return response()->json([
+            'status' => true,
+            'logo' => $institute->logo // optional (for frontend preview)
+        ]);
+    }
+
+    public function step3(Request $request)
+    {
+        $request->validate([
+            'institute_id' => 'required',
+            'plan_id' => 'required'
         ]);
 
-        return response()->json(['status' => true]);
+        $plan = Package::findOrFail($request->plan_id);
+
+        $institutePlan = InstitutePlan::updateOrCreate(
+            ['institute_id' => $request->institute_id],
+            [
+                'plan_id' => $request->plan_id,
+                'price' => $plan->offered_price
+            ]
+        );
+
+        if ($plan->offered_price == 0) {
+            $institutePlan->update([
+                'start_date' => now(),
+                'plan_status' => 'completed',
+                'expiry_date' => now()->addDays(365)
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'plan' => $plan
+        ]);
     }
 
     public function step4(Request $request)
@@ -143,6 +212,7 @@ class InstituteController extends Controller
 
         return response()->json(['status' => true]);
     }
+
     public function profile()
     {
         $institute = Auth::guard('institute')->user();
@@ -557,6 +627,12 @@ class InstituteController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:3|max:80|regex:/^[A-Za-z\s\(\)\.\-&]+$/',
             'owner_name' => 'required|string|max:255',
+            'owner_email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('institutes', 'owner_email')->ignore($institute->id),
+            ],
             'designation' => 'nullable|string|max:255',
             'established_year' => 'nullable|digits:4',
             'registration_number' => 'nullable|string|max:100',
@@ -869,64 +945,52 @@ class InstituteController extends Controller
 
     public function sendOtpRequest(Request $request)
     {
-        $request->validate([
-            'value' => 'required'
-        ]);
-
-
         $type = $request->type;
-        $value = $request->value;
 
-        // 🔥 UNIQUE CHECK
+        // SINGLE VALIDATION BLOCK
+        $rules = ['value' => 'required'];
+
         if ($type == 'email') {
-            $request->validate([
-                'value' => [
-                    'required',
-                    'email',
-                    Rule::unique('institutes', 'owner_email')
-                        ->ignore(Auth::guard('institute')->id())
-                ]
-            ], [
-                'value.unique' => 'This email is already in use.'
-            ]);
+            $rules['value'] = [
+                'required',
+                'email',
+                Rule::unique('institutes', 'owner_email')
+                    ->ignore(Auth::guard('institute')->id())
+            ];
         }
 
-        if ($type == 'mobile') {
-            $request->validate([
-                'value' => [
-                    'required',
-                    'digits:10',
-                    Rule::unique('institutes', 'mobile')
-                        ->ignore(Auth::guard('institute')->id())
-                ]
-            ], [
-                'value.unique' => 'This mobile number already exists.'
-            ]);
+        if (in_array($type, ['mobile', 'whatsapp'])) {
+            $rules['value'] = [
+                'required',
+                'digits:10',
+                Rule::unique('institutes', $type)
+                    ->ignore(Auth::guard('institute')->id())
+            ];
         }
 
-        if ($type == 'whatsapp') {
-            $request->validate([
-                'value' => [
-                    'required',
-                    'digits:10',
-                    Rule::unique('institutes', 'whatsapp')
-                        ->ignore(Auth::guard('institute')->id())
-                ]
-            ], [
-                'value.unique' => 'This mobile number already exists.'
-            ]);
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-
+        // OTP
         $otp = rand(1000, 9999);
 
-        Session::put('otp', $otp);
-        Session::put('update_type', $request->type);
-        Session::put('new_value', $request->value);
-        Session::put('otp_time', now());
+        Session::put([
+            'otp' => $otp,
+            'update_type' => $type,
+            'new_value' => $request->value,
+            'otp_time' => now()
+        ]);
+
         if ($request->type == 'email') {
             Mail::to($request->value)->send(new SendOtpMail($otp));
         } else {
+
             $message = "{$otp} is the One Time Password(OTP) to verify your MOB number at Web Mingo, This OTP is Usable only once and is valid for 10 min,PLS DO NOT SHARE THE OTP WITH ANYONE";
             $dlt_id = '1307161465983326774';
             $pe_id = '1301160576431389865';
@@ -934,7 +998,7 @@ class InstituteController extends Controller
 
             $params = [
                 'authkey' => $authkey,
-                'mobiles' => $request->mobile,
+                'mobiles' => $request->value,
                 'sender' => 'WMINGO',
                 'message' => urlencode($message),
                 'route' => '4',
@@ -954,13 +1018,10 @@ class InstituteController extends Controller
             $output = curl_exec($ch);
             $curl_error = curl_error($ch);
             curl_close($ch);
+
         }
 
-
-        return response()->json([
-            'success' => true,
-            //'otp' => $otp // remove in production
-        ]);
+        return response()->json(['success' => true]);
     }
 
     public function verifyAndUpdate(Request $request)
@@ -968,6 +1029,7 @@ class InstituteController extends Controller
         if ($request->otp != Session::get('otp')) {
             return response()->json(['success' => false, 'message' => 'Invalid OTP']);
         }
+
         if (now()->diffInMinutes(Session::get('otp_time')) > 5) {
             return response()->json([
                 'success' => false,
@@ -980,19 +1042,24 @@ class InstituteController extends Controller
 
         $institute = Auth::guard('institute')->user();
 
-        if ($type == 'mobile')
+        // ✅ SAVE AS PENDING (NOT DIRECT UPDATE)
+        if ($type == 'mobile') {
             $institute->mobile = $value;
-        if ($type == 'whatsapp')
+        }
+
+        if ($type == 'whatsapp') {
             $institute->whatsapp = $value;
-        if ($type == 'email')
+        }
+
+        if ($type == 'email') {
             $institute->owner_email = $value;
+        }
 
         $institute->save();
 
         return response()->json([
             'success' => true,
-            'type' => $type,
-            'value' => $value
+            'message' => 'Update request sent to admin'
         ]);
     }
 

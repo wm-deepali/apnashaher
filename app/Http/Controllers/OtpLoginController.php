@@ -18,10 +18,23 @@ class OtpLoginController extends Controller
         ]);
 
         $user = Institute::where('mobile', $request->mobile)->first();
+
         if (!$user) {
-            return response()->json(['status' => 'not_found', 'message' => 'Mobile number not found']);
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Mobile number not found'
+            ]);
         }
 
+        // ❌ If incomplete → show message
+        if ($user->registration_complete == 0) {
+            return response()->json([
+                'status' => 'incomplete',
+                'message' => 'Please complete your listing first',
+                'redirect' => route('list-your-institute'),
+                'institute_id' => $user->id
+            ]);
+        }
         // Generate OTP
         $otp = rand(100000, 999999);
 
@@ -31,15 +44,15 @@ class OtpLoginController extends Controller
 
         $message = "{$otp} is the One Time Password(OTP) to verify your MOB number at Web Mingo, This OTP is Usable only once and is valid for 10 min,PLS DO NOT SHARE THE OTP WITH ANYONE";
         $dlt_id = '1307161465983326774';
-        $pe_id  = '1301160576431389865';
+        $pe_id = '1301160576431389865';
         $authkey = '133780AWLy8zZpC690b124aP1';
-    
+
         $params = [
             'authkey' => $authkey,
             'mobiles' => $request->mobile,
-            'sender'  => 'WMINGO',
+            'sender' => 'WMINGO',
             'message' => urlencode($message),
-            'route'   => '4',
+            'route' => '4',
             'country' => '91',
             'DLT_TE_ID' => $dlt_id,
             'PE_ID' => $pe_id
@@ -52,14 +65,13 @@ class OtpLoginController extends Controller
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    
+
         $output = curl_exec($ch);
         $curl_error = curl_error($ch);
         curl_close($ch);
         return response()->json([
             'status' => 'success',
             'message' => "OTP sent to +91 {$user->mobile}",
-            'otp' => $otp // demo only
         ]);
     }
 

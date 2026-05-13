@@ -89,6 +89,42 @@
                                 @endif
                             </div>
 
+
+                            {{-- STATE --}}
+<div class="col-md-4 form-group">
+    <label>State</label>
+    <select name="company_state" id="state_id" class="form-control">
+        <option value="">Select State</option>
+        @foreach($states as $state)
+            <option value="{{ $state->id }}"
+                {{ old('company_state', $setting->company_state ?? '') == $state->id ? 'selected' : '' }}>
+                {{ $state->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
+{{-- CITY --}}
+<div class="col-md-4 form-group">
+    <label>City</label>
+    <select name="company_city" id="city_id" class="form-control">
+        <option value="">Select City</option>
+
+        {{-- preload if edit --}}
+        @if(!empty($setting->company_city) && $setting->city)
+            <option value="{{ $setting->city->id }}" selected>
+                {{ $setting->city->name }}
+            </option>
+        @endif
+    </select>
+</div>
+
+                            <div class="col-md-4 form-group">
+                                <label>Pincode</label>
+                                <input type="text" name="company_pincode" class="form-control"
+                                    value="{{ old('company_pincode', $setting->company_pincode ?? '') }}">
+                            </div>
+
                             <div class="col-md-12 form-group">
                                 <label>Full Address *</label>
                                 <textarea name="company_address"
@@ -249,4 +285,30 @@
             }
         }
     });
+</script>
+<script>
+$(document).ready(function () {
+
+    $('#state_id').on('change', function () {
+        let stateId = $(this).val();
+
+        $('#city_id').html('<option>Loading...</option>');
+
+        if (stateId) {
+            $.get('/get-cities/' + stateId, function (data) {
+
+                let options = '<option value="">Select City</option>';
+
+                data.forEach(function (city) {
+                    options += `<option value="${city.id}">${city.name}</option>`;
+                });
+
+                $('#city_id').html(options);
+            });
+        } else {
+            $('#city_id').html('<option value="">Select City</option>');
+        }
+    });
+
+});
 </script>

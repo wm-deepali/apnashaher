@@ -63,11 +63,20 @@ Route::post('/verify-otp', [OtpController::class, 'verifyOtp'])->name('verify-ot
 
 
 Route::get('/institutes/check-mobile', function (Illuminate\Http\Request $request) {
-    return \App\Models\Institute::where('mobile', $request->mobile)->exists();
+
+    $exists = \App\Models\Institute::where('mobile', $request->mobile)
+        ->where('registration_complete', 1) // ✅ only completed
+        ->exists();
+
+    return response()->json($exists ? 1 : 0);
 });
 
 Route::get('/institutes/check-whatsapp', function (Illuminate\Http\Request $request) {
-    $exists = \App\Models\Institute::where('whatsapp', $request->whatsapp)->exists();
+
+    $exists = \App\Models\Institute::where('whatsapp', $request->whatsapp)
+        ->where('registration_complete', 1)
+        ->exists();
+
     return response()->json($exists ? 1 : 0);
 });
 
@@ -75,7 +84,7 @@ Route::get('/institutes/check-whatsapp', function (Illuminate\Http\Request $requ
 // Step forms
 Route::post('/step1-save', [InstituteController::class, 'step1'])->name('step1-save');
 Route::post('/step2-save', [InstituteController::class, 'step2'])->name('step2-save');
-Route::post('/step3-save', [InstitutePlanController::class, 'save'])->name('step3-save');
+Route::post('/step3-save', [InstituteController::class, 'step3'])->name('step3-save');
 Route::post('/step4-save', [InstituteController::class, 'step4'])->name('step4-save');
 
 // Payment
@@ -212,9 +221,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth']], function ()
     Route::resource('manage-faq', FaqController::class)
         ->names('admin.manage-faq');
 
-    Route::get('manage-institute/new-listings', [ManageInstituteController::class, 'newListings'])->name('admin.institute.new.index');
-    Route::get('manage-institute/published-listings', [ManageInstituteController::class, 'publishedListings'])->name('admin.institute.published.index');
-    Route::get('manage-institute/subscriptions', [ManageInstituteController::class, 'subscriptions'])->name('admin.institute.subscriptions.index');
+    Route::prefix('manage-institute')->name('admin.institute.')->group(function () {
+
+        Route::get('/new-listings', [ManageInstituteController::class, 'newListings'])->name('new.index');
+        Route::get('/published-listings', [ManageInstituteController::class, 'publishedListings'])->name('published.index');
+        Route::get('/incomplete', [ManageInstituteController::class, 'incompleteListings'])->name('incomplete.index');
+        Route::get('/subscriptions', [ManageInstituteController::class, 'subscriptions'])->name('subscriptions.index');
+
+    });
+
     Route::resource('manage-institute', ManageInstituteController::class)->names('admin.manage-institute');
     Route::get('/order/{id}', [ManageInstituteController::class, 'orderDetail'])->name('admin.order.detail');
 

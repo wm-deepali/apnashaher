@@ -109,7 +109,7 @@
         <div class="hidden md:flex items-center gap-6 flex-1">
             <!-- Logo + Slogan -->
             <a href="{{route('home')}}" class="logo flex items-center gap-3">
-                <img src="https://apnashaher.com/admin-login-new/public/storage/uploads/all/7z7J6JUAFLAaTf3JffWL7k4qfn1wTlwD1qH4inko.svg"
+                <img src="https://apnashaher.com/7z7J6JUAFLAaTf3JffWL7k4qfn1wTlwD1qH4inko.svg"
                      alt="ApnaShaher" class="h-10" />
                 <p class="text-xs text-gray-600 leading-tight">
                     <i class="fa-solid fa-check"></i> Local institutes 
@@ -211,16 +211,42 @@
     <!-- ================= INSTITUTE INFO HEADER ================= -->
     <div class="bg-white border-b">
         {{-- Verify Email Button --}}
-        @if(!auth()->user('institute')->hasVerifiedEmail())
-            <div class="dashboard-top-verify" style="">
-                <p>Your email ({{ auth()->user('institute')->owner_email }}) is not verified yet.
-                <form method="POST" action="{{ route('institute.verification.send') }}">
-                    @csrf
-                    <button type="submit" style="background:none; border:none; padding:0; color:#007bff; text-decoration:underline; cursor:pointer;">Send Verification Email</button>
-                </form>
-                </p>
-            </div>
-        @endif
+       @if(!auth()->guard('institute')->user()->hasVerifiedEmail() && auth()->guard('institute')->user()->owner_email)
+
+<div style="
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+">
+
+    <div style="font-size: 14px;">
+        ⚠️ Your email <strong>{{ auth()->guard('institute')->user()->owner_email }}</strong> is not verified.
+    </div>
+
+    <form method="POST" action="{{ route('institute.verification.send') }}">
+        @csrf
+        <button type="submit" style="
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+        ">
+            Verify Now
+        </button>
+    </form>
+
+</div>
+
+@endif
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
 
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
